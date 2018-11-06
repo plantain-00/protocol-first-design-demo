@@ -35,6 +35,10 @@ module.exports = {
       revStaticCommand
     ]
   },
+  schema: [
+    'types-as-schema src/data.ts --graphql src/data.gql',
+    'file2variable-cli --config file2variable.config.js'
+  ],
   lint: {
     ts: `tslint ${tsFiles}`,
     js: `standard ${jsFiles}`,

@@ -9,7 +9,7 @@ module.exports = {
   revisedFiles: [
   ],
   inlinedFiles: [
-    'static/*.bundle.js',
+    'static/index.bundle.js',
     'static/*.bundle.css'
   ],
   outputFiles: file => file.replace('.ejs', ''),
