@@ -15,5 +15,5 @@ git clone https://github.com/plantain-00/graphql-demo-release.git . --depth=1 &&
 ## docker
 
 ```bash
-docker run -d -p 8000:8000 plantain-00/graphql-demo
+docker run -d -p 6767:6767 plantain-00/graphql-demo
 ```

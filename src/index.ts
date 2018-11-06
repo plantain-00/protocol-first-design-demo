@@ -1,9 +1,8 @@
 import express = require('express')
-import graphqlHTTP = require('express-graphql')
-import { buildSchema } from 'graphql'
+import path = require('path')
 
-import { Query } from './data'
-import { srcDataGql } from './variables'
+import { startRestfulApi } from './restful-api'
+import { startGraphqlApi } from './graphql-api'
 
 function printInConsole(message: any) {
   console.log(message)
@@ -11,27 +10,12 @@ function printInConsole(message: any) {
 
 const app = express()
 
-const root = {
-  blogs: Query.blogs,
-  blog: Query.blog
-}
+startGraphqlApi(app)
+startRestfulApi(app)
 
-app.use('/graphql', graphqlHTTP({
-  schema: buildSchema(srcDataGql),
-  rootValue: root,
-  graphiql: true
-}))
+app.use(express.static(path.resolve(__dirname, '../static')))
 
-app.get('/api/blogs', (_req, res) => {
-  res.json(Query.blogs())
-})
-
-app.get('/api/blogs/:id', (req, res) => {
-  const id = +req.params.id
-  res.json(Query.blog(id))
-})
-
-app.listen(8000, () => {
+app.listen(6767, () => {
   printInConsole('app started!')
 })
 
