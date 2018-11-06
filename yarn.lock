@@ -7223,10 +7223,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-types-as-schema@1.19.0:
-  version "1.19.0"
-  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.19.0.tgz#71a2d5ad53bc09d716c1917e18b6b24b5259213c"
-  integrity sha512-FE1PI/afwXms6sKzvSfQTn+Hv0g93lT6pUBVkPVzPER3ssS4gpJxYEd/JUarZNIqIRGmc7tlBXEg7qxRA4DwRA==
+types-as-schema@1.19.1:
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.19.1.tgz#cf621597325eed8ee01ea48bb32474806f613d0b"
+  integrity sha512-PxUcFniR9P9pR0MbPYthp0F5zxvr97Y05rn+yFvJdnmHEtI/4BlFNqzkA1o29Awd21sCqeUo72f6I6cBrGsx/Q==
   dependencies:
     ajv "6.5.4"
     chokidar "2.0.4"
@@ -7235,17 +7235,12 @@ types-as-schema@1.19.0:
     minimist "1.2.0"
     protobufjs "6.8.8"
     tslib "1.9.3"
-    typescript "3.1.1"
+    typescript "3.1.6"
 
 typescript@3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.0.1.tgz#43738f29585d3a87575520a4b93ab6026ef11fdb"
   integrity sha512-zQIMOmC+372pC/CCVLqnQ0zSBiY7HHodU7mpQdjiZddek4GMj31I3dUJ7gAs9o65X7mnRma6OokOkc6f9jjfBg==
-
-typescript@3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.1.1.tgz#3362ba9dd1e482ebb2355b02dfe8bcd19a2c7c96"
-  integrity sha512-Veu0w4dTc/9wlWNf2jeRInNodKlcdLgemvPsrNpfu5Pq39sgfFjvIIgTsvUHCoLBnMhPoUA+tFxsXjU6VexVRQ==
 
 typescript@3.1.6:
   version "3.1.6"

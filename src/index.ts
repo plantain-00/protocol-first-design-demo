@@ -2,7 +2,7 @@ import express = require('express')
 import graphqlHTTP = require('express-graphql')
 import { buildSchema } from 'graphql'
 
-import { blogs } from './data'
+import { Query } from './data'
 import { srcDataGql } from './variables'
 
 function printInConsole(message: any) {
@@ -12,13 +12,8 @@ function printInConsole(message: any) {
 const app = express()
 
 const root = {
-  blogs: () => {
-    return { blogs }
-  },
-  blog: (id: number) => {
-    const blog = blogs.find((b) => b.id === id)
-    return { blog }
-  }
+  blogs: Query.blogs,
+  blog: Query.blog
 }
 
 app.use('/graphql', graphqlHTTP({
@@ -28,13 +23,12 @@ app.use('/graphql', graphqlHTTP({
 }))
 
 app.get('/api/blogs', (_req, res) => {
-  res.json({ blogs })
+  res.json(Query.blogs())
 })
 
 app.get('/api/blogs/:id', (req, res) => {
   const id = +req.params.id
-  const blog = blogs.find((b) => b.id === id)
-  res.json({ blog })
+  res.json(Query.blog(id))
 })
 
 app.listen(8000, () => {

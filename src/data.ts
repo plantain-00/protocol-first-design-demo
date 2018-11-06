@@ -60,21 +60,26 @@ export interface Post {
 /**
  * @public
  */
-export interface Query {
-  blogs: BlogsResult
-  blog(id: number): BlogResult
+export class Query {
+  static blogs(): BlogsResult {
+    return { result: blogs }
+  }
+  static blog(id: number): BlogResult {
+    const blog = blogs.find((b) => b.id === id)
+    return { result: blog }
+  }
 }
 
 /**
  * @public
  */
 export interface BlogsResult {
-  blogs: Blog[]
+  result: Blog[]
 }
 
 /**
  * @public
  */
 export interface BlogResult {
-  blog?: Blog
+  result?: Blog
 }

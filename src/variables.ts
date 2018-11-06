@@ -21,11 +21,11 @@ type Query {
 }
 
 type BlogsResult {
-  blogs: [Blog]!
+  result: [Blog]!
 }
 
 type BlogResult {
-  blog: Blog
+  result: Blog
 }
 `
 // tslint:enable
