@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import { indexTemplateHtml, indexTemplateHtmlStatic } from './variables'
-import { Blog } from '../src/data'
+import { BlogsResult } from '../src/data'
 
-fetch('/api/blogs').then((res) => res.json()).then((data: { result: Blog[] }) => {
+fetch('/api/blogs').then((res) => res.json()).then((data: BlogsResult) => {
   console.info(data.result)
 })
 
@@ -28,7 +28,7 @@ fetch('/graphql', {
     }`,
     variables: {}
   })
-}).then((res) => res.json()).then((data: { data: { blogs: { result: Blog[] } } }) => {
+}).then((res) => res.json()).then((data: { data: { blogs: BlogsResult } }) => {
   console.info(data.data.blogs.result)
 })
 
