@@ -1,0 +1,12 @@
+query Blogs {
+  blogs {
+    result {
+      id
+      content
+      posts {
+        id
+        content
+      }
+    }
+  }
+}

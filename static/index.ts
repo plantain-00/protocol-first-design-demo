@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import { indexTemplateHtml, indexTemplateHtmlStatic } from './variables'
+import { indexTemplateHtml, indexTemplateHtmlStatic, gqlBlogsGql, gqlBlogGql } from './variables'
 import { BlogsResult, BlogResult } from '../src/data'
 
 fetch('/api/blogs').then((res) => res.json()).then((data: BlogsResult) => {
@@ -27,31 +27,9 @@ function fetchGraphql<T>(query: any, variables: any = {}) {
   })
 }
 
-fetchGraphql<{ blogs: BlogsResult }>(`query Blogs {
-  blogs {
-    result {
-      id
-      content
-      posts {
-        id
-        content
-      }
-    }
-  }
-}`, {}).then((data) => { console.info(data.blogs.result) })
+fetchGraphql<{ blogs: BlogsResult }>(gqlBlogsGql, {}).then((data) => { console.info(data.blogs.result) })
 
-fetchGraphql<{ blog: BlogResult }>(`query Blog($id: Float!) {
-  blog(id: $id) {
-    result {
-      id
-      content
-      posts {
-        id
-        content
-      }
-    }
-  }
-}`, { id: 1 }).then((data) => { console.info(data.blog.result) })
+fetchGraphql<{ blog: BlogResult }>(gqlBlogGql, { id: 1 }).then((data) => { console.info(data.blog.result) })
 
 @Component({
   render: indexTemplateHtml,

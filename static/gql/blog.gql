@@ -1,0 +1,12 @@
+query Blog($id: Float!) {
+  blog(id: $id) {
+    result {
+      id
+      content
+      posts {
+        id
+        content
+      }
+    }
+  }
+}

@@ -5,6 +5,32 @@
 // tslint:disable
 import { App } from "./index"
 
+export const gqlBlogGql = `query Blog(\$id: Float!) {
+  blog(id: \$id) {
+    result {
+      id
+      content
+      posts {
+        id
+        content
+      }
+    }
+  }
+}
+`
+export const gqlBlogsGql = `query Blogs {
+  blogs {
+    result {
+      id
+      content
+      posts {
+        id
+        content
+      }
+    }
+  }
+}
+`
 // @ts-ignore
 export function indexTemplateHtml(this: App) {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div')}
 // @ts-ignore
