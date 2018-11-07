@@ -8,7 +8,9 @@ import { srcDataGql } from './variables'
 export function startGraphqlApi(app: express.Application) {
   const root = {
     blogs: Query.blogs,
-    blog: Query.blog
+    blog: (data: { id: number }) => {
+      return Query.blog(data.id)
+    }
   }
 
   app.use('/graphql', graphqlHTTP({

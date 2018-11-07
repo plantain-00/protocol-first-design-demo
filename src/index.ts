@@ -15,8 +15,9 @@ startRestfulApi(app)
 
 app.use(express.static(path.resolve(__dirname, '../static')))
 
+const port = 6767
 app.listen(6767, () => {
-  printInConsole('app started!')
+  printInConsole(`app started! http://localhost:${port}`)
 })
 
 process.on('SIGINT', () => {

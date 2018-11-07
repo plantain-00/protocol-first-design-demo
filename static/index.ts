@@ -1,9 +1,13 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import { indexTemplateHtml, indexTemplateHtmlStatic } from './variables'
-import { BlogsResult } from '../src/data'
+import { BlogsResult, BlogResult } from '../src/data'
 
 fetch('/api/blogs').then((res) => res.json()).then((data: BlogsResult) => {
+  console.info(data.result)
+})
+
+fetch('/api/blogs/1').then((res) => res.json()).then((data: BlogResult) => {
   console.info(data.result)
 })
 
@@ -30,6 +34,33 @@ fetch('/graphql', {
   })
 }).then((res) => res.json()).then((data: { data: { blogs: BlogsResult } }) => {
   console.info(data.data.blogs.result)
+})
+
+fetch('/graphql', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  body: JSON.stringify({
+    query: `query Blog($id: Float!) {
+      blog(id: $id) {
+        result {
+          id
+          content
+          posts {
+            id
+            content
+          }
+        }
+      }
+    }`,
+    variables: {
+      id: 1
+    }
+  })
+}).then((res) => res.json()).then((data: { data: { blog: BlogResult } }) => {
+  console.info(data.data.blog.result)
 })
 
 @Component({
