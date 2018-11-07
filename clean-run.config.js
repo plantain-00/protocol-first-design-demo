@@ -1,6 +1,6 @@
 module.exports = {
   include: [
-    'dist/*.js',
+    'dist/**/*.js',
     'package.json',
     'yarn.lock'
   ],
