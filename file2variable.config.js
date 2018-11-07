@@ -9,5 +9,5 @@ module.exports = {
   handler: file => {
     return { type: 'text' }
   },
-  out: 'src/variables.ts'
+  out: 'src/generated/variables.ts'
 }

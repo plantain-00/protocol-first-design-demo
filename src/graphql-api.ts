@@ -3,7 +3,7 @@ import graphqlHTTP = require('express-graphql')
 import { buildSchema } from 'graphql'
 
 import { Query } from './data'
-import { srcDataGql } from './variables'
+import { srcDataGql } from './generated/variables'
 
 export function startGraphqlApi(app: express.Application) {
   const root = {

@@ -36,7 +36,7 @@ module.exports = {
     ]
   },
   schema: [
-    'types-as-schema src/data.ts --graphql src/data.gql',
+    'types-as-schema src/data.ts --graphql src/generated/data.gql',
     'file2variable-cli --config file2variable.config.js'
   ],
   lint: {
