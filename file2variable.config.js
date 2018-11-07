@@ -1,7 +1,7 @@
 module.exports = {
   base: 'static',
   files: [
-    'src/data.gql'
+    'src/generated/data.gql'
   ],
   /**
    * @argument {string} file

@@ -1,18 +1,10 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import { indexTemplateHtml, indexTemplateHtmlStatic, gqlBlogsGql, gqlBlogGql } from './variables'
-import { BlogsResult, BlogResult } from '../src/data'
+import { indexTemplateHtml, indexTemplateHtmlStatic, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
+import { BlogsResult, BlogResult, CreateBlogResult } from '../src/data'
 
-fetch('/api/blogs').then((res) => res.json()).then((data: BlogsResult) => {
-  console.info(data.result)
-})
-
-fetch('/api/blogs/1').then((res) => res.json()).then((data: BlogResult) => {
-  console.info(data.result)
-})
-
-function fetchGraphql<T>(query: any, variables: any = {}) {
-  return fetch('/graphql', {
+async function fetchGraphql<T>(query: any, variables: any = {}) {
+  const res = await fetch('/graphql', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -22,14 +14,30 @@ function fetchGraphql<T>(query: any, variables: any = {}) {
       query,
       variables
     })
-  }).then((res) => res.json()).then((data: { data: T }) => {
-    return data.data
   })
+  const data = await res.json()
+  return data.data as T
 }
 
-fetchGraphql<{ blogs: BlogsResult }>(gqlBlogsGql, {}).then((data) => { console.info(data.blogs.result) })
+(async() => {
+  const blogsResult: BlogsResult = await fetch('/api/blogs').then((res) => res.json())
+  console.info('rest blogs', blogsResult.result)
 
-fetchGraphql<{ blog: BlogResult }>(gqlBlogGql, { id: 1 }).then((data) => { console.info(data.blog.result) })
+  const blogResult: BlogResult = await fetch('/api/blogs/1').then((res) => res.json())
+  console.info('rest blog', blogResult.result)
+
+  const createBlogResult: CreateBlogResult = await fetch('/api/blogs?content=test', { method: 'POST' }).then((res) => res.json())
+  console.info('rest create blog', createBlogResult.result)
+
+  const graphqlBlogsResult = await fetchGraphql<{ blogs: BlogsResult }>(gqlBlogsGql, {})
+  console.info('graphql blogs', graphqlBlogsResult.blogs.result)
+
+  const graphqlBlogResult = await fetchGraphql<{ blog: BlogResult }>(gqlBlogGql, { id: 1 })
+  console.info('graphql blog', graphqlBlogResult.blog.result)
+
+  const graphqlCreateBlogResult = await fetchGraphql<{ createBlog: CreateBlogResult }>(gqlCreateBlogGql, { content: 'test' })
+  console.info('graphql create blog', graphqlCreateBlogResult.createBlog.result)
+})()
 
 @Component({
   render: indexTemplateHtml,

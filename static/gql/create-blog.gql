@@ -1,0 +1,12 @@
+mutation CreateBlog($content: String!) {
+  createBlog(content: $content) {
+    result {
+      id
+      content
+      posts {
+        id
+        content
+      }
+    }
+  }
+}

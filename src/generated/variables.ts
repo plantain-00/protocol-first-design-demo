@@ -4,7 +4,7 @@
  */
 // tslint:disable
 
-export const srcDataGql = `type Blog {
+export const srcGeneratedDataGql = `type Blog {
   id: Int!
   content: String!
   posts: [Post]!
@@ -20,12 +20,26 @@ type Query {
   blog(id: Int!): BlogResult!
 }
 
+type Mutation {
+  createBlog(content: String!): CreateBlogResult!
+}
+
+type Root {
+  blogs: BlogsResult!
+  blog: BlogResult!
+  createBlog: CreateBlogResult!
+}
+
 type BlogsResult {
   result: [Blog]!
 }
 
 type BlogResult {
   result: Blog
+}
+
+type CreateBlogResult {
+  result: Blog!
 }
 `
 // tslint:enable

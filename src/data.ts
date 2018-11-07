@@ -73,10 +73,33 @@ export class Query {
   }
 }
 
+export class Mutation {
+  static createBlog(content: string): CreateBlogResult {
+    const blog = {
+      id: 3,
+      content
+    }
+    blogs.push(blog)
+    return {
+      result: { ...blog, posts: () => resolvePosts(blog.id) }
+    }
+  }
+}
+
+export interface Root {
+  blogs(): BlogsResult
+  blog(input: { id: integer }): BlogResult
+  createBlog(input: { content: string }): CreateBlogResult
+}
+
 export interface BlogsResult {
   result: Blog[]
 }
 
 export interface BlogResult {
   result?: Blog
+}
+
+export interface CreateBlogResult {
+  result: Blog
 }
