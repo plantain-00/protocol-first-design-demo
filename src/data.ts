@@ -44,16 +44,10 @@ const posts = [
 
 type integer = number
 
-class Blog {
-  constructor(blog: { id: integer, content: string }) {
-    this.id = blog.id
-    this.content = blog.content
-  }
+interface Blog {
   id: integer
   content: string
-  posts(): Post[] {
-    return posts.filter((p) => p.blogId === this.id)
-  }
+  posts(): Post[]
 }
 
 interface Post {
@@ -61,16 +55,20 @@ interface Post {
   content: string
 }
 
+function resolvePosts(id: integer): Post[] {
+  return posts.filter((p) => p.blogId === id)
+}
+
 export class Query {
   static blogs(): BlogsResult {
     return {
-      result: blogs.map((b) => new Blog(b))
+      result: blogs.map((blog) => ({ ...blog, posts: () => resolvePosts(blog.id) }))
     }
   }
   static blog(id: integer): BlogResult {
     const blog = blogs.find((b) => b.id === id)
     return {
-      result: blog ? new Blog(blog) : undefined
+      result: blog ? { ...blog, posts: () => resolvePosts(blog.id) } : undefined
     }
   }
 }
