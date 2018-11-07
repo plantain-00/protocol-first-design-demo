@@ -1,87 +1,84 @@
-/**
- * @public
- */
-export const blogs: Blog[] = [
+const blogs = [
   {
     id: 1,
-    content: 'blog 1 content',
-    posts: [
-      {
-        id: 11,
-        content: 'post 11 content'
-      },
-      {
-        id: 12,
-        content: 'post 12 content'
-      },
-      {
-        id: 13,
-        content: 'post 13 content'
-      }
-    ]
+    content: 'blog 1 content'
   },
   {
     id: 2,
-    content: 'blog 2 content',
-    posts: [
-      {
-        id: 21,
-        content: 'post 21 content'
-      },
-      {
-        id: 22,
-        content: 'post 22 content'
-      },
-      {
-        id: 23,
-        content: 'post 23 content'
-      }
-    ]
+    content: 'blog 2 content'
+  }
+]
+
+const posts = [
+  {
+    id: 11,
+    content: 'post 11 content',
+    blogId: 1
+  },
+  {
+    id: 12,
+    content: 'post 12 content',
+    blogId: 1
+  },
+  {
+    id: 13,
+    content: 'post 13 content',
+    blogId: 1
+  },
+  {
+    id: 21,
+    content: 'post 21 content',
+    blogId: 2
+  },
+  {
+    id: 22,
+    content: 'post 22 content',
+    blogId: 2
+  },
+  {
+    id: 23,
+    content: 'post 23 content',
+    blogId: 2
   }
 ]
 
 type integer = number
 
-/**
- * @public
- */
-export interface Blog {
+class Blog {
+  constructor(blog: { id: integer, content: string }) {
+    this.id = blog.id
+    this.content = blog.content
+  }
   id: integer
   content: string
-  posts: Post[]
+  posts(): Post[] {
+    return posts.filter((p) => p.blogId === this.id)
+  }
 }
 
-/**
- * @public
- */
-export interface Post {
+interface Post {
   id: integer
   content: string
 }
 
-/**
- * @public
- */
 export class Query {
   static blogs(): BlogsResult {
-    return { result: blogs }
+    return {
+      result: blogs.map((b) => new Blog(b))
+    }
   }
   static blog(id: integer): BlogResult {
     const blog = blogs.find((b) => b.id === id)
-    return { result: blog }
+    return {
+      result: blog ? new Blog(blog) : undefined
+    }
   }
 }
 
-/**
- * @public
- */
 export interface BlogsResult {
   result: Blog[]
 }
 
-/**
- * @public
- */
 export interface BlogResult {
   result?: Blog
 }

@@ -64,7 +64,7 @@
     "prerender": "clean-scripts prerender"
   },
   "typeCoverage": {
-    "atLeast": 95
+    "atLeast": 96
   },
   "dependencies": {
     "express": "4.16.4",
