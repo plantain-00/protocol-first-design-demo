@@ -11,57 +11,47 @@ fetch('/api/blogs/1').then((res) => res.json()).then((data: BlogResult) => {
   console.info(data.result)
 })
 
-fetch('/graphql', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  },
-  body: JSON.stringify({
-    query: `query Blogs {
-      blogs {
-        result {
-          id
-          content
-          posts {
-            id
-            content
-          }
-        }
-      }
-    }`,
-    variables: {}
+function fetchGraphql<T>(query: any, variables: any = {}) {
+  return fetch('/graphql', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+      query,
+      variables
+    })
+  }).then((res) => res.json()).then((data: { data: T }) => {
+    return data.data
   })
-}).then((res) => res.json()).then((data: { data: { blogs: BlogsResult } }) => {
-  console.info(data.data.blogs.result)
-})
+}
 
-fetch('/graphql', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  },
-  body: JSON.stringify({
-    query: `query Blog($id: Float!) {
-      blog(id: $id) {
-        result {
-          id
-          content
-          posts {
-            id
-            content
-          }
-        }
+fetchGraphql<{ blogs: BlogsResult }>(`query Blogs {
+  blogs {
+    result {
+      id
+      content
+      posts {
+        id
+        content
       }
-    }`,
-    variables: {
-      id: 1
     }
-  })
-}).then((res) => res.json()).then((data: { data: { blog: BlogResult } }) => {
-  console.info(data.data.blog.result)
-})
+  }
+}`, {}).then((data) => { console.info(data.blogs.result) })
+
+fetchGraphql<{ blog: BlogResult }>(`query Blog($id: Float!) {
+  blog(id: $id) {
+    result {
+      id
+      content
+      posts {
+        id
+        content
+      }
+    }
+  }
+}`, { id: 1 }).then((data) => { console.info(data.blog.result) })
 
 @Component({
   render: indexTemplateHtml,
