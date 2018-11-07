@@ -5,19 +5,19 @@
 // tslint:disable
 
 export const srcDataGql = `type Blog {
-  id: Float!
+  id: Int!
   content: String!
   posts: [Post]!
 }
 
 type Post {
-  id: Float!
+  id: Int!
   content: String!
 }
 
 type Query {
   blogs: BlogsResult!
-  blog(id: Float!): BlogResult!
+  blog(id: Int!): BlogResult!
 }
 
 type BlogsResult {

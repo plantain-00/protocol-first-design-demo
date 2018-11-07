@@ -40,11 +40,13 @@ export const blogs: Blog[] = [
   }
 ]
 
+type integer = number
+
 /**
  * @public
  */
 export interface Blog {
-  id: number
+  id: integer
   content: string
   posts: Post[]
 }
@@ -53,7 +55,7 @@ export interface Blog {
  * @public
  */
 export interface Post {
-  id: number
+  id: integer
   content: string
 }
 
@@ -64,7 +66,7 @@ export class Query {
   static blogs(): BlogsResult {
     return { result: blogs }
   }
-  static blog(id: number): BlogResult {
+  static blog(id: integer): BlogResult {
     const blog = blogs.find((b) => b.id === id)
     return { result: blog }
   }

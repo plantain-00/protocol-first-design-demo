@@ -1,4 +1,4 @@
-query Blog($id: Float!) {
+query Blog($id: Int!) {
   blog(id: $id) {
     result {
       id

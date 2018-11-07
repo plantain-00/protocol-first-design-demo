@@ -5,7 +5,7 @@
 // tslint:disable
 import { App } from "./index"
 
-export const gqlBlogGql = `query Blog(\$id: Float!) {
+export const gqlBlogGql = `query Blog(\$id: Int!) {
   blog(id: \$id) {
     result {
       id
