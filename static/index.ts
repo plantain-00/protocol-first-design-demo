@@ -3,7 +3,7 @@ import Component from 'vue-class-component'
 import { indexTemplateHtml, indexTemplateHtmlStatic, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
 import { BlogsResult, BlogResult, CreateBlogResult } from '../src/data'
 
-async function fetchGraphql<T>(query: any, variables: any = {}) {
+async function fetchGraphql<T>(query: string, variables = {}) {
   const res = await fetch('/graphql', {
     method: 'POST',
     headers: {

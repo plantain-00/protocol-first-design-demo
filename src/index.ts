@@ -4,7 +4,7 @@ import path = require('path')
 import { startRestfulApi } from './restful-api'
 import { startGraphqlApi } from './graphql-api'
 
-function printInConsole(message: any) {
+function printInConsole(message: string) {
   console.log(message)
 }
 

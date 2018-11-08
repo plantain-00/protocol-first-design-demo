@@ -86,12 +86,6 @@ export class Mutation {
   }
 }
 
-export interface Root {
-  blogs(): BlogsResult
-  blog(input: { id: integer }): BlogResult
-  createBlog(input: { content: string }): CreateBlogResult
-}
-
 export interface BlogsResult {
   result: Blog[]
 }
