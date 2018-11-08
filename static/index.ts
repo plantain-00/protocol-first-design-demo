@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import { indexTemplateHtml, indexTemplateHtmlStatic, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
-import { BlogsResult, BlogResult, CreateBlogResult, ResolveResult } from '../src/data'
+import { BlogsResult, BlogResult, CreateBlogResult } from '../src/data'
+import { ResolveResult } from '../src/generated/root'
 
-async function fetchGraphql<T>(query: string, variables = {}) {
+async function fetchGraphql(query: string, variables = {}) {
   const res = await fetch('/graphql', {
     method: 'POST',
     headers: {
@@ -16,7 +17,7 @@ async function fetchGraphql<T>(query: string, variables = {}) {
     })
   })
   const data = await res.json()
-  return data.data as T
+  return data.data as ResolveResult
 }
 
 (async() => {
@@ -29,13 +30,13 @@ async function fetchGraphql<T>(query: string, variables = {}) {
   const createBlogResult: CreateBlogResult = await fetch('/api/blogs?content=test', { method: 'POST' }).then((res) => res.json())
   console.info('rest create blog', createBlogResult.result)
 
-  const graphqlBlogsResult = await fetchGraphql<ResolveResult>(gqlBlogsGql, {})
+  const graphqlBlogsResult = await fetchGraphql(gqlBlogsGql, {})
   console.info('graphql blogs', graphqlBlogsResult.blogs.result)
 
-  const graphqlBlogResult = await fetchGraphql<ResolveResult>(gqlBlogGql, { id: 1 })
+  const graphqlBlogResult = await fetchGraphql(gqlBlogGql, { id: 1 })
   console.info('graphql blog', graphqlBlogResult.blog.result)
 
-  const graphqlCreateBlogResult = await fetchGraphql<ResolveResult>(gqlCreateBlogGql, { content: 'test' })
+  const graphqlCreateBlogResult = await fetchGraphql(gqlCreateBlogGql, { content: 'test' })
   console.info('graphql create blog', graphqlCreateBlogResult.createBlog.result)
 })()
 

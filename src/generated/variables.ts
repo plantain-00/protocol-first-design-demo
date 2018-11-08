@@ -35,11 +35,5 @@ type BlogResult {
 type CreateBlogResult {
   result: Blog!
 }
-
-type ResolveResult {
-  blogs: BlogsResult!
-  blog: BlogResult!
-  createBlog: CreateBlogResult!
-}
 `
 // tslint:enable

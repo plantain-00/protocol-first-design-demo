@@ -7223,10 +7223,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-types-as-schema@1.20.0:
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.20.0.tgz#2b1f9ba8689d488de4a273dc8ace0ed8b03f9c10"
-  integrity sha512-ExQRexf5SPtbhPXQPtia2v9fy2A0O0Um/1FXSJ8dhI0/YDuQDjrtbeqtiKvzvSCEYNXKAEWQpefyIv9lOEWWIw==
+types-as-schema@1.21.0:
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.21.0.tgz#127d544d83022279fa858a48945e4c0ffd48c9a9"
+  integrity sha512-l2OLrjPPXemtcTN2fORZE8alaR2ggud1gYJcddSXzhJ9rbPRqh6HVtUidW2eWZyHUMC6b41vnRiBTab6+0HP2w==
   dependencies:
     ajv "6.5.4"
     chokidar "2.0.4"
