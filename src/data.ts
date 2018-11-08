@@ -97,3 +97,9 @@ export interface BlogResult {
 export interface CreateBlogResult {
   result: Blog
 }
+
+export interface ResolveResult {
+  blogs: BlogsResult
+  blog: BlogResult
+  createBlog: CreateBlogResult
+}
