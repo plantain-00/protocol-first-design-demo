@@ -15,6 +15,8 @@ const cssCommand = [
   'postcss static/index.css -o static/index.postcss.css',
   'cleancss -o static/index.bundle.css static/index.postcss.css ./node_modules/github-fork-ribbon-css/gh-fork-ribbon.css'
 ]
+const schemaCommand = 'types-as-schema src/data.ts --graphql src/generated/data.gql --graphql-root-type src/generated/root.ts'
+const graphqlSchemaVariableCommand = 'file2variable-cli --config file2variable.config.js'
 
 module.exports = {
   build: {
@@ -70,7 +72,9 @@ module.exports = {
     template: `${file2variableCommand} --watch`,
     webpack: `${webpackCommand} --watch`,
     less: () => watch(['static/**/*.less'], [], () => executeScriptAsync(cssCommand)),
-    rev: `${revStaticCommand} --watch`
+    rev: `${revStaticCommand} --watch`,
+    schema: `${schemaCommand} --watch`,
+    graphqlSchemaVariable: `${graphqlSchemaVariableCommand} --watch`
   },
   screenshot: [
     new Service('node ./dist/index.js'),
