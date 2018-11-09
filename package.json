@@ -14,6 +14,7 @@
     "@types/jasmine": "2.8.11",
     "@types/node": "10.12.2",
     "@types/puppeteer": "1.9.1",
+    "@types/ws": "6.0.1",
     "autoprefixer": "9.3.1",
     "clean-css-cli": "4.2.1",
     "clean-release": "2.7.0",
@@ -69,6 +70,7 @@
   "dependencies": {
     "express": "4.16.4",
     "express-graphql": "0.7.1",
-    "graphql": "14.0.2"
+    "graphql": "14.0.2",
+    "ws": "6.1.0"
   }
 }

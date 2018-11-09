@@ -38,6 +38,11 @@ async function fetchGraphql(query: string, variables = {}) {
 
   const graphqlCreateBlogResult = await fetchGraphql(gqlCreateBlogGql, { content: 'test' })
   console.info('graphql create blog', graphqlCreateBlogResult.createBlog.result)
+
+  const ws = new WebSocket(`ws://${location.host}`)
+  ws.onopen = () => {
+    ws.send('hello world!')
+  }
 })()
 
 @Component({
