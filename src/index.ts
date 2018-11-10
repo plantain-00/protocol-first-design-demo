@@ -4,6 +4,7 @@ import path = require('path')
 import { startRestfulApi } from './restful-api'
 import { startGraphqlApi } from './graphql-api'
 import { startWsApi } from './ws-api'
+import { auth } from './auth'
 
 function printInConsole(message: string) {
   console.log(message)
@@ -11,11 +12,21 @@ function printInConsole(message: string) {
 
 const app = express()
 
+app.use(express.static(path.resolve(__dirname, '../static')))
+
+app.use((req, res, next) => {
+  const user = auth(req.headers.cookie)
+  if (user) {
+    (req as Request).user = user
+    next()
+  } else {
+    res.status(403).end()
+  }
+})
+
 startGraphqlApi(app)
 startRestfulApi(app)
 const server = startWsApi(app)
-
-app.use(express.static(path.resolve(__dirname, '../static')))
 
 const port = 6767
 server.listen(port, () => {
@@ -29,3 +40,7 @@ process.on('SIGINT', () => {
 process.on('SIGTERM', () => {
   process.exit()
 })
+
+interface Request extends express.Request {
+  user: string
+}
