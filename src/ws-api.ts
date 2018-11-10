@@ -1,14 +1,14 @@
 import * as express from 'express'
 import * as http from 'http'
 import * as WebSocket from 'ws'
-import { auth } from './auth'
+import { verify } from './auth'
 
 export function startWsApi(app: express.Application) {
   const server = http.createServer()
   const wss = new WebSocket.Server({ server })
 
   wss.on('connection', (ws, req) => {
-    const user = auth(req.headers.cookie)
+    const user = verify(req.headers.cookie)
     if (!user) {
       ws.close()
       return

@@ -4,7 +4,7 @@ import path = require('path')
 import { startRestfulApi } from './restful-api'
 import { startGraphqlApi } from './graphql-api'
 import { startWsApi } from './ws-api'
-import { auth } from './auth'
+import { verify } from './auth'
 
 function printInConsole(message: string) {
   console.log(message)
@@ -14,10 +14,10 @@ const app = express()
 
 app.use(express.static(path.resolve(__dirname, '../static')))
 
-app.use((req, res, next) => {
-  const user = auth(req.headers.cookie)
+app.use((req: Request, res, next) => {
+  const user = verify(req.headers.cookie)
   if (user) {
-    (req as Request).user = user
+    req.user = user
     next()
   } else {
     res.status(403).end()
@@ -42,5 +42,5 @@ process.on('SIGTERM', () => {
 })
 
 export interface Request extends express.Request {
-  user: string
+  user?: string
 }
