@@ -5,6 +5,7 @@ import { buildSchema } from 'graphql'
 import { Query, Mutation } from './data'
 import { srcGeneratedDataGql } from './generated/variables'
 import { Root } from './generated/root'
+import { Request } from '.'
 
 export function startGraphqlApi(app: express.Application) {
   const root: Root = {
@@ -12,7 +13,8 @@ export function startGraphqlApi(app: express.Application) {
     blog: ({ id }) => {
       return Query.blog(id)
     },
-    createBlog: ({ content }) => {
+    createBlog: ({ content }, req: Request) => {
+      console.info(req.user)
       return Mutation.createBlog(content)
     }
   }

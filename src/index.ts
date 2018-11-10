@@ -41,6 +41,6 @@ process.on('SIGTERM', () => {
   process.exit()
 })
 
-interface Request extends express.Request {
+export interface Request extends express.Request {
   user: string
 }
