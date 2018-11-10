@@ -9,16 +9,16 @@ import { authorized } from './auth'
 
 export function startGraphqlApi(app: express.Application) {
   const root: Root = {
-    blogs: (_, req) => {
-      authorized(req, 'blog')
+    blogs: async(_, req) => {
+      await authorized(req, 'blog')
       return Query.blogs()
     },
-    blog: ({ id }, req) => {
-      authorized(req, 'blog')
+    blog: async({ id }, req) => {
+      await authorized(req, 'blog')
       return Query.blog(id)
     },
-    createBlog: ({ content }, req) => {
-      authorized(req, 'blog')
+    createBlog: async({ content }, req) => {
+      await authorized(req, 'blog')
       return Mutation.createBlog(content)
     }
   }

@@ -1,4 +1,5 @@
 import * as cookie from 'cookie'
+import * as express from 'express'
 import { Request } from '.'
 
 export function verify(cookieString: string | string[] | undefined) {
@@ -9,9 +10,13 @@ export function verify(cookieString: string | string[] | undefined) {
   return ''
 }
 
-export function authorized(req: Request, _resourceName: string) {
+export async function authorized(req: Request, _resourceName: string, res?: express.Response) {
   if (req.user === 'admin') {
     return
   }
-  throw new Error('not permitted')
+  if (res) {
+    res.status(403).end()
+  } else {
+    throw new Error('not permitted')
+  }
 }
