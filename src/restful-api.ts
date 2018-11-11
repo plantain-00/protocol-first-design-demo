@@ -6,7 +6,7 @@ import { authorized } from './auth'
 export function startRestfulApi(app: express.Application) {
   app.get('/api/blogs', (req, res) => {
     authorized(req, 'blog').then(() => {
-      res.json(Query.blogs())
+      res.json(Query.blogs({ skip: 0, take: 10 }))
     }, () => {
       res.status(403).end()
     })

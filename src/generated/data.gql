@@ -12,8 +12,13 @@ type Post {
   content: String!
 }
 
+input Pagination {
+  take: Int!
+  skip: Int!
+}
+
 type Query {
-  blogs: BlogsResult!
+  blogs(pagination: Pagination!): BlogsResult!
   blog(id: Int!): BlogResult!
 }
 

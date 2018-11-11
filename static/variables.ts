@@ -19,8 +19,8 @@ export const gqlBlogGql = `query Blog(\$id: Int!) {
   }
 }
 `
-export const gqlBlogsGql = `query Blogs {
-  blogs {
+export const gqlBlogsGql = `query Blogs(\$pagination: Pagination!) {
+  blogs(pagination: \$pagination) {
     result {
       id
       content

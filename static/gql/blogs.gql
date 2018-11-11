@@ -1,5 +1,5 @@
-query Blogs {
-  blogs {
+query Blogs($pagination: Pagination!) {
+  blogs(pagination: $pagination) {
     result {
       id
       content

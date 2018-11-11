@@ -9,9 +9,9 @@ import { authorized } from './auth'
 
 export function startGraphqlApi(app: express.Application) {
   const root: Root = {
-    blogs: async(_, req) => {
+    blogs: async({ pagination}, req) => {
       await authorized(req, 'blog')
-      return Query.blogs()
+      return Query.blogs(pagination)
     },
     blog: async({ id }, req) => {
       await authorized(req, 'blog')

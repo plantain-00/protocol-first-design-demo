@@ -30,7 +30,7 @@ async function fetchGraphql(query: string, variables = {}) {
   const createBlogResult: CreateBlogResult = await fetch('/api/blogs?content=test', { method: 'POST' }).then((res) => res.json())
   console.info('rest create blog', createBlogResult.result)
 
-  const graphqlBlogsResult = await fetchGraphql(gqlBlogsGql, {})
+  const graphqlBlogsResult = await fetchGraphql(gqlBlogsGql, { pagination: { skip: 1, take: 1 } })
   console.info('graphql blogs', graphqlBlogsResult.blogs.result)
 
   const graphqlBlogResult = await fetchGraphql(gqlBlogGql, { id: 1 })

@@ -66,10 +66,16 @@ function resolvePosts(id: integer): Post[] {
   return posts.filter((p) => p.blogId === id)
 }
 
+export interface Pagination {
+  take: integer
+  skip: integer
+}
+
 export class Query {
-  static blogs(): BlogsResult {
+  static blogs(pagination: Pagination): BlogsResult {
     return {
-      result: blogs.map((blog) => ({ ...blog, posts: () => resolvePosts(blog.id), meta: () => blog.meta }))
+      result: blogs.slice(pagination.skip, pagination.skip + pagination.take)
+        .map((blog) => ({ ...blog, posts: () => resolvePosts(blog.id), meta: () => blog.meta }))
     }
   }
   static blog(id: integer): BlogResult {
