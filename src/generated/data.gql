@@ -1,7 +1,10 @@
+scalar JSON
+
 type Blog {
   id: Int!
   content: String!
   posts: [Post]!
+  meta: JSON!
 }
 
 type Post {

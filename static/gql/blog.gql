@@ -7,6 +7,7 @@ query Blog($id: Int!) {
         id
         content
       }
+      meta
     }
   }
 }

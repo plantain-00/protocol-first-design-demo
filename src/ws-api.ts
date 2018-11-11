@@ -15,7 +15,9 @@ export function startWsApi(app: express.Application) {
     }
 
     setTimeout(() => {
-      ws.send('push message after 3s.')
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send('push message after 3s.')
+      }
     }, 3000)
   })
 

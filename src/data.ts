@@ -1,11 +1,17 @@
 const blogs = [
   {
     id: 1,
-    content: 'blog 1 content'
+    content: 'blog 1 content',
+    meta: {
+      foo: 'bar'
+    } as any
   },
   {
     id: 2,
-    content: 'blog 2 content'
+    content: 'blog 2 content',
+    meta: {
+      bar: 123
+    } as any
   }
 ]
 
@@ -48,6 +54,7 @@ interface Blog {
   id: integer
   content: string
   posts(): Post[]
+  meta: any
 }
 
 interface Post {
@@ -62,13 +69,13 @@ function resolvePosts(id: integer): Post[] {
 export class Query {
   static blogs(): BlogsResult {
     return {
-      result: blogs.map((blog) => ({ ...blog, posts: () => resolvePosts(blog.id) }))
+      result: blogs.map((blog) => ({ ...blog, posts: () => resolvePosts(blog.id), meta: () => blog.meta }))
     }
   }
   static blog(id: integer): BlogResult {
     const blog = blogs.find((b) => b.id === id)
     return {
-      result: blog ? { ...blog, posts: () => resolvePosts(blog.id) } : undefined
+      result: blog ? { ...blog, posts: () => resolvePosts(blog.id), meta: () => blog.meta } : undefined
     }
   }
 }
@@ -77,7 +84,10 @@ export class Mutation {
   static createBlog(content: string): CreateBlogResult {
     const blog = {
       id: 3,
-      content
+      content,
+      meta: {
+        baz: 222
+      }
     }
     blogs.push(blog)
     return {

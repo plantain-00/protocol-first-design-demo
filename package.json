@@ -44,7 +44,7 @@
     "tslint-config-standard": "8.0.1",
     "tslint-sonarts": "1.8.0",
     "type-coverage": "1.4.5",
-    "types-as-schema": "1.21.1",
+    "types-as-schema": "1.21.2",
     "typescript": "3.1.6",
     "vue": "2.5.17",
     "vue-class-component": "6.3.2",
@@ -65,7 +65,7 @@
     "prerender": "clean-scripts prerender"
   },
   "typeCoverage": {
-    "atLeast": 95
+    "atLeast": 90
   },
   "dependencies": {
     "cookie": "0.3.1",

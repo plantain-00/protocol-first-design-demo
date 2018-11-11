@@ -7,6 +7,7 @@ mutation CreateBlog($content: String!) {
         id
         content
       }
+      meta
     }
   }
 }

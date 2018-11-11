@@ -14,6 +14,7 @@ export const gqlBlogGql = `query Blog(\$id: Int!) {
         id
         content
       }
+      meta
     }
   }
 }
@@ -27,6 +28,7 @@ export const gqlBlogsGql = `query Blogs {
         id
         content
       }
+      meta
     }
   }
 }
@@ -40,6 +42,7 @@ export const gqlCreateBlogGql = `mutation CreateBlog(\$content: String!) {
         id
         content
       }
+      meta
     }
   }
 }

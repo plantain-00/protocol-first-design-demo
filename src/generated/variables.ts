@@ -4,10 +4,13 @@
  */
 // tslint:disable
 
-export const srcGeneratedDataGql = `type Blog {
+export const srcGeneratedDataGql = `scalar JSON
+
+type Blog {
   id: Int!
   content: String!
   posts: [Post]!
+  meta: JSON!
 }
 
 type Post {
