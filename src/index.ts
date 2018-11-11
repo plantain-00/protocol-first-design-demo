@@ -3,6 +3,7 @@ import path = require('path')
 
 import { startRestfulApi } from './restful-api'
 import { startGraphqlApi } from './graphql-api'
+import { startApolloApi } from './apollo-api'
 import { startWsApi } from './ws-api'
 import { verify } from './auth'
 
@@ -25,6 +26,7 @@ app.use((req: Request, res, next) => {
 })
 
 startGraphqlApi(app)
+startApolloApi(app)
 startRestfulApi(app)
 const server = startWsApi(app)
 

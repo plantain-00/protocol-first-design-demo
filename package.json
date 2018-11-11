@@ -68,6 +68,7 @@
     "atLeast": 90
   },
   "dependencies": {
+    "apollo-server-express": "2.2.0",
     "cookie": "0.3.1",
     "express": "4.16.4",
     "express-graphql": "0.7.1",
