@@ -6,10 +6,11 @@ import { Query, Mutation } from './data'
 import { srcGeneratedDataGql } from './generated/variables'
 import { Root } from './generated/root'
 import { authorized } from './auth'
+import { Request } from '.'
 
 export function startGraphqlApi(app: express.Application) {
-  const root: Root = {
-    blogs: async({ pagination}, req) => {
+  const root: Root<Request> = {
+    blogs: async({ pagination }, req) => {
       await authorized(req, 'blog')
       return Query.blogs(pagination)
     },
