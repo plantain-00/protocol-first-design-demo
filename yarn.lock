@@ -7570,10 +7570,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-types-as-schema@1.21.3:
-  version "1.21.3"
-  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.21.3.tgz#bbf927ac19dc4bb8d50da20df8e0e6deea48c461"
-  integrity sha512-tvTpILeaMgtyIco4sT/xa2nNkoefBqi4dNPQDroTXCa648a9S9TSdn2wzvRgHhwTqWnqLamz1eKrE1gChw2sTQ==
+types-as-schema@1.21.4:
+  version "1.21.4"
+  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.21.4.tgz#9ddc52ad8b996f90eec0090a9989fb2c3cad5dcb"
+  integrity sha512-p9sldKCA4L+CHj/b60Eng3pna5oPn+GHXbgvQEt70tzHqupEQLnrNTwEQ3An1tkVK181Jhyejt+H4VvVcZ7FxA==
   dependencies:
     ajv "6.5.5"
     chokidar "2.0.4"

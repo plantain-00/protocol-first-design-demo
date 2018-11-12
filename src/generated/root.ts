@@ -8,8 +8,16 @@ export interface Root<TContext = any> {
   createBlog(input: { content: string }, context: TContext, info: GraphQLResolveInfo): CreateBlogResult | Promise<CreateBlogResult>
 }
 
+type ResolveFunctionResult<T> = {
+  [P in keyof T]: T[P] extends Array<infer U>
+    ? Array<ResolveFunctionResult<U>>
+    : T[P] extends (...args: any[]) => infer R
+      ? R
+      : ResolveFunctionResult<T[P]>
+}
+
 export interface ResolveResult {
-  blogs: BlogsResult
-  blog: BlogResult
-  createBlog: CreateBlogResult
+  blogs: ResolveFunctionResult<BlogsResult>
+  blog: ResolveFunctionResult<BlogResult>
+  createBlog: ResolveFunctionResult<CreateBlogResult>
 }
