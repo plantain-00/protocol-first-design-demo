@@ -1,14 +1,14 @@
 const blogs = [
   {
     id: 1,
-    content: 'blog 1 content',
+    content: () => 'blog 1 content',
     meta: {
       foo: 'bar'
     } as any
   },
   {
     id: 2,
-    content: 'blog 2 content',
+    content: () => 'blog 2 content',
     meta: {
       bar: 123
     } as any
@@ -52,7 +52,7 @@ type integer = number
 
 interface Blog {
   id: integer
-  content: string
+  content(): string
   posts(): Post[]
   meta: any
 }
@@ -90,7 +90,7 @@ export class Mutation {
   static createBlog(content: string): CreateBlogResult {
     const blog = {
       id: 3,
-      content,
+      content: () => content,
       meta: {
         baz: 222
       }
