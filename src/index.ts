@@ -1,11 +1,13 @@
 import express = require('express')
 import path = require('path')
+import DataLoader = require('dataloader')
 
 import { startRestfulApi } from './restful-api'
 import { startGraphqlApi } from './graphql-api'
 import { startApolloApi } from './apollo-api'
 import { startWsApi } from './ws-api'
 import { verify } from './auth'
+import { posts } from './data'
 
 function printInConsole(message: string) {
   console.log(message)
@@ -19,6 +21,11 @@ app.use((req: Request, res, next) => {
   const user = verify(req.headers.cookie)
   if (user) {
     req.user = user
+    if (!req.dataloaders) {
+      req.dataloaders = {
+        postsLoader: new DataLoader(async(ids) => posts.filter((p) => ids.includes(p.id)))
+      }
+    }
     next()
   } else {
     res.status(403).end()
@@ -45,4 +52,7 @@ process.on('SIGTERM', () => {
 
 export interface Request extends express.Request {
   user?: string
+  dataloaders?: {
+    postsLoader: DataLoader<number, any>
+  }
 }

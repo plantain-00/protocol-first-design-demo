@@ -1,21 +1,23 @@
-const blogs = [
+export const blogs = [
   {
     id: 1,
     content: 'blog 1 content',
     meta: {
       foo: 'bar'
-    } as any
+    } as any,
+    posts: [11, 12, 13]
   },
   {
     id: 2,
     content: 'blog 2 content',
     meta: {
       bar: 123
-    } as any
+    } as any,
+    posts: [21, 22, 23]
   }
 ]
 
-const posts = [
+export const posts = [
   {
     id: 11,
     content: 'post 11 content',
@@ -62,28 +64,17 @@ interface Post {
   content: string
 }
 
-function resolvePosts(id: integer): Post[] {
-  return posts.filter((p) => p.blogId === id)
-}
-
 export interface Pagination {
   take: integer
   skip: integer
 }
 
-export class Query {
-  static blogs(pagination: Pagination): BlogsResult {
-    return {
-      result: blogs.slice(pagination.skip, pagination.skip + pagination.take)
-        .map((blog) => ({ id: blog.id, content: () => blog.content, posts: () => resolvePosts(blog.id), meta: () => blog.meta }))
-    }
-  }
-  static blog(id: integer): BlogResult {
-    const blog = blogs.find((b) => b.id === id)
-    return {
-      result: blog ? { id: blog.id, content: () => blog.content, posts: () => resolvePosts(blog.id), meta: () => blog.meta } : undefined
-    }
-  }
+/**
+ * @public
+ */
+export interface Query {
+  blogs(pagination: Pagination): BlogsResult
+  blog(id: integer): BlogResult
 }
 
 export class Mutation {
@@ -93,7 +84,8 @@ export class Mutation {
       content,
       meta: {
         baz: 222
-      }
+      },
+      posts: []
     }
     blogs.push(blog)
     return {

@@ -1,7 +1,7 @@
 import * as express from 'express'
 import { ApolloServer, gql } from 'apollo-server-express'
 
-import { Query, Mutation, BlogsResult, BlogResult, CreateBlogResult, Pagination } from './data'
+import { Mutation, BlogsResult, BlogResult, CreateBlogResult, Pagination, blogs } from './data'
 import { srcGeneratedDataGql } from './generated/variables'
 import { authorized } from './auth'
 
@@ -23,11 +23,27 @@ export function startApolloApi(app: express.Application) {
     Query: {
       blogs: async(_, { pagination }, req) => {
         await authorized(req, 'blog')
-        return Query.blogs(pagination)
+        return {
+          result: blogs.slice(pagination.skip, pagination.skip + pagination.take)
+            .map((blog) => ({
+              id: blog.id,
+              content: () => blog.content,
+              posts: () => req.dataloaders!.postsLoader.loadMany(blog!.posts) as any,
+              meta: () => blog.meta
+            }))
+        }
       },
       blog: async(_, { id }, req) => {
         await authorized(req, 'blog')
-        return Query.blog(id)
+        const blog = blogs.find((b) => b.id === id)
+        return {
+          result: blog ? {
+            id: blog.id,
+            content: () => blog.content,
+            posts: () => req.dataloaders!.postsLoader.loadMany(blog!.posts) as any,
+            meta: () => blog.meta
+          } : undefined
+        }
       }
     },
     Mutation: {
