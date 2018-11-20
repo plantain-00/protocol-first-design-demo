@@ -1,6 +1,6 @@
 import express = require('express')
 import path = require('path')
-import DataLoader = require('dataloader')
+import DataLoader from 'dataloader'
 
 import { startRestfulApi } from './restful-api'
 import { startGraphqlApi } from './graphql-api'

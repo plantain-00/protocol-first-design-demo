@@ -52,7 +52,7 @@ export const posts = [
 
 type integer = number
 
-interface Blog {
+export interface Blog {
   id: integer
   content(): string
   posts(): Post[]
@@ -77,21 +77,11 @@ export interface Query {
   blog(id: integer): BlogResult
 }
 
-export class Mutation {
-  static createBlog(content: string): CreateBlogResult {
-    const blog = {
-      id: 3,
-      content,
-      meta: {
-        baz: 222
-      },
-      posts: []
-    }
-    blogs.push(blog)
-    return {
-      result: { ...blog, content: () => blog.content, posts: () => [] }
-    }
-  }
+/**
+ * @public
+ */
+export interface Mutation {
+  createBlog(content: string): CreateBlogResult
 }
 
 export interface BlogsResult {

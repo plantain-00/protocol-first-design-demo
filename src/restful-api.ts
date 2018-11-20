@@ -1,6 +1,6 @@
 import * as express from 'express'
 
-import { Mutation, blogs, posts } from './data'
+import { blogs, posts } from './data'
 import { authorized } from './auth'
 
 export function startRestfulApi(app: express.Application) {
@@ -41,7 +41,18 @@ export function startRestfulApi(app: express.Application) {
   app.post('/api/blogs', (req, res) => {
     authorized(req, 'blog').then(() => {
       const content = req.query.content
-      res.json(Mutation.createBlog(content))
+      const blog: any = {
+        id: 3,
+        content,
+        meta: {
+          baz: 222
+        },
+        posts: []
+      }
+      blogs.push(blog)
+      res.json({
+        result: blog
+      })
     }, () => {
       res.status(403).end()
     })

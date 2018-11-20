@@ -2,7 +2,7 @@ import * as express from 'express'
 import graphqlHTTP = require('express-graphql')
 import { buildSchema } from 'graphql'
 
-import { Mutation, blogs } from './data'
+import { blogs } from './data'
 import { srcGeneratedDataGql } from './generated/variables'
 import { Root } from './generated/root'
 import { authorized } from './auth'
@@ -36,7 +36,18 @@ export function startGraphqlApi(app: express.Application) {
     },
     createBlog: async({ content }, req) => {
       await authorized(req, 'blog')
-      return Mutation.createBlog(content)
+      const blog: any = {
+        id: 3,
+        content,
+        meta: {
+          baz: 222
+        },
+        posts: []
+      }
+      blogs.push(blog)
+      return {
+        result: { ...blog, content: () => blog.content, posts: () => [] }
+      }
     }
   }
 
