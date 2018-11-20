@@ -45,7 +45,7 @@ module.exports = {
     ts: `tslint ${tsFiles}`,
     js: `standard ${jsFiles}`,
     less: `stylelint ${lessFiles}`,
-    export: `no-unused-export ${tsFiles} ${lessFiles}`,
+    export: `no-unused-export ${tsFiles} ${lessFiles} --exclude "src/generated/*.ts"`,
     commit: `commitlint --from=HEAD~1`,
     markdown: `markdownlint README.md`,
     typeCoverage: 'type-coverage -p src',
