@@ -1,17 +1,17 @@
 import * as express from 'express'
 import { ApolloServer, gql } from 'apollo-server-express'
+import { GraphQLResolveInfo } from 'graphql'
 
 import { Mutation, BlogsResult, BlogResult, CreateBlogResult, Pagination, blogs } from './data'
 import { srcGeneratedDataGql } from './generated/variables'
 import { authorized } from './auth'
-
-import { GraphQLResolveInfo } from 'graphql'
 import { Request } from '.'
+import { DeepPromisifyReturnType } from './generated/root'
 
 interface Resolvers<TContext> {
   Query: {
-    blogs: (parent: any, input: { pagination: Pagination }, context: TContext, info: GraphQLResolveInfo) => BlogsResult | Promise<BlogsResult>,
-    blog: (parent: any, input: { id: number }, context: TContext, info: GraphQLResolveInfo) => BlogResult | Promise<BlogResult>
+    blogs: (parent: any, input: { pagination: Pagination }, context: TContext, info: GraphQLResolveInfo) => DeepPromisifyReturnType<BlogsResult> | Promise<DeepPromisifyReturnType<BlogsResult>>,
+    blog: (parent: any, input: { id: number }, context: TContext, info: GraphQLResolveInfo) => DeepPromisifyReturnType<BlogResult> | Promise<DeepPromisifyReturnType<BlogResult>>
   },
   Mutation: {
     createBlog: (parent: any, input: { content: string }, context: TContext, info: GraphQLResolveInfo) => CreateBlogResult | Promise<CreateBlogResult>
@@ -28,7 +28,7 @@ export function startApolloApi(app: express.Application) {
             .map((blog) => ({
               id: blog.id,
               content: () => blog.content,
-              posts: () => req.dataloaders!.postsLoader.loadMany(blog!.posts) as any,
+              posts: () => req.dataloaders!.postsLoader.loadMany(blog!.posts),
               meta: () => blog.meta
             }))
         }
@@ -40,7 +40,7 @@ export function startApolloApi(app: express.Application) {
           result: blog ? {
             id: blog.id,
             content: () => blog.content,
-            posts: () => req.dataloaders!.postsLoader.loadMany(blog!.posts) as any,
+            posts: () => req.dataloaders!.postsLoader.loadMany(blog!.posts),
             meta: () => blog.meta
           } : undefined
         }
