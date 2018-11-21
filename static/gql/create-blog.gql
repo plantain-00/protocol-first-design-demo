@@ -3,7 +3,7 @@ mutation CreateBlog($content: String!) {
     result {
       id
       content
-      posts {
+      posts(id: 2) {
         id
         content
       }

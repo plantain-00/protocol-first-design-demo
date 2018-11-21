@@ -52,10 +52,10 @@ export const posts = [
 
 type integer = number
 
-export interface Blog {
+interface Blog {
   id: integer
   content(): string
-  posts(): Post[]
+  posts(id: integer): Post[]
   meta: any
 }
 
@@ -64,7 +64,7 @@ interface Post {
   content: string
 }
 
-export interface Pagination {
+interface Pagination {
   take: integer
   skip: integer
 }

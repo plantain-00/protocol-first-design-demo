@@ -3,7 +3,7 @@ query Blog($id: Int!) {
     result {
       id
       content
-      posts {
+      posts(id: 3) {
         id
         content
       }

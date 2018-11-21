@@ -3,7 +3,7 @@ query Blogs($pagination: Pagination!) {
     result {
       id
       content
-      posts {
+      posts(id: 1) {
         id
         content
       }

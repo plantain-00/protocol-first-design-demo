@@ -9,7 +9,7 @@ export const srcGeneratedDataGql = `scalar JSON
 type Blog {
   id: Int!
   content: String!
-  posts: [Post]!
+  posts(id: Int!): [Post]!
   meta: JSON!
 }
 

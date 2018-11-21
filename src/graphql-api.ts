@@ -4,7 +4,7 @@ import { buildSchema } from 'graphql'
 
 import { blogs } from './data'
 import { srcGeneratedDataGql } from './generated/variables'
-import { Root } from './generated/root'
+import { Root, Blog } from './generated/root'
 import { authorized } from './auth'
 import { Request } from '.'
 
@@ -17,9 +17,9 @@ export function startGraphqlApi(app: express.Application) {
           .map((blog) => ({
             id: blog.id,
             content: () => blog.content,
-            posts: () => req.dataloaders!.postsLoader.loadMany(blog!.posts),
+            posts: ({ id }) => req.dataloaders!.postsLoader.loadMany(blog!.posts),
             meta: () => blog.meta
-          }))
+          } as Blog<Request>))
       }
     },
     blog: async({ id }, req) => {
@@ -29,9 +29,9 @@ export function startGraphqlApi(app: express.Application) {
         result: blog ? {
           id: blog.id,
           content: () => blog.content,
-          posts: () => req.dataloaders!.postsLoader.loadMany(blog!.posts),
+          posts: ({ id }) => req.dataloaders!.postsLoader.loadMany(blog!.posts),
           meta: () => blog.meta
-        } : undefined
+        } as Blog<Request> : undefined
       }
     },
     createBlog: async({ content }, req) => {

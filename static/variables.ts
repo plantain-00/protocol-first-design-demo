@@ -10,7 +10,7 @@ export const gqlBlogGql = `query Blog(\$id: Int!) {
     result {
       id
       content
-      posts {
+      posts(id: 3) {
         id
         content
       }
@@ -24,7 +24,7 @@ export const gqlBlogsGql = `query Blogs(\$pagination: Pagination!) {
     result {
       id
       content
-      posts {
+      posts(id: 1) {
         id
         content
       }
@@ -38,7 +38,7 @@ export const gqlCreateBlogGql = `mutation CreateBlog(\$content: String!) {
     result {
       id
       content
-      posts {
+      posts(id: 2) {
         id
         content
       }
