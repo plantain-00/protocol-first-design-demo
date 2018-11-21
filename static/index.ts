@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import { indexTemplateHtml, indexTemplateHtmlStatic, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
 import { BlogsResult, BlogResult, CreateBlogResult } from '../src/data'
-import { ResolveResult } from '../src/generated/root'
+import { ResolveResult, DeepReturnType } from '../src/generated/root'
 
 async function fetchGraphql(query: string, variables = {}) {
   const res = await fetch('/graphql', {
@@ -21,13 +21,13 @@ async function fetchGraphql(query: string, variables = {}) {
 }
 
 (async() => {
-  const blogsResult: BlogsResult = await fetch('/api/blogs').then((res) => res.json())
+  const blogsResult: DeepReturnType<BlogsResult> = await fetch('/api/blogs').then((res) => res.json())
   console.info('rest blogs', blogsResult.result)
 
-  const blogResult: BlogResult = await fetch('/api/blogs/1').then((res) => res.json())
+  const blogResult: DeepReturnType<BlogResult> = await fetch('/api/blogs/1').then((res) => res.json())
   console.info('rest blog', blogResult.result)
 
-  const createBlogResult: CreateBlogResult = await fetch('/api/blogs?content=test', { method: 'POST' }).then((res) => res.json())
+  const createBlogResult: DeepReturnType<CreateBlogResult> = await fetch('/api/blogs?content=test', { method: 'POST' }).then((res) => res.json())
   console.info('rest create blog', createBlogResult.result)
 
   const graphqlBlogsResult = await fetchGraphql(gqlBlogsGql, { pagination: { skip: 1, take: 1 } })
