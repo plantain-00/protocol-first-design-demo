@@ -4,24 +4,26 @@ import { blogs, posts, BlogsResult, BlogResult, CreateBlogResult } from './data'
 import { authorized, HttpError } from './auth'
 import { DeepReturnType } from './generated/root'
 
+// tslint:disable:no-duplicate-string
+
 interface GetBlogsHandler {
   method: 'get'
-  url: string
-  tag: string
+  url: '/api/blogs'
+  tag: 'blog'
   handler: (req: express.Request) => DeepReturnType<BlogsResult> | Promise<DeepReturnType<BlogsResult>>
 }
 
 interface GetBlogHandler {
   method: 'get'
-  url: string
-  tag: string
+  url: '/api/blogs/:id'
+  tag: 'blog'
   handler: (req: express.Request) => DeepReturnType<BlogResult> | Promise<DeepReturnType<BlogResult>>
 }
 
 interface CreateBlogHandler {
   method: 'post'
-  url: string
-  tag: string
+  url: '/api/blogs'
+  tag: 'blog'
   handler: (req: express.Request) => DeepReturnType<CreateBlogResult> | Promise<DeepReturnType<CreateBlogResult>>
 }
 
