@@ -13,5 +13,11 @@ export async function authorized(req: Request, _resourceName: string) {
   if (req.user === 'admin') {
     return
   }
-  throw new Error('not permitted')
+  throw new HttpError('not permitted', 403)
+}
+
+export class HttpError extends Error {
+  constructor(message: string, public statusCode = 500) {
+    super(message)
+  }
 }

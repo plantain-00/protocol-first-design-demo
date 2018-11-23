@@ -1,13 +1,42 @@
 import * as express from 'express'
 
-import { blogs, posts } from './data'
-import { authorized } from './auth'
+import { blogs, posts, BlogsResult, BlogResult, CreateBlogResult } from './data'
+import { authorized, HttpError } from './auth'
+import { DeepReturnType } from './generated/root'
 
-export function startRestfulApi(app: express.Application) {
-  app.get('/api/blogs', (req, res) => {
-    authorized(req, 'blog').then(() => {
+type Method = 'get' | 'post' | 'put' | 'delete'
+
+interface GetBlogsHandler {
+  method: Method
+  url: string
+  tag: string
+  handler: (req: express.Request) => DeepReturnType<BlogsResult> | Promise<DeepReturnType<BlogsResult>>
+}
+
+interface GetBlogHandler {
+  method: Method
+  url: string
+  tag: string
+  handler: (req: express.Request) => DeepReturnType<BlogResult> | Promise<DeepReturnType<BlogResult>>
+}
+
+interface CreateBlogHandler {
+  method: Method
+  url: string
+  tag: string
+  handler: (req: express.Request) => DeepReturnType<CreateBlogResult> | Promise<DeepReturnType<CreateBlogResult>>
+}
+
+type ExpressHandler = GetBlogsHandler | GetBlogHandler | CreateBlogHandler
+
+const handlers: ExpressHandler[] = [
+  {
+    method: 'get',
+    url: '/api/blogs',
+    tag: 'blog',
+    handler: () => {
       const pagination = { skip: 0, take: 10 }
-      res.json({
+      return {
         result: blogs.slice(pagination.skip, pagination.skip + pagination.take)
           .map((blog) => ({
             id: blog.id,
@@ -15,31 +44,31 @@ export function startRestfulApi(app: express.Application) {
             posts: posts.filter((p) => p.blogId === blog.id),
             meta: blog.meta
           }))
-      })
-    }, () => {
-      res.status(403).end()
-    })
-  })
-
-  app.get('/api/blogs/:id', (req, res) => {
-    authorized(req, 'blog').then(() => {
+      }
+    }
+  },
+  {
+    method: 'get',
+    url: '/api/blogs/:id',
+    tag: 'blog',
+    handler: (req) => {
       const id = +req.params.id
       const blog = blogs.find((b) => b.id === id)
-      res.json({
+      return {
         result: blog ? {
           id: blog.id,
           content: blog.content,
           posts: posts.filter((p) => p.blogId === blog.id),
           meta: blog.meta
         } : undefined
-      })
-    }, () => {
-      res.status(403).end()
-    })
-  })
-
-  app.post('/api/blogs', (req, res) => {
-    authorized(req, 'blog').then(() => {
+      }
+    }
+  },
+  {
+    method: 'post',
+    url: '/api/blogs',
+    tag: 'blog',
+    handler: (req) => {
       const content = req.query.content
       const blog: any = {
         id: 3,
@@ -50,11 +79,26 @@ export function startRestfulApi(app: express.Application) {
         posts: []
       }
       blogs.push(blog)
-      res.json({
+      return {
         result: blog
-      })
-    }, () => {
-      res.status(403).end()
+      }
+    }
+  }
+]
+
+export function startRestfulApi(app: express.Application) {
+  for (const handler of handlers) {
+    app[handler.method](handler.url, async(req, res) => {
+      try {
+        await authorized(req, handler.tag)
+        const result = await handler.handler(req)
+        res.json(result)
+      } catch (error) {
+        const statusCode = error instanceof HttpError ? error.statusCode : 500
+        res.status(statusCode)
+          .json({ message: error.message || error })
+          .end()
+      }
     })
-  })
+  }
 }
