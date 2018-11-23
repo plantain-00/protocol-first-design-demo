@@ -4,24 +4,22 @@ import { blogs, posts, BlogsResult, BlogResult, CreateBlogResult } from './data'
 import { authorized, HttpError } from './auth'
 import { DeepReturnType } from './generated/root'
 
-type Method = 'get' | 'post' | 'put' | 'delete'
-
 interface GetBlogsHandler {
-  method: Method
+  method: 'get'
   url: string
   tag: string
   handler: (req: express.Request) => DeepReturnType<BlogsResult> | Promise<DeepReturnType<BlogsResult>>
 }
 
 interface GetBlogHandler {
-  method: Method
+  method: 'get'
   url: string
   tag: string
   handler: (req: express.Request) => DeepReturnType<BlogResult> | Promise<DeepReturnType<BlogResult>>
 }
 
 interface CreateBlogHandler {
-  method: Method
+  method: 'post'
   url: string
   tag: string
   handler: (req: express.Request) => DeepReturnType<CreateBlogResult> | Promise<DeepReturnType<CreateBlogResult>>
