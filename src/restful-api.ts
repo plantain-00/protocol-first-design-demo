@@ -4,30 +4,67 @@ import { blogs, posts, BlogsResult, BlogResult, CreateBlogResult } from './data'
 import { authorized, HttpError } from './auth'
 import { DeepReturnType } from './generated/root'
 
-// tslint:disable:no-duplicate-string
-
-interface GetBlogsHandler {
-  method: 'get'
-  url: '/api/blogs'
+interface ExpressHandler {
+  method: 'get' | 'post'
+  url: string
   tag: 'blog'
-  handler: (req: express.Request) => DeepReturnType<BlogsResult> | Promise<DeepReturnType<BlogsResult>>
+  handler: (req: express.Request) => any
 }
 
-interface GetBlogHandler {
-  method: 'get'
-  url: '/api/blogs/:id'
-  tag: 'blog'
-  handler: (req: express.Request) => DeepReturnType<BlogResult> | Promise<DeepReturnType<BlogResult>>
+/**
+ * @api
+ * @method get
+ * @path "/api/blogs"
+ */
+function getBlogs(): DeepReturnType<BlogsResult> {
+  const pagination = { skip: 0, take: 10 }
+  return {
+    result: blogs.slice(pagination.skip, pagination.skip + pagination.take)
+      .map((blog) => ({
+        id: blog.id,
+        content: blog.content,
+        posts: posts.filter((p) => p.blogId === blog.id),
+        meta: blog.meta
+      }))
+  }
 }
 
-interface CreateBlogHandler {
-  method: 'post'
-  url: '/api/blogs'
-  tag: 'blog'
-  handler: (req: express.Request) => DeepReturnType<CreateBlogResult> | Promise<DeepReturnType<CreateBlogResult>>
+/**
+ * @api
+ * @method get
+ * @path "/api/blogs/{id}"
+ */
+function getBlogById(id: number): DeepReturnType<BlogResult> {
+  const blog = blogs.find((b) => b.id === id)
+  return {
+    result: blog ? {
+      id: blog.id,
+      content: blog.content,
+      posts: posts.filter((p) => p.blogId === blog.id),
+      meta: blog.meta
+    } : undefined
+  }
 }
 
-type ExpressHandler = GetBlogsHandler | GetBlogHandler | CreateBlogHandler
+/**
+ * @api
+ * @method post
+ * @path "/api/blogs"
+ */
+function createBlog(content: string): DeepReturnType<CreateBlogResult> {
+  const blog: any = {
+    id: 3,
+    content,
+    meta: {
+      baz: 222
+    },
+    posts: []
+  }
+  blogs.push(blog)
+  return {
+    result: blog
+  }
+}
 
 const handlers: ExpressHandler[] = [
   {
@@ -35,16 +72,7 @@ const handlers: ExpressHandler[] = [
     url: '/api/blogs',
     tag: 'blog',
     handler: () => {
-      const pagination = { skip: 0, take: 10 }
-      return {
-        result: blogs.slice(pagination.skip, pagination.skip + pagination.take)
-          .map((blog) => ({
-            id: blog.id,
-            content: blog.content,
-            posts: posts.filter((p) => p.blogId === blog.id),
-            meta: blog.meta
-          }))
-      }
+      return getBlogs()
     }
   },
   {
@@ -53,15 +81,7 @@ const handlers: ExpressHandler[] = [
     tag: 'blog',
     handler: (req) => {
       const id = +req.params.id
-      const blog = blogs.find((b) => b.id === id)
-      return {
-        result: blog ? {
-          id: blog.id,
-          content: blog.content,
-          posts: posts.filter((p) => p.blogId === blog.id),
-          meta: blog.meta
-        } : undefined
-      }
+      return getBlogById(id)
     }
   },
   {
@@ -70,18 +90,7 @@ const handlers: ExpressHandler[] = [
     tag: 'blog',
     handler: (req) => {
       const content = req.query.content
-      const blog: any = {
-        id: 3,
-        content,
-        meta: {
-          baz: 222
-        },
-        posts: []
-      }
-      blogs.push(blog)
-      return {
-        result: blog
-      }
+      return createBlog(content)
     }
   }
 ]
