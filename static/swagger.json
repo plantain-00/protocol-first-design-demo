@@ -1,0 +1,137 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "\"/api/blogs\"": {
+      "get": {
+        "operationId": "getBlogs",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/BlogsResult"
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createBlog",
+        "parameters": [
+          {
+            "name": "content",
+            "required": true,
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/CreateBlogResult"
+            }
+          }
+        }
+      }
+    },
+    "\"/api/blogs/{id}\"": {
+      "get": {
+        "operationId": "getBlogById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/BlogResult"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BlogsResult": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Blog"
+          }
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Blog": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "content": {
+          "type": "string"
+        },
+        "posts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Post"
+          }
+        },
+        "meta": {}
+      },
+      "required": [
+        "id",
+        "content",
+        "posts",
+        "meta"
+      ],
+      "additionalProperties": false,
+      "maxProperties": 2
+    },
+    "Post": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "BlogResult": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/Blog"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "CreateBlogResult": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/Blog"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

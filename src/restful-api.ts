@@ -12,7 +12,6 @@ interface ExpressHandler {
 }
 
 /**
- * @api
  * @method get
  * @path "/api/blogs"
  */
@@ -30,11 +29,10 @@ function getBlogs(): DeepReturnType<BlogsResult> {
 }
 
 /**
- * @api
  * @method get
  * @path "/api/blogs/{id}"
  */
-function getBlogById(id: number): DeepReturnType<BlogResult> {
+function getBlogById(/** @in path */id: number): DeepReturnType<BlogResult> {
   const blog = blogs.find((b) => b.id === id)
   return {
     result: blog ? {
@@ -47,11 +45,10 @@ function getBlogById(id: number): DeepReturnType<BlogResult> {
 }
 
 /**
- * @api
  * @method post
  * @path "/api/blogs"
  */
-function createBlog(content: string): DeepReturnType<CreateBlogResult> {
+function createBlog(/** @in query */content: string): DeepReturnType<CreateBlogResult> {
   const blog: any = {
     id: 3,
     content,
