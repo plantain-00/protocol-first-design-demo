@@ -13,10 +13,10 @@
     "@types/express-graphql": "0.6.2",
     "@types/graphql": "14.0.7",
     "@types/jasmine": "3.3.9",
-    "@types/node": "11.9.4",
+    "@types/node": "11.9.5",
     "@types/puppeteer": "1.12.1",
     "@types/ws": "6.0.1",
-    "autoprefixer": "9.4.7",
+    "autoprefixer": "9.4.8",
     "clean-css-cli": "4.2.1",
     "clean-release": "2.7.0",
     "clean-scripts": "1.9.2",
@@ -32,7 +32,7 @@
     "less": "3.9.0",
     "markdownlint-cli": "0.13.0",
     "no-unused-export": "1.7.0",
-    "postcss-cli": "6.1.1",
+    "postcss-cli": "6.1.2",
     "puppeteer": "1.12.2",
     "rev-static": "3.4.2",
     "rimraf": "2.6.3",
@@ -43,13 +43,13 @@
     "tslint": "5.12.1",
     "tslint-config-standard": "8.0.1",
     "tslint-sonarts": "1.9.0",
-    "type-coverage": "1.9.1",
+    "type-coverage": "1.10.0",
     "types-as-schema": "1.27.0",
     "typescript": "3.3.1",
-    "vue": "2.6.6",
-    "vue-class-component": "6.3.2",
+    "vue": "2.6.7",
+    "vue-class-component": "7.0.1",
     "watch-then-execute": "1.1.1",
-    "webpack": "4.29.4",
+    "webpack": "4.29.5",
     "webpack-cli": "3.2.3"
   },
   "scripts": {
@@ -68,13 +68,13 @@
     "atLeast": 90
   },
   "dependencies": {
-    "apollo-server-express": "2.4.2",
+    "apollo-server-express": "2.4.6",
     "cookie": "0.3.1",
     "dataloader": "1.4.0",
     "express": "4.16.4",
     "express-graphql": "0.7.1",
     "graphql": "14.1.1",
     "tslib": "1.9.3",
-    "ws": "6.1.3"
+    "ws": "6.1.4"
   }
 }
