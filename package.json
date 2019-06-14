@@ -13,7 +13,7 @@
     "@types/express-graphql": "0.8.0",
     "@types/graphql": "14.2.0",
     "@types/jasmine": "3.3.13",
-    "@types/node": "12.0.7",
+    "@types/node": "12.0.8",
     "@types/puppeteer": "1.12.4",
     "@types/ws": "6.0.1",
     "autoprefixer": "9.6.0",
@@ -22,15 +22,15 @@
     "clean-scripts": "1.11.1",
     "cross-env": "5.2.0",
     "file2variable-cli": "1.8.5",
-    "github-fork-ribbon-css": "0.2.1",
+    "github-fork-ribbon-css": "0.2.3",
     "jasmine": "3.4.0",
     "karma": "4.1.0",
     "karma-chrome-launcher": "2.2.0",
     "karma-firefox-launcher": "1.1.0",
     "karma-jasmine": "2.0.1",
-    "karma-webpack": "4.0.1",
+    "karma-webpack": "4.0.2",
     "less": "3.9.0",
-    "markdownlint-cli": "0.16.0",
+    "markdownlint-cli": "0.17.0",
     "no-unused-export": "1.7.0",
     "postcss-cli": "6.1.2",
     "puppeteer": "1.17.0",
@@ -44,13 +44,13 @@
     "tslint-config-standard": "8.0.1",
     "tslint-sonarts": "1.9.0",
     "type-coverage": "2.0.2",
-    "types-as-schema": "1.29.0",
-    "typescript": "3.5.1",
+    "types-as-schema": "1.29.1",
+    "typescript": "3.5.2",
     "vue": "2.6.10",
     "vue-class-component": "7.1.0",
     "watch-then-execute": "1.1.1",
-    "webpack": "4.33.0",
-    "webpack-cli": "3.3.3"
+    "webpack": "4.34.0",
+    "webpack-cli": "3.3.4"
   },
   "scripts": {
     "build": "clean-scripts build",
@@ -68,13 +68,13 @@
     "atLeast": 90
   },
   "dependencies": {
-    "apollo-server-express": "2.6.2",
+    "apollo-server-express": "2.6.3",
     "cookie": "0.4.0",
     "dataloader": "1.4.0",
     "express": "4.17.1",
     "express-graphql": "0.8.0",
     "graphql": "14.3.1",
-    "tslib": "1.9.3",
+    "tslib": "1.10.0",
     "ws": "7.0.0"
   }
 }
