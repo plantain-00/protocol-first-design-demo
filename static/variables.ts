@@ -3,6 +3,7 @@
  * It is not mean to be edited by hand
  */
 // tslint:disable
+/* eslint-disable */
 import { App } from "./index"
 
 export const gqlBlogGql = `query Blog(\$id: Int!) {
@@ -51,4 +52,5 @@ export const gqlCreateBlogGql = `mutation CreateBlog(\$content: String!) {
 export function indexTemplateHtml(this: App) {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div')}
 // @ts-ignore
 export var indexTemplateHtmlStatic = [  ]
+/* eslint-enable */
 // tslint:enable
