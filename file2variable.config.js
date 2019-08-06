@@ -6,7 +6,7 @@ module.exports = {
   /**
    * @argument {string} file
    */
-  handler: file => {
+  handler: () => {
     return { type: 'text' }
   },
   out: 'src/generated/variables.ts'

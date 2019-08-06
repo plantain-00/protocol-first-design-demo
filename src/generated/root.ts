@@ -9,16 +9,16 @@ import { GraphQLResolveInfo } from 'graphql'
 
 
 export type DeepPromisifyReturnType<T> = {
-  [P in keyof T]: T[P] extends Array<infer U>
-    ? Array<DeepPromisifyReturnType<U>>
+  [P in keyof T]: T[P] extends (infer U)[]
+    ? DeepPromisifyReturnType<U>[]
     : T[P] extends (...args: infer P) => infer R
       ? (...args: P) => R | Promise<R>
       : DeepPromisifyReturnType<T[P]>
 }
 
 export type DeepReturnType<T> = {
-  [P in keyof T]: T[P] extends Array<infer U>
-    ? Array<DeepReturnType<U>>
+  [P in keyof T]: T[P] extends (infer U)[]
+    ? DeepReturnType<U>[]
     : T[P] extends (...args: any[]) => infer R
       ? R extends Promise<infer U>
         ? U
@@ -35,7 +35,7 @@ export interface Root<TContext = any> {
 export interface Blog<TContext = any> {
   id: number
   content(input: {}, context: TContext, info: GraphQLResolveInfo): string | Promise<string>
-  posts(input: { id: number }, context: TContext, info: GraphQLResolveInfo): Array<Post<TContext>> | Promise<Array<Post<TContext>>>
+  posts(input: { id: number }, context: TContext, info: GraphQLResolveInfo): Post<TContext>[] | Promise<Post<TContext>[]>
   meta: any
 }
 
@@ -50,7 +50,7 @@ export interface Pagination<TContext = any> {
 }
 
 export interface BlogsResult<TContext = any> {
-  result: Array<Blog<TContext>>
+  result: Blog<TContext>[]
 }
 
 export interface BlogResult<TContext = any> {
