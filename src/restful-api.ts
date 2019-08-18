@@ -77,7 +77,7 @@ const handlers: ExpressHandler[] = [
     url: '/api/blogs/:id',
     tag: 'blog',
     handler: (req) => {
-      const id = +req.params.id
+      const id = +(req.params as {[name: string]: string}).id
       return getBlogById(id)
     }
   },
