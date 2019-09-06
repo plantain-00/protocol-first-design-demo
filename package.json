@@ -13,18 +13,18 @@
     "@types/express-graphql": "0.9.0",
     "@types/graphql": "14.5.0",
     "@types/jasmine": "3.4.0",
-    "@types/node": "12.7.3",
+    "@types/node": "12.7.4",
     "@types/puppeteer": "1.19.1",
     "@types/ws": "6.0.3",
-    "@typescript-eslint/eslint-plugin": "2.0.0",
-    "@typescript-eslint/parser": "2.0.0",
+    "@typescript-eslint/eslint-plugin": "2.1.0",
+    "@typescript-eslint/parser": "2.1.0",
     "autoprefixer": "9.6.1",
     "clean-css-cli": "4.3.0",
     "clean-release": "2.7.0",
     "clean-scripts": "1.12.1",
-    "cross-env": "5.2.0",
+    "cross-env": "5.2.1",
     "eslint": "6.3.0",
-    "eslint-config-prettier": "6.1.0",
+    "eslint-config-prettier": "6.2.0",
     "eslint-plugin-plantain": "0.1.2",
     "file2variable-cli": "1.9.0",
     "github-fork-ribbon-css": "0.2.3",
@@ -51,7 +51,7 @@
     "vue-class-component": "7.1.0",
     "watch-then-execute": "1.1.1",
     "webpack": "4.39.3",
-    "webpack-cli": "3.3.7"
+    "webpack-cli": "3.3.8"
   },
   "scripts": {
     "build": "clean-scripts build",
@@ -69,7 +69,7 @@
     "atLeast": 90
   },
   "dependencies": {
-    "apollo-server-express": "2.9.2",
+    "apollo-server-express": "2.9.3",
     "cookie": "0.4.0",
     "dataloader": "1.4.0",
     "express": "4.17.1",
