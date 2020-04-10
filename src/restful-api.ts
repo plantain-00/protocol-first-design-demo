@@ -86,7 +86,7 @@ const handlers: ExpressHandler[] = [
     url: '/api/blogs',
     tag: 'blog',
     handler: (req) => {
-      const content = req.query.content
+      const content = req.query.content as string
       return createBlog(content)
     }
   }
