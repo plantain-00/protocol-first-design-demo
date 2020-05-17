@@ -1,15 +1,14 @@
-const { Service, executeScriptAsync, Program } = require('clean-scripts')
-const { watch } = require('watch-then-execute')
+import { executeScriptAsync, Program } from 'clean-scripts'
+import { watch } from 'watch-then-execute'
 
-const tsFiles = `"src/**/*.ts" "static/**/*.ts" "spec/**/*.ts" "static_spec/**/*.ts"`
-const jsFiles = `"*.config.js" "static/**/*.config.js" "static_spec/**/*.config.js"`
+const tsFiles = `"src/**/*.ts" "static/**/*.ts"`
+const jsFiles = `"*.config.js"`
 const lessFiles = `"static/**/*.less"`
 
 const tscSrcCommand = 'tsc -p src/'
-const file2variableCommand = 'file2variable-cli --config static/file2variable.config.js'
-const tscStaticCommand = 'tsc -p static/'
-const webpackCommand = 'webpack --config static/webpack.config.js'
-const revStaticCommand = 'rev-static --config static/rev-static.config.js'
+const file2variableCommand = 'file2variable-cli --config static/file2variable.config.ts'
+const webpackCommand = 'webpack --config static/webpack.config.ts'
+const revStaticCommand = 'rev-static --config static/rev-static.config.ts'
 const cssCommand = [
   'lessc static/index.less > static/index.css',
   'postcss static/index.css -o static/index.postcss.css',
@@ -18,7 +17,7 @@ const cssCommand = [
 const schemaCommand = 'types-as-schema src/data.ts --graphql src/generated/data.gql --graphql-root-type src/generated/root.ts'
 const graphqlSchemaVariableCommand = 'file2variable-cli --config file2variable.config.js'
 
-module.exports = {
+export default {
   build: {
     back: [
       'rimraf dist/',
@@ -28,7 +27,6 @@ module.exports = {
       {
         js: [
           file2variableCommand,
-          tscStaticCommand,
           webpackCommand
         ],
         css: cssCommand,
@@ -52,15 +50,7 @@ module.exports = {
     typeCoverageStatic: 'type-coverage -p static --strict'
   },
   test: {
-    jasmine: [
-      'tsc -p spec',
-      'jasmine'
-    ],
-    karma: [
-      'tsc -p static_spec',
-      'karma start static_spec/karma.config.js'
-    ],
-    start: new Program('clean-release --config clean-run.config.js', 30000)
+    start: new Program('clean-release --config clean-run.config.ts', 30000)
   },
   fix: {
     ts: `eslint --ext .js,.ts,.tsx ${tsFiles} ${jsFiles} --fix`,
@@ -74,16 +64,5 @@ module.exports = {
     rev: `${revStaticCommand} --watch`,
     schema: `${schemaCommand} --watch`,
     graphqlSchemaVariable: `${graphqlSchemaVariableCommand} --watch`
-  },
-  screenshot: [
-    new Service('node ./dist/index.js'),
-    'tsc -p screenshots',
-    'node screenshots/index.js'
-  ],
-  prerender: [
-    new Service('node ./dist/index.js'),
-    'tsc -p prerender',
-    'node prerender/index.js',
-    revStaticCommand
-  ]
+  }
 }

@@ -1,13 +1,10 @@
-module.exports = {
+export default {
   base: 'static',
   files: [
     'static/*.template.html',
     'static/gql/*.gql'
   ],
-  /**
-   * @argument {string} file
-   */
-  handler: file => {
+  handler: (file: string) => {
     if (file.endsWith('.gql')) {
       return { type: 'text' }
     }
