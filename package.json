@@ -54,7 +54,7 @@
     "watch": "cross-env NODE_ENV=development clean-scripts watch"
   },
   "typeCoverage": {
-    "atLeast": 90
+    "atLeast": 92.68
   },
   "dependencies": {
     "apollo-server-express": "2.17.0",

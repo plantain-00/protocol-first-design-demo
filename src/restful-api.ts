@@ -99,10 +99,11 @@ export function startRestfulApi(app: express.Application) {
         await authorized(req, handler.tag)
         const result = await handler.handler(req)
         res.json(result)
-      } catch (error) {
+      } catch (error: unknown) {
         const statusCode = error instanceof HttpError ? error.statusCode : 500
+        const message = error instanceof Error ? error.message : error
         res.status(statusCode)
-          .json({ message: error.message || error })
+          .json({ message })
           .end()
       }
     })
