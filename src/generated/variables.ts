@@ -3,6 +3,7 @@
  * It is not mean to be edited by hand
  */
 // tslint:disable
+/* eslint-disable */
 
 export const srcGeneratedDataGql = `scalar JSON
 
@@ -44,4 +45,5 @@ type CreateBlogResult {
   result: Blog!
 }
 `
+/* eslint-enable */
 // tslint:enable

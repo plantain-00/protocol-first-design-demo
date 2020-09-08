@@ -3,27 +3,32 @@
  * It is not mean to be edited by hand
  */
 // tslint:disable
+/* eslint-disable */
 
 import { GraphQLResolveInfo } from 'graphql'
 
 
 
 export type DeepPromisifyReturnType<T> = {
-  [P in keyof T]: T[P] extends (infer U)[]
-    ? DeepPromisifyReturnType<U>[]
-    : T[P] extends (...args: infer P) => infer R
-      ? (...args: P) => R | Promise<R>
-      : DeepPromisifyReturnType<T[P]>
+  [P in keyof T]: T[P] extends Array<infer U>
+    ? Array<DeepPromisifyReturnType<U>>
+    : T[P] extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepPromisifyReturnType<U>>
+      : T[P] extends (...args: infer P) => infer R
+        ? (...args: P) => R | Promise<R>
+        : DeepPromisifyReturnType<T[P]>
 }
 
 export type DeepReturnType<T> = {
-  [P in keyof T]: T[P] extends (infer U)[]
-    ? DeepReturnType<U>[]
-    : T[P] extends (...args: any[]) => infer R
-      ? R extends Promise<infer U>
-        ? U
-        : R
-      : DeepReturnType<T[P]>
+  [P in keyof T]: T[P] extends Array<infer U>
+    ? Array<DeepReturnType<U>>
+    : T[P] extends ReadonlyArray<infer U>
+      ? ReadonlyArray<DeepReturnType<U>>
+      : T[P] extends (...args: any[]) => infer R
+        ? R extends Promise<infer U>
+          ? U
+          : R
+        : DeepReturnType<T[P]>
 }
 
 export interface Root<TContext = any> {
@@ -35,7 +40,7 @@ export interface Root<TContext = any> {
 export interface Blog<TContext = any> {
   id: number
   content(input: {}, context: TContext, info: GraphQLResolveInfo): string | Promise<string>
-  posts(input: { id: number }, context: TContext, info: GraphQLResolveInfo): Post<TContext>[] | Promise<Post<TContext>[]>
+  posts(input: { id: number }, context: TContext, info: GraphQLResolveInfo): Array<Post<TContext>> | Promise<Array<Post<TContext>>>
   meta: any
 }
 
@@ -50,7 +55,7 @@ export interface Pagination<TContext = any> {
 }
 
 export interface BlogsResult<TContext = any> {
-  result: Blog<TContext>[]
+  result: Array<Blog<TContext>>
 }
 
 export interface BlogResult<TContext = any> {
@@ -100,4 +105,5 @@ export interface ResolveResult<TContext = any> {
   createBlog: DeepReturnType<CreateBlogResult<TContext>>
 }
 
+/* eslint-enable */
 // tslint:enable

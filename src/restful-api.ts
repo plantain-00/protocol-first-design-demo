@@ -15,7 +15,7 @@ interface ExpressHandler {
  * @method get
  * @path "/api/blogs"
  */
-function getBlogs(): DeepReturnType<BlogsResult> {
+async function getBlogs(): Promise<DeepReturnType<BlogsResult>> {
   const pagination = { skip: 0, take: 10 }
   return {
     result: blogs.slice(pagination.skip, pagination.skip + pagination.take)
@@ -32,7 +32,7 @@ function getBlogs(): DeepReturnType<BlogsResult> {
  * @method get
  * @path "/api/blogs/{id}"
  */
-function getBlogById(/** @in path */id: number): DeepReturnType<BlogResult> {
+async function getBlogById(/** @in path */id: number): Promise<DeepReturnType<BlogResult>> {
   const blog = blogs.find((b) => b.id === id)
   return {
     result: blog ? {
@@ -44,13 +44,20 @@ function getBlogById(/** @in path */id: number): DeepReturnType<BlogResult> {
   }
 }
 
+let generateId = () => {
+  return Math.random()
+}
+
+// mock
+generateId = () => 3
+
 /**
  * @method post
  * @path "/api/blogs"
  */
-function createBlog(/** @in query */content: string): DeepReturnType<CreateBlogResult> {
+async function createBlog(/** @in query */content: string): Promise<DeepReturnType<CreateBlogResult>> {
   const blog: any = {
-    id: 3,
+    id: generateId(),
     content,
     meta: {
       baz: 222
