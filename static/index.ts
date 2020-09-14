@@ -21,11 +21,28 @@ async function fetchGraphql(query: string, variables = {}) {
   return data.data as ResolveResult
 }
 
-const requestRestfulAPI: RequestRestfulAPI = async (method: 'GET' | 'POST', url: string, query?: {}) => {
-  if (query) {
-    url = '?' + qs.stringify(query)
+const requestRestfulAPI: RequestRestfulAPI = async (
+  method: 'GET' | 'POST',
+  url: string,
+  args?: { path?: { [key: string]: string | number }, query?: {}, body?: {} }
+) => {
+  if (args) {
+    if (args.path) {
+      for (const key in args.path) {
+        url = url.replace(`{${key}}`, args.path[key].toString())
+      }
+    }
+    if (args.query) {
+      url = '?' + qs.stringify(args.query)
+    }
   }
-  const result = await fetch(url, { method })
+  const result = await fetch(
+    url,
+    {
+      method,
+      body: args?.body ? JSON.stringify(args.body) : undefined,
+      headers: args?.body ? { 'content-type': 'application/json' } : undefined
+    })
   return result.json()
 }
 
@@ -33,10 +50,10 @@ const requestRestfulAPI: RequestRestfulAPI = async (method: 'GET' | 'POST', url:
   const blogsResult = await requestRestfulAPI('GET', '/api/blogs')
   console.info('rest blogs', blogsResult.result, blogsResult.count)
 
-  const blogResult = await requestRestfulAPI('GET', '/api/blogs/{id}', 1)
+  const blogResult = await requestRestfulAPI('GET', '/api/blogs/{id}', { path: { id: 1 } })
   console.info('rest blog', blogResult.result)
 
-  const createBlogResult = await requestRestfulAPI('POST', '/api/blogs', { content: 'test' })
+  const createBlogResult = await requestRestfulAPI('POST', '/api/blogs', { body: { content: 'test' } })
   console.info('rest create blog', createBlogResult.result)
 
   const graphqlBlogsResult = await fetchGraphql(gqlBlogsGql, { pagination: { skip: 1, take: 1 } })

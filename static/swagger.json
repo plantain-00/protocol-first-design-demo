@@ -40,7 +40,7 @@
           {
             "name": "content",
             "required": true,
-            "in": "query",
+            "in": "body",
             "type": "string"
           }
         ],

@@ -16,13 +16,26 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
         }
       })
 
-      const path = declaration.parameters.filter((d) => d.in === 'path')
-      parameters.push(...path.map((p) => generateTypescriptOfFunctionParameter(p)))
+      const params: { optional: boolean, value: string }[] = []
+      for (const type of ['path', 'query', 'body']) {
+        const parameter = declaration.parameters.filter((d) => d.in === type)
+        if (parameter.length > 0) {
+          const optional = parameter.every((q) => q.optional) ? '?' : ''
+          params.push({
+            optional: parameter.every((q) => q.optional),
+            value: `${type}${optional}: { ${parameter.map((q) => generateTypescriptOfFunctionParameter(q)).join(', ')} }`
+          })
+        }
+      }
+      if (params.length > 0) {
+        const optional = params.every((q) => q.optional) ? '?' : ''
+        parameters.push(`args${optional}: { ${params.map((p) => p.value).join(', ')} }`)
+      }
 
-      const query = declaration.parameters.filter((d) => d.in === 'query')
-      if (query.length > 0) {
-        const optional = query.every((q) => q.optional) ? '?' : ''
-        parameters.push(`query${optional}: { ${query.map((q) => generateTypescriptOfFunctionParameter(q)).join(', ')} }`)
+      const body = declaration.parameters.filter((d) => d.in === 'body')
+      if (body.length > 0) {
+        const optional = body.every((q) => q.optional) ? '?' : ''
+        params.push(`body${optional}: { ${body.map((q) => generateTypescriptOfFunctionParameter(q)).join(', ')} }`)
       }
 
       references.push(type)

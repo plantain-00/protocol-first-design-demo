@@ -9,7 +9,7 @@ interface ExpressHandler {
   method: 'get' | 'post'
   url: string
   tag: 'blog'
-  handler: (req: express.Request<{ [key: string]: string; }, {}, {}, ParsedQs>) => any
+  handler: (req: express.Request<{ [key: string]: string }, {}, {}, ParsedQs>) => any
 }
 
 /**
@@ -72,7 +72,7 @@ generateId = () => 3
  * @method post
  * @path "/api/blogs"
  */
-async function createBlog(/** @in query */content: string): Promise<DeepReturnType<CreateBlogResult>> {
+async function createBlog(/** @in body */content: string): Promise<DeepReturnType<CreateBlogResult>> {
   const blog: any = {
     id: generateId(),
     content,
@@ -95,7 +95,7 @@ const handlers: ExpressHandler[] = [
     handler: (req) => {
       const take = req.query.take ? +req.query.take : undefined
       const skip = req.query.skip ? +req.query.skip : undefined
-      const content = typeof req.query.content === 'string' ? req.query.content: undefined
+      const content = typeof req.query.content === 'string' ? req.query.content : undefined
       return getBlogs(take, skip, content)
     }
   },
@@ -112,8 +112,11 @@ const handlers: ExpressHandler[] = [
     method: 'post',
     url: '/api/blogs',
     tag: 'blog',
-    handler: (req) => {
-      const content = req.query.content as string
+    handler: (req: express.Request<{}, {}, { content?: string }, ParsedQs>) => {
+      const content = req.body.content
+      if (!content) {
+        throw new HttpError('invalid parameter: content', 400)
+      }
       return createBlog(content)
     }
   }

@@ -1,6 +1,7 @@
 import express = require('express')
 import path = require('path')
 import DataLoader from 'dataloader'
+import * as bodyParser from 'body-parser'
 
 import { startRestfulApi } from './restful-api'
 import { startGraphqlApi } from './graphql-api'
@@ -15,6 +16,7 @@ function printInConsole(message: string) {
 
 const app = express()
 
+app.use(bodyParser.json())
 app.use(express.static(path.resolve(__dirname, '../static')))
 
 app.use((req: Request, res, next) => {
