@@ -13,6 +13,7 @@ export function startGraphqlApi(app: express.Application) {
     blogs: async({ pagination }, req) => {
       await authorized(req, 'blog')
       return {
+        count: blogs.length,
         result: blogs.slice(pagination.skip, pagination.skip + pagination.take)
           .map((blog) => ({
             id: blog.id,

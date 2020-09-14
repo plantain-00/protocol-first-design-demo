@@ -4,7 +4,28 @@
     "\"/api/blogs\"": {
       "get": {
         "operationId": "getBlogs",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "skip",
+            "required": true,
+            "in": "query",
+            "type": "number",
+            "default": 0
+          },
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "type": "number",
+            "default": 10
+          },
+          {
+            "name": "content",
+            "required": false,
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "schema": {
@@ -62,10 +83,14 @@
           "items": {
             "$ref": "#/definitions/Blog"
           }
+        },
+        "count": {
+          "type": "integer"
         }
       },
       "required": [
-        "result"
+        "result",
+        "count"
       ],
       "additionalProperties": false
     },

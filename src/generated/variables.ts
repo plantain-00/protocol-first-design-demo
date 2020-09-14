@@ -35,6 +35,7 @@ type Mutation {
 
 type BlogsResult {
   result: [Blog]!
+  count: Int!
 }
 
 type BlogResult {

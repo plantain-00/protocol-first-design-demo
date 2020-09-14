@@ -56,6 +56,7 @@ export interface Pagination<TContext = any> {
 
 export interface BlogsResult<TContext = any> {
   result: Array<Blog<TContext>>
+  count: number
 }
 
 export interface BlogResult<TContext = any> {
@@ -90,6 +91,7 @@ export interface ApolloResolvers<TContext = any> {
   },
   BlogsResult?: {
     result?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
+    count?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
   },
   BlogResult?: {
     result?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,

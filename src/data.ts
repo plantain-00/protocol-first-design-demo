@@ -86,6 +86,7 @@ export interface Mutation {
 
 export interface BlogsResult {
   result: Blog[]
+  count: integer
 }
 
 export interface BlogResult {
