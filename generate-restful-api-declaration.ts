@@ -6,15 +6,10 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
   for (const declaration of typeDeclarations) {
     if (declaration.kind === 'function' && declaration.method && declaration.path) {
       const parameters = [
-        `method: "${declaration.method.toUpperCase()}"`,
-        `url: ${declaration.path}`,
+        `method: '${declaration.method.toUpperCase()}'`,
+        `url: '${declaration.path}'`,
       ]
       const type = generateTypescriptOfType(declaration.type)
-      declaration.parameters.forEach((p) => {
-        if (p.type.default !== undefined) {
-          p.optional = true
-        }
-      })
 
       const params: { optional: boolean, value: string }[] = []
       for (const type of ['path', 'query', 'body']) {
@@ -30,12 +25,6 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
       if (params.length > 0) {
         const optional = params.every((q) => q.optional) ? '?' : ''
         parameters.push(`args${optional}: { ${params.map((p) => p.value).join(', ')} }`)
-      }
-
-      const body = declaration.parameters.filter((d) => d.in === 'body')
-      if (body.length > 0) {
-        const optional = body.every((q) => q.optional) ? '?' : ''
-        params.push(`body${optional}: { ${body.map((q) => generateTypescriptOfFunctionParameter(q)).join(', ')} }`)
       }
 
       references.push(type)

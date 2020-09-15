@@ -1,20 +1,21 @@
 {
+  "info": {},
   "swagger": "2.0",
   "paths": {
-    "\"/api/blogs\"": {
+    "/api/blogs": {
       "get": {
         "operationId": "getBlogs",
         "parameters": [
           {
             "name": "skip",
-            "required": true,
+            "required": false,
             "in": "query",
             "type": "number",
             "default": 0
           },
           {
             "name": "take",
-            "required": true,
+            "required": false,
             "in": "query",
             "type": "number",
             "default": 10
@@ -24,6 +25,28 @@
             "required": false,
             "in": "query",
             "type": "string"
+          },
+          {
+            "name": "sortField",
+            "required": false,
+            "in": "query",
+            "type": "string",
+            "enum": [
+              "id",
+              "content"
+            ],
+            "default": "id"
+          },
+          {
+            "name": "sortType",
+            "required": false,
+            "in": "query",
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "default": "asc"
           }
         ],
         "responses": {
@@ -53,7 +76,7 @@
         }
       }
     },
-    "\"/api/blogs/{id}\"": {
+    "/api/blogs/{id}": {
       "get": {
         "operationId": "getBlogById",
         "parameters": [

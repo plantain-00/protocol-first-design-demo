@@ -33,7 +33,7 @@ const requestRestfulAPI: RequestRestfulAPI = async (
       }
     }
     if (args.query) {
-      url = '?' + qs.stringify(args.query)
+      url += '?' + qs.stringify(args.query)
     }
   }
   const result = await fetch(
@@ -47,7 +47,7 @@ const requestRestfulAPI: RequestRestfulAPI = async (
 }
 
 (async () => {
-  const blogsResult = await requestRestfulAPI('GET', '/api/blogs')
+  const blogsResult = await requestRestfulAPI('GET', '/api/blogs', { query: { sortType: 'desc' } })
   console.info('rest blogs', blogsResult.result, blogsResult.count)
 
   const blogResult = await requestRestfulAPI('GET', '/api/blogs/{id}', { path: { id: 1 } })

@@ -14,7 +14,7 @@ interface ExpressHandler {
 
 /**
  * @method get
- * @path "/api/blogs"
+ * @path /api/blogs
  */
 async function getBlogs(
   /**
@@ -28,10 +28,24 @@ async function getBlogs(
   /**
    * @in query
    */
-  content?: string
+  content?: string,
+  /**
+   * @in query
+   */
+  sortField: 'id' | 'content' = 'id',
+  /**
+   * @in query
+   */
+  sortType: 'asc' | 'desc' = 'asc',
 ): Promise<DeepReturnType<BlogsResult>> {
   const pagination = { skip, take }
   const filteredBlogs = content ? blogs.filter((b) => b.content.includes(content)) : blogs
+  filteredBlogs.sort((a, b) => {
+    if (sortField === 'id') {
+      return sortType === 'asc' ? a[sortField] - b[sortField] : b[sortField] - a[sortField]
+    }
+    return (sortType === 'asc' ? 1 : -1) * a[sortField].localeCompare(b[sortField])
+  })
 
   return {
     result: filteredBlogs.slice(pagination.skip, pagination.skip + pagination.take)
@@ -47,7 +61,7 @@ async function getBlogs(
 
 /**
  * @method get
- * @path "/api/blogs/{id}"
+ * @path /api/blogs/{id}
  */
 async function getBlogById(/** @in path */id: number): Promise<DeepReturnType<BlogResult>> {
   const blog = blogs.find((b) => b.id === id)
@@ -70,7 +84,7 @@ generateId = () => 3
 
 /**
  * @method post
- * @path "/api/blogs"
+ * @path /api/blogs
  */
 async function createBlog(/** @in body */content: string): Promise<DeepReturnType<CreateBlogResult>> {
   const blog: any = {
@@ -96,7 +110,9 @@ const handlers: ExpressHandler[] = [
       const take = req.query.take ? +req.query.take : undefined
       const skip = req.query.skip ? +req.query.skip : undefined
       const content = typeof req.query.content === 'string' ? req.query.content : undefined
-      return getBlogs(take, skip, content)
+      const sortField = req.query.sortField === 'id' || req.query.sortField === 'content' ? req.query.sortField : undefined
+      const sortType = req.query.sortType === 'asc' || req.query.sortType === 'desc' ? req.query.sortType : undefined
+      return getBlogs(take, skip, content, sortField, sortType)
     }
   },
   {
