@@ -47,13 +47,13 @@ const requestRestfulAPI: RequestRestfulAPI = async (
 }
 
 (async () => {
-  const blogsResult = await requestRestfulAPI('GET', '/api/blogs', { query: { sortType: 'desc' } })
+  const blogsResult = await requestRestfulAPI('GET', '/api/blogs', { query: { sortType: 'desc', ignoredFields: ['posts', 'meta'] } })
   console.info('rest blogs', blogsResult.result, blogsResult.count)
 
   const blogResult = await requestRestfulAPI('GET', '/api/blogs/{id}', { path: { id: 1 } })
   console.info('rest blog', blogResult.result)
 
-  const createBlogResult = await requestRestfulAPI('POST', '/api/blogs', { body: { content: 'test' } })
+  const createBlogResult = await requestRestfulAPI('POST', '/api/blogs', { body: { content: 'test' }, query: { ignoredFields: ['posts'] } })
   console.info('rest create blog', createBlogResult.result)
 
   const graphqlBlogsResult = await fetchGraphql(gqlBlogsGql, { pagination: { skip: 1, take: 1 } })

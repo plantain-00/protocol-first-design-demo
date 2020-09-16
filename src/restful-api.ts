@@ -1,9 +1,10 @@
 import * as express from 'express'
 import { ParsedQs } from 'qs'
 
-import { blogs, posts, BlogsResult, BlogResult, CreateBlogResult } from './data'
+import { blogs, posts } from './data'
 import { authorized, HttpError } from './auth'
-import { DeepReturnType } from './generated/root'
+import { CreateBlog, GetBlogById, GetBlogs } from './generated/restful-api-handler'
+import { Blog, BlogIgnorableField } from './restful-api-schema'
 
 interface ExpressHandler {
   method: 'get' | 'post'
@@ -12,33 +13,7 @@ interface ExpressHandler {
   handler: (req: express.Request<{ [key: string]: string }, {}, {}, ParsedQs>) => any
 }
 
-/**
- * @method get
- * @path /api/blogs
- */
-async function getBlogs(
-  /**
-   * @in query
-   */
-  skip = 0,
-  /**
-   * @in query
-   */
-  take = 10,
-  /**
-   * @in query
-   */
-  content?: string,
-  /**
-   * @in query
-   */
-  sortField: 'id' | 'content' = 'id',
-  /**
-   * @in query
-   */
-  sortType: 'asc' | 'desc' = 'asc',
-): Promise<DeepReturnType<BlogsResult>> {
-  const pagination = { skip, take }
+const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip, take, ignoredFields } }) => {
   const filteredBlogs = content ? blogs.filter((b) => b.content.includes(content)) : blogs
   filteredBlogs.sort((a, b) => {
     if (sortField === 'id') {
@@ -48,30 +23,15 @@ async function getBlogs(
   })
 
   return {
-    result: filteredBlogs.slice(pagination.skip, pagination.skip + pagination.take)
-      .map((blog) => ({
-        id: blog.id,
-        content: blog.content,
-        posts: posts.filter((p) => p.blogId === blog.id),
-        meta: blog.meta
-      })),
+    result: filteredBlogs.slice(skip, skip + take).map((blog) => getBlog(blog, ignoredFields)),
     count: filteredBlogs.length,
   }
 }
 
-/**
- * @method get
- * @path /api/blogs/{id}
- */
-async function getBlogById(/** @in path */id: number): Promise<DeepReturnType<BlogResult>> {
+const getBlogById: GetBlogById = async ({ query, path: { id } }) => {
   const blog = blogs.find((b) => b.id === id)
   return {
-    result: blog ? {
-      id: blog.id,
-      content: blog.content,
-      posts: posts.filter((p) => p.blogId === blog.id),
-      meta: blog.meta
-    } : undefined
+    result: blog ? getBlog(blog, query?.ignoredFields) : undefined
   }
 }
 
@@ -82,11 +42,7 @@ let generateId = () => {
 // mock
 generateId = () => 3
 
-/**
- * @method post
- * @path /api/blogs
- */
-async function createBlog(/** @in body */content: string): Promise<DeepReturnType<CreateBlogResult>> {
+const createBlog: CreateBlog = async ({ query, body: { content } }) => {
   const blog: any = {
     id: generateId(),
     content,
@@ -97,7 +53,7 @@ async function createBlog(/** @in body */content: string): Promise<DeepReturnTyp
   }
   blogs.push(blog)
   return {
-    result: blog
+    result: getBlog(blog, query?.ignoredFields)
   }
 }
 
@@ -107,12 +63,17 @@ const handlers: ExpressHandler[] = [
     url: '/api/blogs',
     tag: 'blog',
     handler: (req) => {
-      const take = req.query.take ? +req.query.take : undefined
-      const skip = req.query.skip ? +req.query.skip : undefined
+      const skip = req.query.skip ? +req.query.skip : 0
+      const take = req.query.take ? +req.query.take : 10
       const content = typeof req.query.content === 'string' ? req.query.content : undefined
-      const sortField = req.query.sortField === 'id' || req.query.sortField === 'content' ? req.query.sortField : undefined
-      const sortType = req.query.sortType === 'asc' || req.query.sortType === 'desc' ? req.query.sortType : undefined
-      return getBlogs(take, skip, content, sortField, sortType)
+      const sortField = req.query.sortField === 'id' || req.query.sortField === 'content' ? req.query.sortField : 'id'
+      const sortType = req.query.sortType === 'asc' || req.query.sortType === 'desc' ? req.query.sortType : 'asc'
+      const ignoredFields = getIgnoredFields(req.query)
+      return getBlogs({
+        query: {
+          take, skip, content, sortField, sortType, ignoredFields
+        }
+      })
     }
   },
   {
@@ -121,7 +82,8 @@ const handlers: ExpressHandler[] = [
     tag: 'blog',
     handler: (req) => {
       const id = +(req.params as { [name: string]: string }).id
-      return getBlogById(id)
+      const ignoredFields = getIgnoredFields(req.query)
+      return getBlogById({ path: { id }, query: { ignoredFields } })
     }
   },
   {
@@ -133,14 +95,22 @@ const handlers: ExpressHandler[] = [
       if (!content) {
         throw new HttpError('invalid parameter: content', 400)
       }
-      return createBlog(content)
+      const ignoredFields = getIgnoredFields(req.query)
+      return createBlog({ body: { content }, query: { ignoredFields } })
     }
   }
 ]
 
+function getIgnoredFields(query: ParsedQs) {
+  if (typeof query.ignoredFields === 'string') {
+    return query.ignoredFields.split(',') as BlogIgnorableField[]
+  }
+  return Array.isArray(query.ignoredFields) ? query.ignoredFields as BlogIgnorableField[] : undefined
+}
+
 export function startRestfulApi(app: express.Application) {
   for (const handler of handlers) {
-    app[handler.method](handler.url, async (req, res) => {
+    app[handler.method](handler.url, async (req: express.Request<{}>, res: express.Response<{}>) => {
       try {
         await authorized(req, handler.tag)
         const result = await handler.handler(req)
@@ -154,4 +124,21 @@ export function startRestfulApi(app: express.Application) {
       }
     })
   }
+}
+
+function getBlog<T extends BlogIgnorableField = never>(
+  blog: {
+    id: number,
+    content: string,
+    meta: any,
+    posts: number[],
+  },
+  ignoredFields?: T[],
+) {
+  return {
+    id: blog.id,
+    content: blog.content,
+    posts: ignoredFields && (ignoredFields as BlogIgnorableField[]).includes('posts') ? undefined : posts.filter((p) => p.blogId === blog.id),
+    meta: ignoredFields && (ignoredFields as BlogIgnorableField[]).includes('meta') ? undefined : blog.meta,
+  } as Omit<Blog, T>
 }

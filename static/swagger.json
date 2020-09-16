@@ -10,14 +10,14 @@
             "name": "skip",
             "required": false,
             "in": "query",
-            "type": "number",
+            "type": "integer",
             "default": 0
           },
           {
             "name": "take",
             "required": false,
             "in": "query",
-            "type": "number",
+            "type": "integer",
             "default": 10
           },
           {
@@ -47,13 +47,39 @@
               "desc"
             ],
             "default": "asc"
+          },
+          {
+            "name": "ignoredFields",
+            "required": false,
+            "in": "query",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/BlogIgnorableField"
+            }
           }
+        ],
+        "tags": [
+          "blog"
         ],
         "responses": {
           "200": {
-            "schema": {
-              "$ref": "#/definitions/BlogsResult"
-            }
+            "type": "object",
+            "properties": {
+              "result": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Blog"
+                }
+              },
+              "count": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "result",
+              "count"
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -65,13 +91,32 @@
             "required": true,
             "in": "body",
             "type": "string"
+          },
+          {
+            "name": "ignoredFields",
+            "required": false,
+            "in": "query",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/BlogIgnorableField"
+            }
           }
+        ],
+        "tags": [
+          "blog"
         ],
         "responses": {
           "200": {
-            "schema": {
-              "$ref": "#/definitions/CreateBlogResult"
-            }
+            "type": "object",
+            "properties": {
+              "result": {
+                "$ref": "#/definitions/Blog"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "additionalProperties": false
           }
         }
       }
@@ -85,38 +130,36 @@
             "required": true,
             "in": "path",
             "type": "number"
+          },
+          {
+            "name": "ignoredFields",
+            "required": false,
+            "in": "query",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/BlogIgnorableField"
+            }
           }
+        ],
+        "tags": [
+          "blog"
         ],
         "responses": {
           "200": {
-            "schema": {
-              "$ref": "#/definitions/BlogResult"
-            }
+            "type": "object",
+            "properties": {
+              "result": {
+                "$ref": "#/definitions/Blog"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
           }
         }
       }
     }
   },
   "definitions": {
-    "BlogsResult": {
-      "type": "object",
-      "properties": {
-        "result": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Blog"
-          }
-        },
-        "count": {
-          "type": "integer"
-        }
-      },
-      "required": [
-        "result",
-        "count"
-      ],
-      "additionalProperties": false
-    },
     "Blog": {
       "type": "object",
       "properties": {
@@ -140,8 +183,7 @@
         "posts",
         "meta"
       ],
-      "additionalProperties": false,
-      "maxProperties": 2
+      "additionalProperties": false
     },
     "Post": {
       "type": "object",
@@ -159,27 +201,12 @@
       ],
       "additionalProperties": false
     },
-    "BlogResult": {
-      "type": "object",
-      "properties": {
-        "result": {
-          "$ref": "#/definitions/Blog"
-        }
-      },
-      "required": [],
-      "additionalProperties": false
-    },
-    "CreateBlogResult": {
-      "type": "object",
-      "properties": {
-        "result": {
-          "$ref": "#/definitions/Blog"
-        }
-      },
-      "required": [
-        "result"
-      ],
-      "additionalProperties": false
+    "BlogIgnorableField": {
+      "type": "string",
+      "enum": [
+        "posts",
+        "meta"
+      ]
     }
   }
 }

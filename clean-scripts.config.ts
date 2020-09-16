@@ -36,7 +36,8 @@ export default {
   },
   schema: [
     'types-as-schema src/data.ts --graphql src/generated/data.gql --graphql-root-type src/generated/root.ts',
-    'types-as-schema src/restful-api.ts src/data.ts --swagger static/swagger.json --swagger-base static/swagger-base.json --config ./generate-restful-api-declaration.ts --custom ./static/restful-api-declaration.ts',
+    'types-as-schema src/restful-api-schema.ts --swagger static/swagger.json --swagger-base static/swagger-base.json --config ./generate-restful-api-declaration.ts --custom ./static/restful-api-declaration.ts',
+    'types-as-schema src/restful-api-schema.ts --config ./generate-restful-api-handler.ts --custom ./src/generated/restful-api-handler.ts',
     'file2variable-cli --config file2variable.config.js'
   ],
   lint: {
@@ -44,8 +45,8 @@ export default {
     less: `stylelint ${lessFiles}`,
     export: `no-unused-export ${tsFiles} ${lessFiles} --exclude "src/generated/*.ts"`,
     markdown: `markdownlint README.md`,
-    typeCoverage: 'type-coverage -p src --strict',
-    typeCoverageStatic: 'type-coverage -p static --strict'
+    typeCoverage: 'type-coverage -p src --strict --ignore-files src/generated/*.ts',
+    typeCoverageStatic: 'type-coverage -p static --strict --ignore-files static/variables.ts'
   },
   test: {
     start: new Program('clean-release --config clean-run.config.ts', 30000)

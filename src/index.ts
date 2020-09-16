@@ -1,5 +1,5 @@
-import express = require('express')
-import path = require('path')
+import express from 'express'
+import * as path from 'path'
 import DataLoader from 'dataloader'
 import * as bodyParser from 'body-parser'
 

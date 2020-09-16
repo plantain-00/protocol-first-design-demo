@@ -84,15 +84,15 @@ export interface Mutation {
   createBlog(content: string): CreateBlogResult
 }
 
-export interface BlogsResult {
+interface BlogsResult {
   result: Blog[]
   count: integer
 }
 
-export interface BlogResult {
+interface BlogResult {
   result?: Blog
 }
 
-export interface CreateBlogResult {
+interface CreateBlogResult {
   result: Blog
 }

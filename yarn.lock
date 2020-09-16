@@ -6244,10 +6244,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-types-as-schema@1.34.2:
-  version "1.34.2"
-  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.34.2.tgz#4267a00ffe2f8ead47cf4797a511c8d99c608004"
-  integrity sha512-I5TeA091vb+0W6tPR++g2ZGe+jzbKUf286hbV2iVgWg3kBQPw3DbRo8Gu6bRU4OlLu5QSL7RAHnmaVJo5VYBkA==
+types-as-schema@1.34.4:
+  version "1.34.4"
+  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.34.4.tgz#99edf9452ee21e4caa025b25702f351f5b09a999"
+  integrity sha512-M7Wk/Tpvs8kMFRitO4lMZLvR912+2fKNB1FaAFMf8AD5H+iXpGyX+Rm6W7ctouSTRYSNdhcjgzQ6EtuEWDu4RA==
   dependencies:
     ajv "6"
     chokidar "3"
