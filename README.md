@@ -148,7 +148,7 @@ export type DeleteBlog = (req: { path: { id: number } }) => Promise<{  }>
 
 ### 以 expressjs 为例为 API 实现注册路由
 
-因为之前定义的元数据里有 url 和 method 等信息，用来自动生成简单的路由注册功能，例如：
+因为之前定义的元数据里有 url 和 method 等信息，可以用来自动生成简单的路由注册功能，例如：
 
 ```ts
 export const registerGetBlogs = (app: express.Application, handler: GetBlogs) => handleHttpRequest(app, 'get', '/api/blogs', 'blog', getBlogsValidate, handler)
@@ -170,12 +170,12 @@ registerDeleteBlog(app, deleteBlog)
 
 ### 添加新 API 时的流程
 
-1. 在 src/restful-api-schema.ts 定义新 API 的参数、返回值、url、method 等信息
+1. 在 [src/restful-api-schema.ts](./src/restful-api-schema.ts) 定义新 API 的参数、返回值、url、method 等信息
 2. 执行 `yarn schema`
 3. 检查生成的 swagger 是否符合预期，如果有遗漏的信息，返回执行第 1、2 步
 4. 后端增加注册代码，例如 `registerDeleteBlog(app, deleteBlog)`，其中 `registerDeleteBlog` 已经自动生成，`deleteBlog` 需要自行实现，参数和返回值已经生成好了
 5. 前端调用新接口，例如 `const deleteBlogResult = await requestRestfulAPI('DELETE', '/api/blogs/{id}', { path: { id: 1 } })`
-6. 整体测试一下
+6. 整体测试一下，添加单元测试
 
 ### 最后验证一下设计目标是否满足
 
