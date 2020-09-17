@@ -20,6 +20,7 @@
 3. 适量使用 typescript 的类型操作，在维护复杂和使用方便两个方面取平衡
 4. 对于 typescript 类型操作难实现的部分，使用类型代码生成
 5. 尽量只生成类型代码，不生成实现代码，以免代码生成脚本过于复杂、难以维护、耗时太长，也避免和具体前端请求库（fetch、axios）、具体后端框架（express、koa、nestjs）的耦合，这样更具通用性
+6. 尽可能方便自动测试
 
 ### API 协议和相应的 swagger
 
@@ -58,7 +59,7 @@ export interface Blog {
 }
 ```
 
-例如上面就是第 3 种方案的一部分定义，实际例子里这样的类型定义占用里 122 行 (src/restful-api-schema.ts)，生成的 swagger 文件则有 282 行 (static/swagger.json)，信息密度提高了一倍左右。
+例如上面就是第 3 种方案的一部分定义，实际例子里这样的类型定义占用里 122 行 [src/restful-api-schema.ts](./src/restful-api-schema.ts)，生成的 swagger 文件则有 282 行 [static/swagger.json](./static/swagger.json)，信息密度提高了一倍左右。
 
 ### 按需读取字段的实现方式
 
@@ -74,7 +75,7 @@ graphql 的一个特点是，用户可以控制需要返回哪些字段，而 RE
 
 ### 前端使用
 
-根据之前定义的元数据，为前端生成下面这样通用的类型（生成脚本 generate-restful-api-declaration.ts）：
+根据之前定义的元数据，为前端生成下面这样通用的类型 [生成脚本 generate-restful-api-declaration.ts](./generate-restful-api-declaration.ts) [生成的类型 src/restful-api-declaration.ts](./src/restful-api-declaration.ts)：
 
 ```ts
 export type RequestRestfulAPI = {
@@ -86,7 +87,7 @@ export type RequestRestfulAPI = {
 }
 ```
 
-然后根据前端使用的请求库，定义一个请求函数。下面以 fetch 为例：
+然后根据前端使用的请求库，定义一个请求函数。下面以 fetch 为例 [static/index.ts](./static/index.ts)：
 
 ```ts
 const requestRestfulAPI: RequestRestfulAPI = async (
@@ -157,7 +158,7 @@ export const registerPatchBlog = (app: express.Application, handler: PatchBlog) 
 export const registerDeleteBlog = (app: express.Application, handler: DeleteBlog) => handleHttpRequest(app, 'delete', '/api/blogs/:id', 'blog', deleteBlogValidate, handler)
 ```
 
-使用使用时直接绑定 API 的实现函数即可：
+使用使用时直接绑定 API 的实现函数即可 [src/restful-api.ts](./src/restful-api.ts)：
 
 ```ts
 registerGetBlogs(app, getBlogs)
@@ -183,6 +184,7 @@ registerDeleteBlog(app, deleteBlog)
 3. 适量使用 typescript 的类型操作，在维护复杂和使用方便两个方面取平衡：✅ 每个 API 各生成 1 行前端类型代码、后端类型代码、注册路由代码
 4. 对于 typescript 类型操作难实现的部分，使用类型代码生成：✅ 前端类型、后端类型、注册路由都是生成的代码
 5. 尽量只生成类型代码，不生成实现代码，以免代码生成脚本过于复杂、难以维护、耗时太长，也避免和具体前端请求库（fetch、axios）、具体后端框架（express、koa、nestjs）的耦合，这样更具通用性：✅ 生成脚本只有不到 200 行代码，所有 schema 的生成只需要 3 秒左右，前后端的类型都是足够抽象的，与使用的框架、数据库等都无关，只专注解决 API 相关的重复性劳动
+6. 尽可能方便自动测试：✅ 由上面的流程可知，业务逻辑可能出问题的地方，主要在后端类型的实现代码，对这些函数的自动测试可以使用单元测试来进行，这样不需要启动整个后端，比全部使用集成测试，测试耗时要显著短，占用资源要显著少 [spec/restful-api.ts](./spec/restful-api.ts)
 
 ## install
 

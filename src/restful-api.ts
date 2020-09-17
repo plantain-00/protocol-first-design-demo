@@ -32,10 +32,17 @@ let generateId = () => {
   return Math.random()
 }
 
-// mock
-generateId = () => 3
+/**
+ * @public
+ */
+export function mockGeneratedId(value: typeof generateId) {
+  generateId = value
+}
 
-const createBlog: CreateBlog = async ({ query, body: { content } }) => {
+/**
+ * @public
+ */
+export const createBlog: CreateBlog = async ({ query, body: { content } }) => {
   if (!content) {
     throw new HttpError('invalid parameter: content', 400)
   }
