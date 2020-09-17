@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { BlogIgnorableField, Blog } from './restful-api-schema'
+import { Blog, BlogIgnorableField } from './restful-api-schema'
 
 export type RequestRestfulAPI = {
   <T extends BlogIgnorableField = never>(method: 'GET', url: '/api/blogs', args?: { query?: { skip?: number, take?: number, content?: string, sortField?: "id" | "content", sortType?: "asc" | "desc", ignoredFields?: T[] } }): Promise<{ result: Omit<Blog, T>[], count: number }>

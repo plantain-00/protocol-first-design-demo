@@ -1,10 +1,10 @@
-import { Definition, generateTypescriptOfFunctionParameter, generateTypescriptOfType, getAllDefinitions, getJsonSchemaProperty, getReferencedDefinitions, getReferencesInType, Member, TypeDeclaration } from 'types-as-schema'
+import { Definition, FunctionParameter, generateTypescriptOfFunctionParameter, generateTypescriptOfType, getAllDefinitions, getJsonSchemaProperty, getReferencedDefinitions, getReferencesInType, Member, TypeDeclaration } from 'types-as-schema'
 
 export = (typeDeclarations: TypeDeclaration[]): string => {
-  const result: string[] = []
+  const backendResult: string[] = []
   const frontendResult: string[] = []
   const references: string[] = []
-  const schemas: Array<{ name: string, schema: string }> = []
+  const jsonSchemas: Array<{ name: string, schema: string }> = []
   const registers: string[] = []
   const definitions = getAllDefinitions({ declarations: typeDeclarations, looseMode: true })
   for (const declaration of typeDeclarations) {
@@ -47,7 +47,7 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
           optional: params.every((p) => p.optional),
         })
       }
-      schemas.push({
+      jsonSchemas.push({
         name: declaration.name,
         schema: JSON.stringify({
           ...getJsonSchemaProperty(
@@ -67,66 +67,53 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
         }, null, 2)
       })
 
+      // import reference
+      references.push(...getReferencesInType(declaration.type).map((r) => r.name))
+      for (const parameter of declaration.parameters) {
+        references.push(...getReferencesInType(parameter.type).map((r) => r.name))
+      }
+
       // backend / frontend types
-      const parameters: string[] = []
-      const frontendParameters = [
-        `method: '${declaration.method.toUpperCase()}'`,
-        `url: '${declaration.path}'`,
-      ]
-      const params: { optional: boolean, value: string }[] = []
+      const backendParams: { optional: boolean, value: string }[] = []
       const frontendParams: { optional: boolean, value: string }[] = []
-      let ignorableField = ''
       for (const type of ['path', 'query', 'body']) {
         const parameter = declaration.parameters.filter((d) => d.in === type)
         if (parameter.length > 0) {
-          const frontendOptional = parameter.every((q) => q.optional) ? '?' : ''
-          frontendParams.push({
-            optional: parameter.every((q) => q.optional),
-            value: `${type}${frontendOptional}: { ${parameter.map((q) => {
-              if (q.name === 'ignoredFields' && q.type.kind === 'array' && q.type.type.kind === 'reference') {
-                references.push(q.type.type.name)
-                ignorableField = q.type.type.name
-                return 'ignoredFields?: T[]'
-              }
-              return generateTypescriptOfFunctionParameter(q)
-            }).join(', ')} }`
-          })
+          frontendParams.push(getParam(type, parameter))
           parameter.forEach((q) => {
             if (q.type.default !== undefined) {
               q.optional = false
             }
           })
-          const optional = parameter.every((q) => q.optional) ? '?' : ''
-          params.push({
-            optional: parameter.every((q) => q.optional),
-            value: `${type}${optional}: { ${parameter.map((q) => {
-              if (q.name === 'ignoredFields' && q.type.kind === 'array' && q.type.type.kind === 'reference') {
-                references.push(q.type.type.name)
-                ignorableField = q.type.type.name
-                return 'ignoredFields?: T[]'
-              }
-              return generateTypescriptOfFunctionParameter(q)
-            }).join(', ')} }`
-          })
+          backendParams.push(getParam(type, parameter))
         }
       }
+      const frontendParameters = [
+        `method: '${declaration.method.toUpperCase()}'`,
+        `url: '${declaration.path}'`,
+      ]
       if (frontendParams.length > 0) {
         const optional = frontendParams.every((q) => q.optional) ? '?' : ''
         frontendParameters.push(`args${optional}: { ${frontendParams.map((p) => p.value).join(', ')} }`)
       }
-      if (params.length > 0) {
-        const optional = params.every((q) => q.optional) ? '?' : ''
-        parameters.push(`req${optional}: { ${params.map((p) => p.value).join(', ')} }`)
+      const backendParameters: string[] = []
+      if (backendParams.length > 0) {
+        const optional = backendParams.every((q) => q.optional) ? '?' : ''
+        backendParameters.push(`req${optional}: { ${backendParams.map((p) => p.value).join(', ')} }`)
       }
-
-      references.push(...getReferencesInType(declaration.type).map((r) => r.name))
       const returnType = generateTypescriptOfType(declaration.type, (child) => child.kind === 'reference' ? `Omit<${child.name}, T>` : undefined)
+      let ignorableField = ''
+      for (const p of declaration.parameters) {
+        if (p.name === 'ignoredFields' && p.type.kind === 'array' && p.type.type.kind === 'reference') {
+          ignorableField = p.type.type.name
+        }
+      }
       if (ignorableField) {
         frontendResult.push(`  <T extends ${ignorableField} = never>(${frontendParameters.join(', ')}): Promise<${returnType}>`)
-        result.push(`export type ${interfaceName} = <T extends ${ignorableField} = never>(${parameters.join(', ')}) => Promise<${returnType}>`)
+        backendResult.push(`export type ${interfaceName} = <T extends ${ignorableField} = never>(${backendParameters.join(', ')}) => Promise<${returnType}>`)
       } else {
         frontendResult.push(`  (${frontendParameters.join(', ')}): Promise<${returnType}>`)
-        result.push(`export type ${interfaceName} = (${parameters.join(', ')}) => Promise<${returnType}>`)
+        backendResult.push(`export type ${interfaceName} = (${backendParameters.join(', ')}) => Promise<${returnType}>`)
       }
     }
   }
@@ -138,7 +125,7 @@ export type RequestRestfulAPI = {
 ${frontendResult.join('\n')}
 }
 
-${result.join('\n')}
+${backendResult.join('\n')}
 
 import Ajv from 'ajv'
 
@@ -148,11 +135,24 @@ const ajv = new Ajv({
   coerceTypes: true,
 })
 
-${schemas.map((s) => `const ${s.name}Validate = ajv.compile(${s.schema})`).join('\n')}
+${jsonSchemas.map((s) => `const ${s.name}Validate = ajv.compile(${s.schema})`).join('\n')}
 
 import * as express from 'express'
 import { handleHttpRequest } from './restful-api'
 
 ${registers.join('\n')}
 `
+}
+
+function getParam(type: string, parameter: FunctionParameter[]) {
+  const optional = parameter.every((q) => q.optional) ? '?' : ''
+  return {
+    optional: parameter.every((q) => q.optional),
+    value: `${type}${optional}: { ${parameter.map((q) => {
+      if (q.name === 'ignoredFields' && q.type.kind === 'array' && q.type.type.kind === 'reference') {
+        return 'ignoredFields?: T[]'
+      }
+      return generateTypescriptOfFunctionParameter(q)
+    }).join(', ')} }`
+  }
 }
