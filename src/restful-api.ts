@@ -3,7 +3,7 @@ import Ajv from 'ajv'
 
 import { blogs, posts } from './data'
 import { authorized, HttpError } from './auth'
-import { CreateBlog, DeleteBlog, GetBlogById, GetBlogs, PatchBlog, registerCreateBlog, registerDeleteBlog, registerGetBlogById, registerGetBlogs, registerPatchBlog } from './generated/restful-api-handler'
+import { CreateBlog, DeleteBlog, GetBlogById, GetBlogs, PatchBlog, registerCreateBlog, registerDeleteBlog, registerGetBlogById, registerGetBlogs, registerPatchBlog } from './restful-api-declaration'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
 
 const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip, take, ignoredFields } }) => {
@@ -119,7 +119,7 @@ function getBlog<T extends BlogIgnorableField = never>(
   blog: {
     id: number,
     content: string,
-    meta: any,
+    meta: unknown,
     posts: number[],
   },
   ignoredFields?: T[],

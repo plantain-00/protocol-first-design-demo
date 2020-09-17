@@ -3,7 +3,7 @@ import Component from 'vue-class-component'
 import qs from 'qs'
 import { indexTemplateHtml, indexTemplateHtmlStatic, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
 import { ResolveResult } from '../src/generated/root'
-import { RequestRestfulAPI } from './restful-api-declaration'
+import { RequestRestfulAPI } from '../src/restful-api-declaration'
 
 async function fetchGraphql(query: string, variables = {}) {
   const res = await fetch('/graphql', {

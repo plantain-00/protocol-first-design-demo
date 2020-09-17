@@ -1,7 +1,14 @@
 /* eslint-disable */
 
-// import { handlers } from '../restful-api'
-import { BlogIgnorableField, Blog } from '../restful-api-schema'
+import { BlogIgnorableField, Blog } from './restful-api-schema'
+
+export type RequestRestfulAPI = {
+  <T extends BlogIgnorableField = never>(method: 'GET', url: '/api/blogs', args?: { query?: { skip?: number, take?: number, content?: string, sortField?: "id" | "content", sortType?: "asc" | "desc", ignoredFields?: T[] } }): Promise<{ result: Omit<Blog, T>[], count: number }>
+  <T extends BlogIgnorableField = never>(method: 'GET', url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] } }): Promise<{ result?: Omit<Blog, T> }>
+  <T extends BlogIgnorableField = never>(method: 'POST', url: '/api/blogs', args: { query?: { ignoredFields?: T[] }, body: { content: string } }): Promise<{ result: Omit<Blog, T> }>
+  <T extends BlogIgnorableField = never>(method: 'PATCH', url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] }, body?: { content?: string, meta?: unknown } }): Promise<{ result: Omit<Blog, T> }>
+  (method: 'DELETE', url: '/api/blogs/{id}', args: { path: { id: number } }): Promise<{  }>
+}
 
 export type GetBlogs = <T extends BlogIgnorableField = never>(req: { query: { skip: number, take: number, content?: string, sortField: "id" | "content", sortType: "asc" | "desc", ignoredFields?: T[] } }) => Promise<{ result: Omit<Blog, T>[], count: number }>
 export type GetBlogById = <T extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: T[] } }) => Promise<{ result?: Omit<Blog, T> }>
@@ -253,7 +260,7 @@ const deleteBlogValidate = ajv.compile({
 })
 
 import * as express from 'express'
-import { handleHttpRequest } from '../restful-api'
+import { handleHttpRequest } from './restful-api'
 
 export const registerGetBlogs = (app: express.Application, handler: GetBlogs) => handleHttpRequest(app, 'get', '/api/blogs', 'blog', getBlogsValidate, handler)
 export const registerGetBlogById = (app: express.Application, handler: GetBlogById) => handleHttpRequest(app, 'get', '/api/blogs/:id', 'blog', getBlogByIdValidate, handler)

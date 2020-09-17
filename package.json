@@ -56,7 +56,7 @@
     "watch": "cross-env NODE_ENV=development clean-scripts watch"
   },
   "typeCoverage": {
-    "atLeast": 95.37
+    "atLeast": 96.00
   },
   "dependencies": {
     "ajv": "6.12.5",
