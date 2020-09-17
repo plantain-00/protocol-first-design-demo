@@ -22,7 +22,7 @@ async function fetchGraphql(query: string, variables = {}) {
 }
 
 const requestRestfulAPI: RequestRestfulAPI = async (
-  method: 'GET' | 'POST',
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   url: string,
   args?: { path?: { [key: string]: string | number }, query?: {}, body?: {} }
 ) => {
@@ -55,6 +55,12 @@ const requestRestfulAPI: RequestRestfulAPI = async (
 
   const createBlogResult = await requestRestfulAPI('POST', '/api/blogs', { body: { content: 'test' }, query: { ignoredFields: ['posts'] } })
   console.info('rest create blog', createBlogResult.result)
+
+  const patchBlogResult = await requestRestfulAPI('PATCH', '/api/blogs/{id}', { path: { id: 1 }, body: { content: 'test222' } })
+  console.info('rest patch blog', patchBlogResult.result)
+
+  const deleteBlogResult = await requestRestfulAPI('DELETE', '/api/blogs/{id}', { path: { id: 1 } })
+  console.info('rest delete blog', deleteBlogResult)
 
   const graphqlBlogsResult = await fetchGraphql(gqlBlogsGql, { pagination: { skip: 1, take: 1 } })
   console.info('graphql blogs', graphqlBlogsResult.blogs.result)

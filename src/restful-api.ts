@@ -1,17 +1,10 @@
 import * as express from 'express'
-import { ParsedQs } from 'qs'
+import Ajv from 'ajv'
 
 import { blogs, posts } from './data'
 import { authorized, HttpError } from './auth'
-import { CreateBlog, GetBlogById, GetBlogs } from './generated/restful-api-handler'
+import { CreateBlog, DeleteBlog, GetBlogById, GetBlogs, PatchBlog, registerCreateBlog, registerDeleteBlog, registerGetBlogById, registerGetBlogs, registerPatchBlog } from './generated/restful-api-handler'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
-
-interface ExpressHandler {
-  method: 'get' | 'post'
-  url: string
-  tag: 'blog'
-  handler: (req: express.Request<{ [key: string]: string }, {}, {}, ParsedQs>) => any
-}
 
 const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip, take, ignoredFields } }) => {
   const filteredBlogs = content ? blogs.filter((b) => b.content.includes(content)) : blogs
@@ -43,7 +36,10 @@ let generateId = () => {
 generateId = () => 3
 
 const createBlog: CreateBlog = async ({ query, body: { content } }) => {
-  const blog: any = {
+  if (!content) {
+    throw new HttpError('invalid parameter: content', 400)
+  }
+  const blog = {
     id: generateId(),
     content,
     meta: {
@@ -57,73 +53,66 @@ const createBlog: CreateBlog = async ({ query, body: { content } }) => {
   }
 }
 
-const handlers: ExpressHandler[] = [
-  {
-    method: 'get',
-    url: '/api/blogs',
-    tag: 'blog',
-    handler: (req) => {
-      const skip = req.query.skip ? +req.query.skip : 0
-      const take = req.query.take ? +req.query.take : 10
-      const content = typeof req.query.content === 'string' ? req.query.content : undefined
-      const sortField = req.query.sortField === 'id' || req.query.sortField === 'content' ? req.query.sortField : 'id'
-      const sortType = req.query.sortType === 'asc' || req.query.sortType === 'desc' ? req.query.sortType : 'asc'
-      const ignoredFields = getIgnoredFields(req.query)
-      return getBlogs({
-        query: {
-          take, skip, content, sortField, sortType, ignoredFields
-        }
-      })
+const patchBlog: PatchBlog = async ({ path: { id }, query, body }) => {
+  const blog = blogs.find((b) => b.id === id)
+  if (!blog) {
+    throw new HttpError('invalid parameter: id', 400)
+  }
+  if (body) {
+    if (body.content) {
+      blog.content = body.content
     }
-  },
-  {
-    method: 'get',
-    url: '/api/blogs/:id',
-    tag: 'blog',
-    handler: (req) => {
-      const id = +(req.params as { [name: string]: string }).id
-      const ignoredFields = getIgnoredFields(req.query)
-      return getBlogById({ path: { id }, query: { ignoredFields } })
-    }
-  },
-  {
-    method: 'post',
-    url: '/api/blogs',
-    tag: 'blog',
-    handler: (req: express.Request<{}, {}, { content?: string }, ParsedQs>) => {
-      const content = req.body.content
-      if (!content) {
-        throw new HttpError('invalid parameter: content', 400)
-      }
-      const ignoredFields = getIgnoredFields(req.query)
-      return createBlog({ body: { content }, query: { ignoredFields } })
+    if (body.meta) {
+      blog.meta = body.meta
     }
   }
-]
+  return {
+    result: getBlog(blog, query?.ignoredFields)
+  }
+}
 
-function getIgnoredFields(query: ParsedQs) {
-  if (typeof query.ignoredFields === 'string') {
-    return query.ignoredFields.split(',') as BlogIgnorableField[]
+const deleteBlog: DeleteBlog = async ({ path: { id } }) => {
+  const index = blogs.findIndex((b) => b.id === id)
+  if (index >= 0) {
+    blogs.splice(index, 1)
   }
-  return Array.isArray(query.ignoredFields) ? query.ignoredFields as BlogIgnorableField[] : undefined
+  return {}
+}
+
+export function handleHttpRequest(
+  app: express.Application,
+  method: 'get' | 'post' | 'put' | 'patch' | 'delete',
+  url: string,
+  tag: string,
+  validate: Ajv.ValidateFunction,
+  handler: (input: any) => Promise<{}>
+) {
+  app[method](url, async (req: express.Request<{}, {}, {}>, res: express.Response<{}>) => {
+    try {
+      await authorized(req, tag)
+      const input = { path: req.params, query: req.query, body: req.body }
+      const valid = validate(input)
+      if (!valid && validate.errors?.[0].message) {
+        throw new HttpError(validate.errors[0].message, 400)
+      }
+      const result = await handler(input)
+      res.json(result)
+    } catch (error: unknown) {
+      const statusCode = error instanceof HttpError ? error.statusCode : 500
+      const message = error instanceof Error ? error.message : error
+      res.status(statusCode)
+        .json({ message })
+        .end()
+    }
+  })
 }
 
 export function startRestfulApi(app: express.Application) {
-  for (const handler of handlers) {
-    app[handler.method](handler.url, async (req: express.Request<{}>, res: express.Response<{}>) => {
-      try {
-        await authorized(req, handler.tag)
-        const result = await handler.handler(req)
-        res.json(result)
-      } catch (error: unknown) {
-        const statusCode = error instanceof HttpError ? error.statusCode : 500
-        const message = error instanceof Error ? error.message : error
-        res.status(statusCode)
-          .json({ message })
-          .end()
-      }
-    })
-  }
+  registerGetBlogs(app, getBlogs)
+  registerGetBlogById(app, getBlogById)
+  registerCreateBlog(app, createBlog)
+  registerPatchBlog(app, patchBlog)
+  registerDeleteBlog(app, deleteBlog)
 }
 
 function getBlog<T extends BlogIgnorableField = never>(

@@ -1,26 +1,70 @@
-import { generateTypescriptOfFunctionParameter, generateTypescriptOfType, getReferencesInType, TypeDeclaration } from 'types-as-schema'
+import { Definition, generateTypescriptOfFunctionParameter, generateTypescriptOfType, getAllDefinitions, getJsonSchemaProperty, getReferencedDefinitions, getReferencesInType, Member, TypeDeclaration } from 'types-as-schema'
 
 export = (typeDeclarations: TypeDeclaration[]): string => {
   const result: string[] = []
   const references: string[] = []
+  const schemas: Array<{ name: string, schema: string }> = []
+  const registers: string[] = []
+  const definitions = getAllDefinitions({ declarations: typeDeclarations, looseMode: true })
   for (const declaration of typeDeclarations) {
-    if (declaration.kind === 'function' && declaration.method && declaration.path) {
-      //       const tag = declaration.tags && declaration.tags.length > 0 ? `\n  tag: '${declaration.tags[0]}',` : ''
-      //       let path = declaration.path
-      //       for (const parameter of declaration.parameters) {
-      //         if (parameter.in === 'path') {
-      //           path = path.split(`{${parameter.name}}`).join(`:${parameter.name}`)
-      //         }
-      //       }
-      //       result.push(`handlers.push({
-      //   method: '${declaration.method}',
-      //   url: '${path}',${tag}
-      //   handler: (req) => {
-      //   }
-      // })`)
+    if (declaration.kind === 'function' && declaration.method && declaration.path && declaration.tags && declaration.tags.length > 0) {
+      let path = declaration.path
+      for (const parameter of declaration.parameters) {
+        if (parameter.in === 'path') {
+          path = path.split(`{${parameter.name}}`).join(`:${parameter.name}`)
+        }
+      }
+      const interfaceName = declaration.name[0].toUpperCase() + declaration.name.substring(1)
+      registers.push(`export const register${interfaceName} = (app: express.Application, handler: ${interfaceName}) => handleHttpRequest(app, '${declaration.method}', '${path}', '${declaration.tags[0]}', ${declaration.name}Validate, handler)`)
+
+      const mergedDefinitions: { [name: string]: Definition } = {}
+      const referenceNames: string[] = []
+      for (const parameter of declaration.parameters) {
+        referenceNames.push(...getReferencesInType(parameter.type).map((r) => r.name))
+      }
+      for (const referenceName of referenceNames) {
+        const referencedName = getReferencedDefinitions(referenceName, definitions, [])
+        Object.assign(mergedDefinitions, referencedName)
+      }
+      const members: Member[] = []
+      for (const type of ['path', 'query', 'body']) {
+        const params = declaration.parameters.filter((d) => d.in === type)
+        members.push({
+          name: type,
+          type: {
+            kind: 'object',
+            members: params,
+            minProperties: params.filter((p) => !p.optional).length,
+            position: {
+              file: '',
+              line: 0,
+              character: 0,
+            }
+          },
+          optional: params.every((p) => p.optional),
+        })
+      }
+      schemas.push({
+        name: declaration.name,
+        schema: JSON.stringify({
+          ...getJsonSchemaProperty(
+            {
+              kind: 'object',
+              members,
+              minProperties: members.filter((m) => !m.optional).length,
+              position: {
+                file: '',
+                line: 0,
+                character: 0,
+              }
+            },
+            { declarations: typeDeclarations, looseMode: true }
+          ),
+          definitions: mergedDefinitions
+        }, null, 2)
+      })
 
       const parameters: string[] = []
-
       const params: { optional: boolean, value: string }[] = []
       let ignorableField = ''
       for (const type of ['path', 'query', 'body']) {
@@ -52,8 +96,11 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
 
       references.push(...getReferencesInType(declaration.type).map((r) => r.name))
       const returnType = generateTypescriptOfType(declaration.type, (child) => child.kind === 'reference' ? `Omit<${child.name}, T>` : undefined)
-      const interfaceName = declaration.name[0].toUpperCase() + declaration.name.substring(1)
-      result.push(`export type ${interfaceName} = <T extends ${ignorableField} = never>(${parameters.join(', ')}) => Promise<${returnType}>`)
+      if (ignorableField) {
+        result.push(`export type ${interfaceName} = <T extends ${ignorableField} = never>(${parameters.join(', ')}) => Promise<${returnType}>`)
+      } else {
+        result.push(`export type ${interfaceName} = (${parameters.join(', ')}) => Promise<${returnType}>`)
+      }
     }
   }
   return `/* eslint-disable */
@@ -62,5 +109,20 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
 import { ${Array.from(new Set(references)).join(', ')} } from '../restful-api-schema'
 
 ${result.join('\n')}
+
+import Ajv from 'ajv'
+
+const ajv = new Ajv({
+  removeAdditional: true,
+  useDefaults: true,
+  coerceTypes: true,
+})
+
+${schemas.map((s) => `const ${s.name}Validate = ajv.compile(${s.schema})`).join('\n')}
+
+import * as express from 'express'
+import { handleHttpRequest } from '../restful-api'
+
+${registers.join('\n')}
 `
 }

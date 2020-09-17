@@ -19,13 +19,13 @@ const app = express()
 app.use(bodyParser.json())
 app.use(express.static(path.resolve(__dirname, '../static')))
 
-app.use((req: Request, res, next) => {
+app.use((req: Request, res: express.Response<{}>, next) => {
   const user = verify(req.headers.cookie)
   if (user) {
     req.user = user
     if (!req.dataloaders) {
       req.dataloaders = {
-        postsLoader: new DataLoader(async(ids) => posts.filter((p) => ids.includes(p.id)))
+        postsLoader: new DataLoader(async (ids) => posts.filter((p) => ids.includes(p.id)))
       }
     }
     next()

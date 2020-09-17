@@ -156,6 +156,76 @@
             "additionalProperties": false
           }
         }
+      },
+      "patch": {
+        "operationId": "patchBlog",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "type": "number"
+          },
+          {
+            "name": "content",
+            "required": false,
+            "in": "body",
+            "type": "string"
+          },
+          {
+            "name": "meta",
+            "required": false,
+            "in": "body"
+          },
+          {
+            "name": "ignoredFields",
+            "required": false,
+            "in": "query",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/BlogIgnorableField"
+            }
+          }
+        ],
+        "tags": [
+          "blog"
+        ],
+        "responses": {
+          "200": {
+            "type": "object",
+            "properties": {
+              "result": {
+                "$ref": "#/definitions/Blog"
+              }
+            },
+            "required": [
+              "result"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteBlog",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "type": "number"
+          }
+        ],
+        "tags": [
+          "blog"
+        ],
+        "responses": {
+          "200": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          }
+        }
       }
     }
   },

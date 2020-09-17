@@ -1,4 +1,3 @@
-
 /**
  * @method get
  * @path /api/blogs
@@ -65,7 +64,43 @@ declare function createBlog(
    * @in query
    */
   ignoredFields?: BlogIgnorableField[],
-): Promise<{ result: Blog }> 
+): Promise<{ result: Blog }>
+
+/**
+ * @method patch
+ * @path /api/blogs/{id}
+ * @tags blog
+ */
+declare function patchBlog(
+  /**
+   * @in path
+   */
+  id: number,
+  /**
+   * @in body
+   */
+  content?: string,
+  /**
+   * @in body
+   */
+  meta?: unknown,
+  /**
+   * @in query
+   */
+  ignoredFields?: BlogIgnorableField[],
+): Promise<{ result: Blog }>
+
+/**
+ * @method delete
+ * @path /api/blogs/{id}
+ * @tags blog
+ */
+declare function deleteBlog(
+  /**
+   * @in path
+   */
+  id: number,
+): Promise<{}>
 
 export type BlogIgnorableField = 'posts' | 'meta'
 
@@ -75,7 +110,7 @@ export interface Blog {
   id: integer
   content: string
   posts: Post[]
-  meta: any
+  meta: unknown
 }
 
 /**

@@ -56,9 +56,10 @@
     "watch": "cross-env NODE_ENV=development clean-scripts watch"
   },
   "typeCoverage": {
-    "atLeast": 94.81
+    "atLeast": 95.37
   },
   "dependencies": {
+    "ajv": "6.12.5",
     "apollo-server-express": "2.17.0",
     "body-parser": "1.19.0",
     "cookie": "0.4.1",

@@ -36,7 +36,11 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
 
       references.push(...getReferencesInType(declaration.type).map((r) => r.name))
       const returnType = generateTypescriptOfType(declaration.type, (child) => child.kind === 'reference' ? `Omit<${child.name}, T>` : undefined)
-      result.push(`  <T extends ${ignorableField} = never>(${parameters.join(', ')}): Promise<${returnType}>`)
+      if (ignorableField) {
+        result.push(`  <T extends ${ignorableField} = never>(${parameters.join(', ')}): Promise<${returnType}>`)
+      } else {
+        result.push(`  (${parameters.join(', ')}): Promise<${returnType}>`)
+      }
     }
   }
   return `/* eslint-disable */
