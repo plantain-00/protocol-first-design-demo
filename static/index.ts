@@ -4,6 +4,7 @@ import qs from 'qs'
 import { indexTemplateHtml, indexTemplateHtmlStatic, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
 import { ResolveResult } from '../src/generated/root'
 import { RequestRestfulAPI } from '../src/restful-api-declaration'
+import { WsCommand, WsPush } from '../src/ws-api-schema'
 
 async function fetchGraphql(query: string, variables = {}) {
   const res = await fetch('/graphql', {
@@ -72,8 +73,20 @@ const requestRestfulAPI: RequestRestfulAPI = async (
   console.info('graphql create blog', graphqlCreateBlogResult.createBlog.result)
 
   const ws = new WebSocket(`ws://${location.host}`)
-  ws.onmessage = (e) => {
+
+  function sendWsCommand(command: WsCommand) {
+    ws.send(JSON.stringify(command))
+  }
+
+  ws.onmessage = (e: MessageEvent<WsPush>) => {
     console.info(e.data)
+  }
+  ws.onopen = () => {
+    sendWsCommand({
+      type: 'update blog',
+      id: 1,
+      content: 'test2'
+    })
   }
 })()
 
