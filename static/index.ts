@@ -1,12 +1,18 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import qs from 'qs'
+import * as protobuf from 'protobufjs'
 import { indexTemplateHtml, indexTemplateHtmlStatic, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
 import { ResolveResult } from '../src/generated/root'
 import { RequestRestfulAPI } from '../src/restful-api-declaration'
 import { WsCommand, WsPush } from '../src/ws-api-schema'
+import { srcGeneratedWsProto } from '../src/generated/variables'
 
-async function fetchGraphql(query: string, variables = {}) {
+const root = protobuf.Root.fromJSON(srcGeneratedWsProto)
+const commandType = root.lookup('WsCommand') as protobuf.Type
+const pushType = root.lookup('WsPush') as protobuf.Type
+
+async function fetchGraphql<T>(query: string, variables = {}) {
   const res = await fetch('/graphql', {
     method: 'POST',
     headers: {
@@ -18,8 +24,8 @@ async function fetchGraphql(query: string, variables = {}) {
       variables
     })
   })
-  const data = await res.json()
-  return data.data as ResolveResult
+  const data: { data: ResolveResult<T> } = await res.json()
+  return data.data
 }
 
 const requestRestfulAPI: RequestRestfulAPI = async (
@@ -60,7 +66,7 @@ const requestRestfulAPI: RequestRestfulAPI = async (
   const patchBlogResult = await requestRestfulAPI('PATCH', '/api/blogs/{id}', { path: { id: 1 }, body: { content: 'test222' } })
   console.info('rest patch blog', patchBlogResult.result)
 
-  const deleteBlogResult = await requestRestfulAPI('DELETE', '/api/blogs/{id}', { path: { id: 1 } })
+  const deleteBlogResult = await requestRestfulAPI('DELETE', '/api/blogs/{id}', { path: { id: 2 } })
   console.info('rest delete blog', deleteBlogResult)
 
   const graphqlBlogsResult = await fetchGraphql(gqlBlogsGql, { pagination: { skip: 1, take: 1 } })
@@ -73,20 +79,29 @@ const requestRestfulAPI: RequestRestfulAPI = async (
   console.info('graphql create blog', graphqlCreateBlogResult.createBlog.result)
 
   const ws = new WebSocket(`ws://${location.host}`)
+  ws.binaryType = 'arraybuffer'
 
-  function sendWsCommand(command: WsCommand) {
-    ws.send(JSON.stringify(command))
+  function sendWsCommand(command: WsCommand, binary?: boolean) {
+    if (binary) {
+      ws.send(commandType.encode(command).finish())
+    } else {
+      ws.send(JSON.stringify(command))
+    }
   }
 
-  ws.onmessage = (e: MessageEvent<WsPush>) => {
-    console.info(e.data)
+  ws.onmessage = (e: MessageEvent<WsPush | ArrayBuffer>) => {
+    if (e.data instanceof ArrayBuffer) {
+      console.info(pushType.toObject(pushType.decode(new Uint8Array(e.data))))
+    } else {
+      console.info(e.data)
+    }
   }
   ws.onopen = () => {
     sendWsCommand({
       type: 'update blog',
       id: 1,
       content: 'test2'
-    })
+    }, true)
   }
 })()
 

@@ -2,9 +2,10 @@ import * as express from 'express'
 import * as http from 'http'
 import * as WebSocket from 'ws'
 import Ajv from 'ajv'
+import * as protobuf from 'protobufjs'
 import { verify } from './auth'
 import { WsCommand, WsPush } from './ws-api-schema'
-import { srcGeneratedWsCommandJson } from './generated/variables'
+import { srcGeneratedWsCommandJson, srcGeneratedWsProto } from './generated/variables'
 
 const ajv = new Ajv()
 const validateWsCommand = ajv.compile(srcGeneratedWsCommandJson)
@@ -13,6 +14,10 @@ export function startWsApi(app: express.Application) {
   const server = http.createServer()
   const wss = new WebSocket.Server({ server })
 
+  const root = protobuf.Root.fromJSON(srcGeneratedWsProto)
+  const commandType = root.lookup('WsCommand') as protobuf.Type
+  const pushType = root.lookup('WsPush') as protobuf.Type
+
   wss.on('connection', (ws, req) => {
     const user = verify(req.headers.cookie)
     if (!user) {
@@ -20,8 +25,12 @@ export function startWsApi(app: express.Application) {
       return
     }
 
-    function sendWsPush(wsPush: WsPush) {
-      ws.send(JSON.stringify(wsPush))
+    function sendWsPush(wsPush: WsPush, binary?: boolean) {
+      if (binary) {
+        ws.send(pushType.encode(wsPush).finish())
+      } else {
+        ws.send(JSON.stringify(wsPush))
+      }
     }
 
     ws.on('message', (data) => {
@@ -39,6 +48,16 @@ export function startWsApi(app: express.Application) {
             id: input.id,
             content: input.content
           })
+        }
+      } else if (Buffer.isBuffer(data)) {
+        const input = commandType.toObject(commandType.decode(data)) as WsCommand
+        console.info(input)
+        if (input.type === 'update blog') {
+          sendWsPush({
+            type: 'blog change',
+            id: input.id,
+            content: input.content
+          }, true)
         }
       }
     })

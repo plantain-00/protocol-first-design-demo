@@ -99,5 +99,85 @@ export const srcGeneratedWsCommandJson = {
         }
     }
 }
+export const srcGeneratedWsProto = {
+    "nested": {
+        "WsCommand": {
+            "fields": {
+                "type": {
+                    "type": "string",
+                    "id": 1
+                },
+                "content": {
+                    "type": "string",
+                    "id": 2
+                },
+                "id": {
+                    "type": "double",
+                    "id": 3
+                }
+            }
+        },
+        "CreateBlog": {
+            "fields": {
+                "type": {
+                    "type": "string",
+                    "id": 1
+                },
+                "content": {
+                    "type": "string",
+                    "id": 2
+                }
+            }
+        },
+        "UpdateBlog": {
+            "fields": {
+                "type": {
+                    "type": "string",
+                    "id": 1
+                },
+                "id": {
+                    "type": "double",
+                    "id": 2
+                },
+                "content": {
+                    "type": "string",
+                    "id": 3
+                }
+            }
+        },
+        "WsPush": {
+            "fields": {
+                "type": {
+                    "type": "string",
+                    "id": 1
+                },
+                "id": {
+                    "type": "double",
+                    "id": 2
+                },
+                "content": {
+                    "type": "string",
+                    "id": 3
+                }
+            }
+        },
+        "BlogChange": {
+            "fields": {
+                "type": {
+                    "type": "string",
+                    "id": 1
+                },
+                "id": {
+                    "type": "double",
+                    "id": 2
+                },
+                "content": {
+                    "type": "string",
+                    "id": 3
+                }
+            }
+        }
+    }
+}
 /* eslint-enable */
 // tslint:enable

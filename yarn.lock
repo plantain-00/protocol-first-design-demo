@@ -5644,7 +5644,7 @@ promise-inflight@^1.0.1:
   resolved "https://registry.yarnpkg.com/promise-inflight/-/promise-inflight-1.0.1.tgz#98472870bf228132fcbdd868129bad12c3c029e3"
   integrity sha1-mEcocL8igTL8vdhoEputEsPAKeM=
 
-protobufjs@6:
+protobufjs@6, protobufjs@6.10.1:
   version "6.10.1"
   resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.10.1.tgz#e6a484dd8f04b29629e9053344e3970cccf13cd2"
   integrity sha512-pb8kTchL+1Ceg4lFd5XUpK8PdWacbvV5SK2ULH2ebrYtl4GjJmS24m6CKME67jzV53tbJxHlnNOSqQHbTsR9JQ==
@@ -7049,10 +7049,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-types-as-schema@1.35.0:
-  version "1.35.0"
-  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.35.0.tgz#7c7d9f151691656a29e648c9dc87b0d9511581a8"
-  integrity sha512-NqRGG4G/fvRnfplPDtlESz9Ur1yJ9UFk90lkzD9ZmebtKLYqxTb48Ibdu/LRK9zSRVQqUDDYQgjjG5U7LiFvZA==
+types-as-schema@1.35.1:
+  version "1.35.1"
+  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.35.1.tgz#f25309432d50f8040819928c0ba13f52528478d4"
+  integrity sha512-KgeG9oKAg4rXUL16ALhcl+c1NkCJvWZb/phImyemEJ7sZChD815n0JVi0GyHX1uNOdBZDAT4GwtxpPli9yDIqg==
   dependencies:
     ajv "6"
     chokidar "3"

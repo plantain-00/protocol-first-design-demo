@@ -38,7 +38,7 @@
     "ts-node": "9.0.0",
     "tsconfig-plantain": "0.0.1",
     "type-coverage": "2.11.0",
-    "types-as-schema": "1.35.0",
+    "types-as-schema": "1.35.1",
     "typescript": "4.0.2",
     "vue": "2.6.12",
     "vue-class-component": "7.2.5",
@@ -57,7 +57,7 @@
     "watch": "cross-env NODE_ENV=development clean-scripts watch"
   },
   "typeCoverage": {
-    "atLeast": 96.39
+    "atLeast": 96.83
   },
   "dependencies": {
     "ajv": "6.12.5",
@@ -68,6 +68,7 @@
     "express": "4.17.1",
     "express-graphql": "0.11.0",
     "graphql": "15.3.0",
+    "protobufjs": "6.10.1",
     "tslib": "1 || 2",
     "ws": "7.3.1"
   }
