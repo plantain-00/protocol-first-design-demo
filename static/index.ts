@@ -91,9 +91,11 @@ const requestRestfulAPI: RequestRestfulAPI = async (
 
   ws.onmessage = (e: MessageEvent<WsPush | ArrayBuffer>) => {
     if (e.data instanceof ArrayBuffer) {
-      console.info(pushType.toObject(pushType.decode(new Uint8Array(e.data))))
+      const input = pushType.toObject(pushType.decode(new Uint8Array(e.data))) as WsPush
+      console.info(input)
     } else {
-      console.info(e.data)
+      const input = e.data
+      console.info(input)
     }
   }
   ws.onopen = () => {

@@ -186,6 +186,81 @@ registerDeleteBlog(app, deleteBlog)
 5. 尽量只生成类型代码，不生成实现代码，以免代码生成脚本过于复杂、难以维护、耗时太长，也避免和具体前端请求库（fetch、axios）、具体后端框架（express、koa、nestjs）的耦合，这样更具通用性：✅ 生成脚本只有不到 200 行代码，所有 schema 的生成只需要 3 秒左右，前后端的类型都是足够抽象的，与使用的框架、数据库等都无关，只专注解决 API 相关的重复性劳动
 6. 尽可能方便自动测试：✅ 由上面的流程可知，业务逻辑可能出问题的地方，主要在后端类型的实现代码，对这些函数的自动测试可以使用单元测试来进行，这样不需要启动整个后端，比全部使用集成测试，测试耗时要显著短，占用资源要显著少 [spec/restful-api.ts](./spec/restful-api.ts)
 
+### websocket
+
+对于推送相关的需求，一般使用 websocket，websocket 的模式不是请求-响应模式，只是双向的数据传输，所以只要保证发送和接收的数据的类型一样，就可以保证两边的数据使用方式一致。
+
+```ts
+export type WsCommand =
+  | CreateBlog
+  | UpdateBlog
+
+export interface CreateBlog {
+  type: 'create blog'
+  content: string
+}
+
+export interface UpdateBlog {
+  type: 'update blog'
+  id: number
+  content: string
+}
+```
+
+上面是一部分类型定义 [src/ws-api-schema.ts](./src/ws-api-schema.ts)，这里使用 tagged union 的方式，这样接收到数据时按 tag 过滤，ts 可以正确定位到相应的类型。
+
+### 通过 json schema 验证通过 ws 接收的数据
+
+根据上面定义的类型元数据，可以生成 json schema [src/generated/ws-command.json](./src/generated/ws-command.json)，然后用来验证接收的数据 [src/ws-api.ts](./src/ws-api.ts)。
+
+```ts
+const ajv = new Ajv()
+const validateWsCommand = ajv.compile(srcGeneratedWsCommandJson)
+
+ws.on('message', (data) => {
+  const input: WsCommand = JSON.parse(data)
+  const valid = validateWsCommand(input)
+})
+```
+
+### 通过 ws 传输二进制数据
+
+传输二进制数据时，传输的数据量比传输 json 要显著小。
+
+以 protobuf 为例，根据上面定义的类型元数据，可以生成 protobuf 类型定义文件 [src/generated/ws.proto](./src/generated/ws.proto)，发送和接收时可以用它来 encode/decode [src/ws-api.ts](./src/ws-api.ts)：
+
+```ts
+const root = protobuf.Root.fromJSON(srcGeneratedWsProto)
+const commandType = root.lookup('WsCommand') as protobuf.Type
+const pushType = root.lookup('WsPush') as protobuf.Type
+
+function sendWsPush(wsPush: WsPush, binary?: boolean) {
+  if (binary) {
+    ws.send(pushType.encode(wsPush).finish())
+  } else {
+    ws.send(JSON.stringify(wsPush))
+  }
+}
+
+ws.on('message', (data) => {
+  if (typeof data === 'string') {
+    const input: WsCommand = JSON.parse(data)
+    const valid = validateWsCommand(input)
+  } else if (Buffer.isBuffer(data)) {
+    const input = commandType.toObject(commandType.decode(data)) as WsCommand
+  }
+})
+```
+
+这样从使用角度，通过 ws 传输 json 或 protobuf 的区别只有一个 `sendWsPush` 的 `binary` 参数的区别。
+
+### 为通过 ws 传输的数据添加新数据类型时的流程
+
+1. 在 [src/ws-api-schema.ts](./src/ws-api-schema.ts) 定义新的类型，根据 `type` 来区分类型，并 union 到 `WsCommand` 或 `WsPush` 上
+2. 执行 `yarn schema`
+3. 发送时调用 `sendWsCommand` 或 `sendWsPush`
+4. 接收时对 `input` 按 `type` 过滤
+
 ## install
 
 ```bash

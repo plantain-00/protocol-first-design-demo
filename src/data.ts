@@ -56,7 +56,7 @@ interface Blog {
   id: integer
   content(): string
   posts(id: integer): Post[]
-  meta: any
+  meta: unknown
 }
 
 interface Post {
