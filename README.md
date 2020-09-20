@@ -209,6 +209,8 @@ export interface UpdateBlog {
 
 上面是一部分类型定义 [src/ws-api-schema.ts](./src/ws-api-schema.ts)，这里使用 tagged union 的方式，这样接收到数据时按 tag 过滤，ts 可以正确定位到相应的类型。
 
+关于 websocket api 的文档，目前没有统一的标准，这里会生成 markdown 文档：[src/generated/ws.md](./src/generated/ws.md)
+
 ### 通过 json schema 验证通过 ws 接收的数据
 
 根据上面定义的类型元数据，可以生成 json schema [src/generated/ws-command.json](./src/generated/ws-command.json)，然后用来验证接收的数据 [src/ws-api.ts](./src/ws-api.ts)。
@@ -257,7 +259,7 @@ ws.on('message', (data) => {
 ### 为通过 ws 传输的数据添加新数据类型时的流程
 
 1. 在 [src/ws-api-schema.ts](./src/ws-api-schema.ts) 定义新的类型，根据 `type` 来区分类型，并 union 到 `WsCommand` 或 `WsPush` 上
-2. 执行 `yarn schema`
+2. 执行 `yarn schema`，检查生成的 markdown 是否符合预期，如果有遗漏的信息，返回执行上一步
 3. 发送时调用 `sendWsCommand` 或 `sendWsPush`
 4. 接收时对 `input` 按 `type` 过滤
 
