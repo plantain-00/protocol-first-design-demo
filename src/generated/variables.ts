@@ -46,5 +46,58 @@ type CreateBlogResult {
   result: Blog!
 }
 `
+export const srcGeneratedWsCommandJson = {
+    "$ref": "#/definitions/WsCommand",
+    "definitions": {
+        "WsCommand": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/CreateBlog"
+                },
+                {
+                    "$ref": "#/definitions/UpdateBlog"
+                }
+            ]
+        },
+        "CreateBlog": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "const": "create blog"
+                },
+                "content": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type",
+                "content"
+            ],
+            "additionalProperties": false
+        },
+        "UpdateBlog": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "const": "update blog"
+                },
+                "id": {
+                    "type": "number"
+                },
+                "content": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type",
+                "id",
+                "content"
+            ],
+            "additionalProperties": false
+        }
+    }
+}
 /* eslint-enable */
 // tslint:enable

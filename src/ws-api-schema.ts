@@ -1,3 +1,6 @@
+/**
+ * @entry ws-command.json
+ */
 export type WsCommand =
   | CreateBlog
   | UpdateBlog
