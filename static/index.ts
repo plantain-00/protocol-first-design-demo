@@ -1,8 +1,7 @@
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import { createApp, defineComponent } from 'vue'
 import qs from 'qs'
 import * as protobuf from 'protobufjs'
-import { indexTemplateHtml, indexTemplateHtmlStatic, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
+import { indexTemplateHtml, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
 import { ResolveResult } from '../src/generated/root'
 import { RequestRestfulAPI } from '../src/restful-api-declaration'
 import { WsCommand, WsPush } from '../src/ws-api-schema'
@@ -107,11 +106,8 @@ const requestRestfulAPI: RequestRestfulAPI = async (
   }
 })()
 
-@Component({
-  render: indexTemplateHtml,
-  staticRenderFns: indexTemplateHtmlStatic
+const App = defineComponent({
+  render: indexTemplateHtml
 })
-export class App extends Vue {
-}
 
-new App({ el: '#container' })
+createApp(App).mount('#container')

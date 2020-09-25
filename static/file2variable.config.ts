@@ -1,4 +1,6 @@
-export default {
+import { Configuration } from 'file2variable-cli'
+
+const config: Configuration = {
   base: 'static',
   files: [
     'static/*.template.html',
@@ -9,10 +11,10 @@ export default {
       return { type: 'text' }
     }
     return {
-      type: 'vue',
-      name: 'App',
-      path: './index'
+      type: 'vue3'
     }
   },
   out: 'static/variables.ts'
 }
+
+export default config
