@@ -18,7 +18,7 @@ export function startGraphqlApi(app: express.Application) {
           .map((blog) => ({
             id: blog.id,
             content: () => blog.content,
-            posts: ({ id }) => req.dataloaders!.postsLoader.loadMany(blog!.posts),
+            posts: ({ id }) => req.dataloaders!.postsLoader.loadMany(blog.posts),
             meta: () => blog.meta
           } as Blog<Request>))
       }
@@ -30,7 +30,7 @@ export function startGraphqlApi(app: express.Application) {
         result: blog ? {
           id: blog.id,
           content: () => blog.content,
-          posts: ({ id }) => req.dataloaders!.postsLoader.loadMany(blog!.posts),
+          posts: ({ id }) => req.dataloaders!.postsLoader.loadMany(blog.posts),
           meta: () => blog.meta
         } as Blog<Request> : undefined
       }

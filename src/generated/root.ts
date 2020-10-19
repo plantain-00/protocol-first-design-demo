@@ -67,40 +67,6 @@ export interface CreateBlogResult<TContext = any> {
   result: Blog<TContext>
 }
 
-export interface ApolloResolvers<TContext = any> {
-  Blog?: {
-    id?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
-    content?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
-    posts?(parent: any, input: { id: number }, context: TContext, info: GraphQLResolveInfo): any,
-    meta?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
-  },
-  Post?: {
-    id?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
-    content?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
-  },
-  Pagination?: {
-    take?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
-    skip?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
-  },
-  Query: {
-    blogs(parent: any, input: { pagination: Pagination<TContext> }, context: TContext, info: GraphQLResolveInfo): any,
-    blog(parent: any, input: { id: number }, context: TContext, info: GraphQLResolveInfo): any,
-  },
-  Mutation: {
-    createBlog(parent: any, input: { content: string }, context: TContext, info: GraphQLResolveInfo): any,
-  },
-  BlogsResult?: {
-    result?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
-    count?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
-  },
-  BlogResult?: {
-    result?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
-  },
-  CreateBlogResult?: {
-    result?(parent: any, input: {}, context: TContext, info: GraphQLResolveInfo): any,
-  },
-}
-
 export interface ResolveResult<TContext = any> {
   blogs: DeepReturnType<BlogsResult<TContext>>
   blog: DeepReturnType<BlogResult<TContext>>

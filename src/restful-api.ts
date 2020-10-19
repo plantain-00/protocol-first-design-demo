@@ -29,7 +29,7 @@ const getBlogById: GetBlogById = async ({ query, path: { id } }) => {
 }
 
 let generateId = () => {
-  return Math.random()
+  return Math.round(Math.random() * 10000)
 }
 
 /**

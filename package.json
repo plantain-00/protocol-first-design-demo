@@ -39,7 +39,7 @@
     "ts-node": "9.0.0",
     "tsconfig-plantain": "0.0.1",
     "type-coverage": "2.14.0",
-    "types-as-schema": "1.36.2",
+    "types-as-schema": "1.37.0",
     "typescript": "4.0.3",
     "vue": "3.0.1",
     "watch-then-execute": "1.2.0",
@@ -57,11 +57,10 @@
     "watch": "cross-env NODE_ENV=development clean-scripts watch"
   },
   "typeCoverage": {
-    "atLeast": 96.67
+    "atLeast": 97.95
   },
   "dependencies": {
     "ajv": "6.12.6",
-    "apollo-server-express": "2.18.2",
     "body-parser": "1.19.0",
     "cookie": "0.4.1",
     "dataloader": "2.0.0",
