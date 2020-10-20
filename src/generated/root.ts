@@ -9,14 +9,40 @@ import { GraphQLResolveInfo } from 'graphql'
 
 
 
-export type DeepPromisifyReturnType<T> = {
-  [P in keyof T]: T[P] extends Array<infer U>
-    ? Array<DeepPromisifyReturnType<U>>
-    : T[P] extends ReadonlyArray<infer U>
-      ? ReadonlyArray<DeepPromisifyReturnType<U>>
-      : T[P] extends (...args: infer P) => infer R
-        ? (...args: P) => R | Promise<R>
-        : DeepPromisifyReturnType<T[P]>
+export interface Root<TContext> {
+  blogs(input: { pagination: Pagination }, context: TContext, info: GraphQLResolveInfo): BlogsResult<TContext> | Promise<BlogsResult<TContext>>
+  blog(input: { id: number }, context: TContext, info: GraphQLResolveInfo): BlogResult<TContext> | Promise<BlogResult<TContext>>
+  createBlog(input: { content: string }, context: TContext, info: GraphQLResolveInfo): CreateBlogResult<TContext> | Promise<CreateBlogResult<TContext>>
+}
+
+export interface Blog<TContext> {
+  id: number
+  content(input: {}, context: TContext, info: GraphQLResolveInfo): string | Promise<string>
+  posts(input: { id: number }, context: TContext, info: GraphQLResolveInfo): Array<Post> | Promise<Array<Post>>
+  meta: any
+}
+
+export interface Post {
+  id: number
+  content: string
+}
+
+export interface Pagination {
+  take: number
+  skip: number
+}
+
+export interface BlogsResult<TContext> {
+  result: Array<Blog<TContext>>
+  count: number
+}
+
+export interface BlogResult<TContext> {
+  result?: Blog<TContext>
+}
+
+export interface CreateBlogResult<TContext> {
+  result: Blog<TContext>
 }
 
 export type DeepReturnType<T> = {
@@ -31,43 +57,7 @@ export type DeepReturnType<T> = {
         : DeepReturnType<T[P]>
 }
 
-export interface Root<TContext = any> {
-  blogs(input: { pagination: Pagination<TContext> }, context: TContext, info: GraphQLResolveInfo): DeepPromisifyReturnType<BlogsResult<TContext>> | Promise<DeepPromisifyReturnType<BlogsResult<TContext>>>
-  blog(input: { id: number }, context: TContext, info: GraphQLResolveInfo): DeepPromisifyReturnType<BlogResult<TContext>> | Promise<DeepPromisifyReturnType<BlogResult<TContext>>>
-  createBlog(input: { content: string }, context: TContext, info: GraphQLResolveInfo): DeepPromisifyReturnType<CreateBlogResult<TContext>> | Promise<DeepPromisifyReturnType<CreateBlogResult<TContext>>>
-}
-
-export interface Blog<TContext = any> {
-  id: number
-  content(input: {}, context: TContext, info: GraphQLResolveInfo): string | Promise<string>
-  posts(input: { id: number }, context: TContext, info: GraphQLResolveInfo): Array<Post<TContext>> | Promise<Array<Post<TContext>>>
-  meta: any
-}
-
-export interface Post<TContext = any> {
-  id: number
-  content: string
-}
-
-export interface Pagination<TContext = any> {
-  take: number
-  skip: number
-}
-
-export interface BlogsResult<TContext = any> {
-  result: Array<Blog<TContext>>
-  count: number
-}
-
-export interface BlogResult<TContext = any> {
-  result?: Blog<TContext>
-}
-
-export interface CreateBlogResult<TContext = any> {
-  result: Blog<TContext>
-}
-
-export interface ResolveResult<TContext = any> {
+export interface ResolveResult<TContext> {
   blogs: DeepReturnType<BlogsResult<TContext>>
   blog: DeepReturnType<BlogResult<TContext>>
   createBlog: DeepReturnType<CreateBlogResult<TContext>>
