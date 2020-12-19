@@ -1,5 +1,5 @@
 import * as express from 'express'
-import Ajv from 'ajv'
+import { ValidateFunction } from 'ajv'
 
 import { blogs, posts } from './data'
 import { authorized, HttpError } from './auth'
@@ -91,7 +91,7 @@ export function handleHttpRequest(
   method: 'get' | 'post' | 'put' | 'patch' | 'delete',
   url: string,
   tag: string,
-  validate: Ajv.ValidateFunction,
+  validate: ValidateFunction,
   handler: (input: any) => Promise<{}>
 ) {
   app[method](url, async (req: express.Request<{}, {}, {}>, res: express.Response<{}>) => {
