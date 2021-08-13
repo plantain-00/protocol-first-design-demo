@@ -32,6 +32,10 @@ declare function getBlogs(
    * @in query
    */
   ignoredFields?: BlogIgnorableField[],
+  /**
+   * @in query
+   */
+   ids?: string[],
 ): Promise<{ result: Blog[], count: integer }>
 
 /**

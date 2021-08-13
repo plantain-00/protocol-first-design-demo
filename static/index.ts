@@ -39,7 +39,9 @@ const requestRestfulAPI: RequestRestfulAPI = async (
       }
     }
     if (args.query) {
-      url += '?' + qs.stringify(args.query)
+      url += '?' + qs.stringify(args.query, {
+        arrayFormat: 'brackets',
+      })
     }
   }
   const result = await fetch(
@@ -53,7 +55,12 @@ const requestRestfulAPI: RequestRestfulAPI = async (
 }
 
 (async () => {
-  const blogsResult = await requestRestfulAPI('GET', '/api/blogs', { query: { sortType: 'desc', ignoredFields: ['posts', 'meta'] } })
+  const ids: string[] = []
+  for (let i = 0; i < 50; i++) {
+    ids.push(Math.round(16 ** 11 * 15 * Math.random() + 16 ** 11).toString(16))
+  }
+  console.info(ids)
+  const blogsResult = await requestRestfulAPI('GET', '/api/blogs', { query: { sortType: 'desc', ignoredFields: ['posts', 'meta'], ids } })
   console.info('rest blogs', blogsResult.result, blogsResult.count)
 
   const blogResult = await requestRestfulAPI('GET', '/api/blogs/{id}', { path: { id: 1 } })

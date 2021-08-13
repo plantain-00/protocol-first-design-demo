@@ -56,6 +56,15 @@
             "items": {
               "$ref": "#/definitions/BlogIgnorableField"
             }
+          },
+          {
+            "name": "ids",
+            "required": false,
+            "in": "query",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         ],
         "tags": [
