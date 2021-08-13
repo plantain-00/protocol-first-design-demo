@@ -75,6 +75,8 @@ const requestRestfulAPI: RequestRestfulAPI = async (
   const deleteBlogResult = await requestRestfulAPI('DELETE', '/api/blogs/{id}', { path: { id: 2 } })
   console.info('rest delete blog', deleteBlogResult)
 
+  window.open(`/api/blogs/${1}/download`, '_blank')
+
   const graphqlBlogsResult = await fetchGraphql(gqlBlogsGql, { pagination: { skip: 1, take: 1 } })
   console.info('graphql blogs', graphqlBlogsResult.blogs.result)
 

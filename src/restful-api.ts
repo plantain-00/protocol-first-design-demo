@@ -1,9 +1,11 @@
 import * as express from 'express'
 import { ValidateFunction } from 'ajv'
+import * as fs from 'fs'
+import * as path from 'path'
 
 import { blogs, posts } from './data'
 import { authorized, HttpError } from './auth'
-import { CreateBlog, DeleteBlog, GetBlogById, GetBlogs, PatchBlog, registerCreateBlog, registerDeleteBlog, registerGetBlogById, registerGetBlogs, registerPatchBlog } from './restful-api-declaration'
+import { CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, PatchBlog, registerCreateBlog, registerDeleteBlog, registerDownloadBlog, registerGetBlogById, registerGetBlogs, registerPatchBlog } from './restful-api-declaration'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
 
 const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip, take, ignoredFields } }) => {
@@ -35,7 +37,7 @@ let generateId = () => {
 /**
  * @public
  */
-export function mockGeneratedId(value: typeof generateId) {
+export function mockGeneratedId(value: typeof generateId): void {
   generateId = value
 }
 
@@ -86,14 +88,22 @@ const deleteBlog: DeleteBlog = async ({ path: { id } }) => {
   return {}
 }
 
+const downloadBlog: DownloadBlog = async ({ path: { id } }, res: express.Response<{}>) => {
+  console.info(id)
+  res.set({
+    'Content-Type': 'application/text',
+  })
+  fs.createReadStream(path.resolve(process.cwd(), 'README.md')).pipe(res)
+}
+
 export function handleHttpRequest(
   app: express.Application,
   method: 'get' | 'post' | 'put' | 'patch' | 'delete',
   url: string,
   tag: string,
   validate: ValidateFunction,
-  handler: (input: any) => Promise<{}>
-) {
+  handler: (input: any, res: express.Response<{}>) => Promise<{} | void>
+): void {
   app[method](url, async (req: express.Request<{}, {}, {}>, res: express.Response<{}>) => {
     try {
       await authorized(req, tag)
@@ -102,8 +112,10 @@ export function handleHttpRequest(
       if (!valid && validate.errors?.[0].message) {
         throw new HttpError(validate.errors[0].message, 400)
       }
-      const result = await handler(input)
-      res.json(result)
+      const result = await handler(input, res)
+      if (result !== undefined) {
+        res.json(result)
+      }
     } catch (error: unknown) {
       const statusCode = error instanceof HttpError ? error.statusCode : 500
       const message = error instanceof Error ? error.message : error
@@ -114,12 +126,13 @@ export function handleHttpRequest(
   })
 }
 
-export function startRestfulApi(app: express.Application) {
+export function startRestfulApi(app: express.Application): void {
   registerGetBlogs(app, getBlogs)
   registerGetBlogById(app, getBlogById)
   registerCreateBlog(app, createBlog)
   registerPatchBlog(app, patchBlog)
   registerDeleteBlog(app, deleteBlog)
+  registerDownloadBlog(app, downloadBlog)
 }
 
 function getBlog<T extends BlogIgnorableField = never>(

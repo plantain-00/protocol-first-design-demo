@@ -236,6 +236,25 @@
           }
         }
       }
+    },
+    "/api/blogs/{id}/download": {
+      "get": {
+        "operationId": "downloadBlog",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "type": "number"
+          }
+        ],
+        "tags": [
+          "blog"
+        ],
+        "responses": {
+          "200": {}
+        }
+      }
     }
   },
   "definitions": {
