@@ -10,60 +10,74 @@
             "name": "skip",
             "required": false,
             "in": "query",
-            "type": "integer",
-            "default": 0
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
           },
           {
             "name": "take",
             "required": false,
             "in": "query",
-            "type": "integer",
-            "default": 10
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
           },
           {
             "name": "content",
             "required": false,
             "in": "query",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "sortField",
             "required": false,
             "in": "query",
-            "type": "string",
-            "enum": [
-              "id",
-              "content"
-            ],
-            "default": "id"
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "content"
+              ],
+              "default": "id"
+            }
           },
           {
             "name": "sortType",
             "required": false,
             "in": "query",
-            "type": "string",
-            "enum": [
-              "asc",
-              "desc"
-            ],
-            "default": "asc"
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
           },
           {
             "name": "ignoredFields",
             "required": false,
             "in": "query",
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/BlogIgnorableField"
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/BlogIgnorableField"
+              }
             }
           },
           {
             "name": "ids",
             "required": false,
             "in": "query",
-            "type": "array",
-            "items": {
-              "type": "string"
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         ],
@@ -72,23 +86,25 @@
         ],
         "responses": {
           "200": {
-            "type": "object",
-            "properties": {
-              "result": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/Blog"
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/Blog"
+                  }
+                },
+                "count": {
+                  "type": "integer"
                 }
               },
-              "count": {
-                "type": "integer"
-              }
-            },
-            "required": [
-              "result",
-              "count"
-            ],
-            "additionalProperties": false
+              "required": [
+                "result",
+                "count"
+              ],
+              "additionalProperties": false
+            }
           }
         }
       },
@@ -99,15 +115,19 @@
             "name": "content",
             "required": true,
             "in": "body",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "ignoredFields",
             "required": false,
             "in": "query",
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/BlogIgnorableField"
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/BlogIgnorableField"
+              }
             }
           }
         ],
@@ -116,16 +136,18 @@
         ],
         "responses": {
           "200": {
-            "type": "object",
-            "properties": {
-              "result": {
-                "$ref": "#/definitions/Blog"
-              }
-            },
-            "required": [
-              "result"
-            ],
-            "additionalProperties": false
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/Blog"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "additionalProperties": false
+            }
           }
         }
       }
@@ -138,15 +160,19 @@
             "name": "id",
             "required": true,
             "in": "path",
-            "type": "number"
+            "schema": {
+              "type": "number"
+            }
           },
           {
             "name": "ignoredFields",
             "required": false,
             "in": "query",
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/BlogIgnorableField"
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/BlogIgnorableField"
+              }
             }
           }
         ],
@@ -155,14 +181,16 @@
         ],
         "responses": {
           "200": {
-            "type": "object",
-            "properties": {
-              "result": {
-                "$ref": "#/definitions/Blog"
-              }
-            },
-            "required": [],
-            "additionalProperties": false
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/Blog"
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
           }
         }
       },
@@ -173,26 +201,33 @@
             "name": "id",
             "required": true,
             "in": "path",
-            "type": "number"
+            "schema": {
+              "type": "number"
+            }
           },
           {
             "name": "content",
             "required": false,
             "in": "body",
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "meta",
             "required": false,
-            "in": "body"
+            "in": "body",
+            "schema": {}
           },
           {
             "name": "ignoredFields",
             "required": false,
             "in": "query",
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/BlogIgnorableField"
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/BlogIgnorableField"
+              }
             }
           }
         ],
@@ -201,16 +236,18 @@
         ],
         "responses": {
           "200": {
-            "type": "object",
-            "properties": {
-              "result": {
-                "$ref": "#/definitions/Blog"
-              }
-            },
-            "required": [
-              "result"
-            ],
-            "additionalProperties": false
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/Blog"
+                }
+              },
+              "required": [
+                "result"
+              ],
+              "additionalProperties": false
+            }
           }
         }
       },
@@ -221,7 +258,9 @@
             "name": "id",
             "required": true,
             "in": "path",
-            "type": "number"
+            "schema": {
+              "type": "number"
+            }
           }
         ],
         "tags": [
@@ -229,10 +268,12 @@
         ],
         "responses": {
           "200": {
-            "type": "object",
-            "properties": {},
-            "required": [],
-            "additionalProperties": false
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
           }
         }
       }
@@ -245,14 +286,20 @@
             "name": "id",
             "required": true,
             "in": "path",
-            "type": "number"
+            "schema": {
+              "type": "number"
+            }
           }
         ],
         "tags": [
           "blog"
         ],
         "responses": {
-          "200": {}
+          "200": {
+            "schema": {
+              "type": "file"
+            }
+          }
         }
       }
     }

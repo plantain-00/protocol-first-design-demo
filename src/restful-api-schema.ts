@@ -116,7 +116,7 @@ declare function deleteBlog(
    * @in path
    */
   id: number,
-): Promise<void>
+): Promise<File>
 
 export type BlogIgnorableField = 'posts' | 'meta'
 

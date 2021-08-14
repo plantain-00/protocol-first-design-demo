@@ -113,7 +113,7 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
         const optional = backendParams.every((q) => q.optional) ? '?' : ''
         backendParameters.push(`req${optional}: { ${backendParams.map((p) => p.value).join(', ')} }`)
       }
-      const returnType = declaration.type.kind === undefined ? 'Readable' : generateTypescriptOfType(declaration.type, (child) => child.kind === 'reference' ? `Omit<${child.name}, T>` : undefined)
+      const returnType = declaration.type.kind === 'file' ? 'Readable' : generateTypescriptOfType(declaration.type, (child) => child.kind === 'reference' ? `Omit<${child.name}, T>` : undefined)
       let ignorableField = ''
       for (const p of declaration.parameters) {
         if (p.name === 'ignoredFields' && p.type.kind === 'array' && p.type.type.kind === 'reference') {
