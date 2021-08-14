@@ -118,6 +118,22 @@ declare function deleteBlog(
   id: number,
 ): Promise<File>
 
+/**
+ * @method post
+ * @path /api/blogs/upload
+ * @tags blog
+ */
+ declare function uploadBlog(
+  /**
+   * @in body
+   */
+  file: File,
+  /**
+   * @in body
+   */
+   id: number,
+): Promise<{}>
+
 export type BlogIgnorableField = 'posts' | 'meta'
 
 type integer = number

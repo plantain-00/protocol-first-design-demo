@@ -302,6 +302,41 @@
           }
         }
       }
+    },
+    "/api/blogs/upload": {
+      "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "operationId": "uploadBlog",
+        "parameters": [
+          {
+            "name": "file",
+            "required": true,
+            "in": "formData",
+            "type": "file"
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "formData",
+            "type": "number"
+          }
+        ],
+        "tags": [
+          "blog"
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {

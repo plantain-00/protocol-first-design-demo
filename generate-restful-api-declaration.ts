@@ -90,7 +90,7 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
               q.optional = false
             }
           })
-          backendParams.push(getParam(type, parameter))
+          backendParams.push(getParam(type, parameter, true))
         }
       }
       const frontendParameters = [
@@ -156,13 +156,16 @@ ${registers.join('\n')}
 
 const allTypes = ['path', 'query', 'body'] as const
 
-function getParam(type: typeof allTypes[number], parameter: FunctionParameter[]) {
+function getParam(type: typeof allTypes[number], parameter: FunctionParameter[], backend?: boolean) {
   const optional = parameter.every((q) => q.optional) ? '?' : ''
   return {
     optional: parameter.every((q) => q.optional),
     value: `${type}${optional}: { ${parameter.map((q) => {
       if (q.name === 'ignoredFields' && q.type.kind === 'array' && q.type.type.kind === 'reference') {
         return 'ignoredFields?: T[]'
+      }
+      if (backend && q.type.kind === 'file') {
+        return `${q.name}${q.optional ? '?' : ''}: Readable`
       }
       return generateTypescriptOfFunctionParameter(q)
     }).join(', ')} }`

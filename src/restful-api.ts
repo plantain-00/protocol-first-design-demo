@@ -1,11 +1,12 @@
 import * as express from 'express'
 import * as fs from 'fs'
 import * as path from 'path'
-import {Readable} from 'stream'
+import stream, { Readable } from 'stream'
+import multer from 'multer'
 
 import { blogs, posts } from './data'
 import { authorized, HttpError } from './auth'
-import { CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, PatchBlog, registerCreateBlog, registerDeleteBlog, registerDownloadBlog, registerGetBlogById, registerGetBlogs, registerPatchBlog } from './restful-api-declaration'
+import { CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, PatchBlog, registerCreateBlog, registerDeleteBlog, registerDownloadBlog, registerGetBlogById, registerGetBlogs, registerPatchBlog, registerUploadBlog, UploadBlog } from './restful-api-declaration'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
 import { HandleHttpRequest } from './restful-api-declaration-lib'
 
@@ -95,10 +96,16 @@ const downloadBlog: DownloadBlog = async ({ path: { id } }) => {
 }
 
 const handleHttpRequest: HandleHttpRequest = (app, method, url, tag, validate, handler) => {
-  app[method](url, async (req: express.Request<{}, {}, {}>, res: express.Response<{}>) => {
+  app[method](url, upload.any(), async (req: express.Request<{}, {}, {}>, res: express.Response<{}>) => {
     try {
       await authorized(req, tag)
-      const input = { path: req.params, query: req.query, body: req.body }
+      const body: { [key: string]: unknown } = req.body
+      if (req.files && req.files.length > 0) {
+        for (const file of req.files as Express.Multer.File[]) {
+          body[file.fieldname] = file.stream
+        }
+      }
+      const input = { path: req.params, query: req.query, body }
       const valid = validate(input)
       if (!valid && validate.errors?.[0].message) {
         throw new HttpError(validate.errors[0].message, 400)
@@ -125,6 +132,29 @@ const handleHttpRequest: HandleHttpRequest = (app, method, url, tag, validate, h
   })
 }
 
+class MultipartToStream implements multer.StorageEngine {
+  public _handleFile(_req: express.Request, file: Express.Multer.File, cb: (error: Error | null, info?: Partial<Express.Multer.File>) => void) {
+    const pass = new stream.PassThrough()
+    file.stream.pipe(pass)
+    cb(null, {
+      stream: pass,
+    })
+  }
+  public _removeFile(_req: express.Request, _file: Express.Multer.File, cb: (error: Error | null, info?: Partial<Express.Multer.File>) => void) {
+    cb(null)
+  }
+}
+
+const upload = multer({
+  storage: new MultipartToStream(),
+})
+
+const uploadBlog: UploadBlog = async ({ body: { file, id } }) => {
+  console.info(id)
+  file.pipe(fs.createWriteStream('a.png'))
+  return {}
+}
+
 export function startRestfulApi(app: express.Application): void {
   registerGetBlogs(app, handleHttpRequest, getBlogs)
   registerGetBlogById(app, handleHttpRequest, getBlogById)
@@ -132,6 +162,7 @@ export function startRestfulApi(app: express.Application): void {
   registerPatchBlog(app, handleHttpRequest, patchBlog)
   registerDeleteBlog(app, handleHttpRequest, deleteBlog)
   registerDownloadBlog(app, handleHttpRequest, downloadBlog)
+  registerUploadBlog(app, handleHttpRequest, uploadBlog)
 }
 
 function getBlog<T extends BlogIgnorableField = never>(

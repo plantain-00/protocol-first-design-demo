@@ -54,12 +54,26 @@ const requestRestfulAPI: RequestRestfulAPI = async (
   args?: { path?: { [key: string]: string | number }, query?: {}, body?: {} }
 ) => {
   url = composeUrl(url, args)
+  let body: BodyInit | undefined
+  let headers: HeadersInit | undefined
+  if (args?.body) {
+    if (typeof args.body === 'object' && Object.values(args.body).some((b) => b instanceof Blob)) {
+      const formData = new FormData()
+      for (const key in args.body) {
+        formData.append(key, (args.body as { [key: string]: string | Blob })[key])
+      }
+      body = formData
+    } else {
+      body = JSON.stringify(args.body)
+      headers = { 'content-type': 'application/json' }
+    }
+  }
   const result = await fetch(
     url,
     {
       method,
-      body: args?.body ? JSON.stringify(args.body) : undefined,
-      headers: args?.body ? { 'content-type': 'application/json' } : undefined
+      body,
+      headers,
     })
   return result.json()
 }
@@ -84,8 +98,6 @@ const requestRestfulAPI: RequestRestfulAPI = async (
 
   const deleteBlogResult = await requestRestfulAPI('DELETE', '/api/blogs/{id}', { path: { id: 2 } })
   console.info('rest delete blog', deleteBlogResult)
-
-  window.open(getRequestApiUrl('/api/blogs/{id}/download', { path: { id: 1 } }), '_blank')
 
   const graphqlBlogsResult = await fetchGraphql(gqlBlogsGql, { pagination: { skip: 1, take: 1 } })
   console.info('graphql blogs', graphqlBlogsResult.blogs.result)
@@ -126,7 +138,23 @@ const requestRestfulAPI: RequestRestfulAPI = async (
 })()
 
 const App = defineComponent({
-  render: indexTemplateHtml
+  render: indexTemplateHtml,
+  methods: {
+    download() {
+      window.open(getRequestApiUrl('/api/blogs/{id}/download', { path: { id: 1 } }), '_blank')
+    },
+    onChange(e: MouseEvent) {
+      const input = e.target as HTMLInputElement
+      if (input.files && input.files.length > 0) {
+        requestRestfulAPI('POST', '/api/blogs/upload', {
+          body: {
+            id: 1,
+            file: input.files[0],
+          },
+        })
+      }
+    }
+  }
 })
 
 createApp(App).mount('#container')
