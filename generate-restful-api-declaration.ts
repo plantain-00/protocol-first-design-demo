@@ -3,6 +3,7 @@ import { Definition, FunctionParameter, generateTypescriptOfFunctionParameter, g
 export = (typeDeclarations: TypeDeclaration[]): string => {
   const backendResult: string[] = []
   const frontendResult: string[] = []
+  const getRequestApiUrlResult: string[] = []
   const references: string[] = []
   const jsonSchemas: Array<{ name: string, schema: string }> = []
   const registers: string[] = []
@@ -17,7 +18,7 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
         }
       }
       const interfaceName = declaration.name[0].toUpperCase() + declaration.name.substring(1)
-      registers.push(`export const register${interfaceName} = (app: express.Application, handler: ${interfaceName}) => handleHttpRequest(app, '${declaration.method}', '${path}', '${declaration.tags[0]}', ${declaration.name}Validate, handler)`)
+      registers.push(`export const register${interfaceName} = (app: Application, handleHttpRequest: HandleHttpRequest, handler: ${interfaceName}) => handleHttpRequest(app, '${declaration.method}', '${path}', '${declaration.tags[0]}', ${declaration.name}Validate, handler)`)
 
       // json schema
       const mergedDefinitions: { [name: string]: Definition } = {}
@@ -30,7 +31,7 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
         Object.assign(mergedDefinitions, referencedName)
       }
       const members: Member[] = []
-      for (const type of ['path', 'query', 'body']) {
+      for (const type of allTypes) {
         const params = declaration.parameters.filter((d) => d.in === type)
         members.push({
           name: type,
@@ -76,9 +77,13 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
       // backend / frontend types
       const backendParams: { optional: boolean, value: string }[] = []
       const frontendParams: { optional: boolean, value: string }[] = []
-      for (const type of ['path', 'query', 'body']) {
+      const getRequestApiUrlParam: { optional: boolean, value: string }[] = []
+      for (const type of allTypes) {
         const parameter = declaration.parameters.filter((d) => d.in === type)
         if (parameter.length > 0) {
+          if (type !== 'body') {
+            getRequestApiUrlParam.push(getParam(type, parameter))
+          }
           frontendParams.push(getParam(type, parameter))
           parameter.forEach((q) => {
             if (q.type.default !== undefined) {
@@ -96,11 +101,18 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
         const optional = frontendParams.every((q) => q.optional) ? '?' : ''
         frontendParameters.push(`args${optional}: { ${frontendParams.map((p) => p.value).join(', ')} }`)
       }
+      const getRequestApiUrlParameters = [
+        `url: '${declaration.path}'`,
+      ]
+      if (getRequestApiUrlParam.length > 0) {
+        const optional = getRequestApiUrlParam.every((q) => q.optional) ? '?' : ''
+        getRequestApiUrlParameters.push(`args${optional}: { ${getRequestApiUrlParam.map((p) => p.value).join(', ')} }`)
+      }
       const backendParameters: string[] = []
       if (backendParams.length > 0) {
         const optional = backendParams.every((q) => q.optional) ? '?' : ''
         backendParameters.push(`req${optional}: { ${backendParams.map((p) => p.value).join(', ')} }`)
-        backendParameters.push(`res: express.Response<{}>`)
+        backendParameters.push(`res: Response<{}>`)
       }
       const returnType = declaration.type.kind === undefined ? 'void' : generateTypescriptOfType(declaration.type, (child) => child.kind === 'reference' ? `Omit<${child.name}, T>` : undefined)
       let ignorableField = ''
@@ -111,41 +123,40 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
       }
       if (ignorableField) {
         frontendResult.push(`  <T extends ${ignorableField} = never>(${frontendParameters.join(', ')}): Promise<${returnType}>`)
+        getRequestApiUrlResult.push(`  <T extends ${ignorableField} = never>(${getRequestApiUrlParameters.join(', ')}): string`)
         backendResult.push(`export type ${interfaceName} = <T extends ${ignorableField} = never>(${backendParameters.join(', ')}) => Promise<${returnType}>`)
       } else {
         frontendResult.push(`  (${frontendParameters.join(', ')}): Promise<${returnType}>`)
+        getRequestApiUrlResult.push(`  (${getRequestApiUrlParameters.join(', ')}): string`)
         backendResult.push(`export type ${interfaceName} = (${backendParameters.join(', ')}) => Promise<${returnType}>`)
       }
     }
   }
   return `/* eslint-disable */
 
+import type { Application, Response } from 'express'
+import { ajv, HandleHttpRequest } from './restful-api-declaration-lib'
 import { ${Array.from(new Set(references)).join(', ')} } from './restful-api-schema'
 
 export type RequestRestfulAPI = {
 ${frontendResult.join('\n')}
 }
 
+export type GetRequestApiUrl = {
+${getRequestApiUrlResult.join('\n')}
+}
+
 ${backendResult.join('\n')}
 
-import Ajv from 'ajv'
-
-const ajv = new Ajv({
-  removeAdditional: true,
-  useDefaults: true,
-  coerceTypes: true,
-})
-
 ${jsonSchemas.map((s) => `const ${s.name}Validate = ajv.compile(${s.schema})`).join('\n')}
-
-import * as express from 'express'
-import { handleHttpRequest } from './restful-api'
 
 ${registers.join('\n')}
 `
 }
 
-function getParam(type: string, parameter: FunctionParameter[]) {
+const allTypes = ['path', 'query', 'body'] as const
+
+function getParam(type: typeof allTypes[number], parameter: FunctionParameter[]) {
   const optional = parameter.every((q) => q.optional) ? '?' : ''
   return {
     optional: parameter.every((q) => q.optional),

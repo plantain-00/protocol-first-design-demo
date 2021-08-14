@@ -3,7 +3,7 @@ import qs from 'qs'
 import * as protobuf from 'protobufjs'
 import { indexTemplateHtml, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
 import { ResolveResult } from '../src/generated/root'
-import { RequestRestfulAPI } from '../src/restful-api-declaration'
+import type { RequestRestfulAPI, GetRequestApiUrl } from '../src/restful-api-declaration'
 import { WsCommand, WsPush } from '../src/ws-api-schema'
 import { srcGeneratedWsProto } from '../src/generated/variables'
 
@@ -27,10 +27,9 @@ async function fetchGraphql<T>(query: string, variables = {}) {
   return data.data
 }
 
-const requestRestfulAPI: RequestRestfulAPI = async (
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+const composeUrl = (
   url: string,
-  args?: { path?: { [key: string]: string | number }, query?: {}, body?: {} }
+  args?: { path?: { [key: string]: string | number }, query?: {} }
 ) => {
   if (args) {
     if (args.path) {
@@ -44,6 +43,17 @@ const requestRestfulAPI: RequestRestfulAPI = async (
       })
     }
   }
+  return url
+}
+
+const getRequestApiUrl: GetRequestApiUrl = composeUrl
+
+const requestRestfulAPI: RequestRestfulAPI = async (
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+  url: string,
+  args?: { path?: { [key: string]: string | number }, query?: {}, body?: {} }
+) => {
+  url = composeUrl(url, args)
   const result = await fetch(
     url,
     {
@@ -75,7 +85,7 @@ const requestRestfulAPI: RequestRestfulAPI = async (
   const deleteBlogResult = await requestRestfulAPI('DELETE', '/api/blogs/{id}', { path: { id: 2 } })
   console.info('rest delete blog', deleteBlogResult)
 
-  window.open(`/api/blogs/${1}/download`, '_blank')
+  window.open(getRequestApiUrl('/api/blogs/{id}/download', { path: { id: 1 } }), '_blank')
 
   const graphqlBlogsResult = await fetchGraphql(gqlBlogsGql, { pagination: { skip: 1, take: 1 } })
   console.info('graphql blogs', graphqlBlogsResult.blogs.result)

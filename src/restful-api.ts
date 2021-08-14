@@ -1,5 +1,4 @@
 import * as express from 'express'
-import { ValidateFunction } from 'ajv'
 import * as fs from 'fs'
 import * as path from 'path'
 
@@ -7,6 +6,7 @@ import { blogs, posts } from './data'
 import { authorized, HttpError } from './auth'
 import { CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, PatchBlog, registerCreateBlog, registerDeleteBlog, registerDownloadBlog, registerGetBlogById, registerGetBlogs, registerPatchBlog } from './restful-api-declaration'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
+import { HandleHttpRequest } from './restful-api-declaration-lib'
 
 const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip, take, ignoredFields } }) => {
   const filteredBlogs = content ? blogs.filter((b) => b.content.includes(content)) : blogs
@@ -96,14 +96,7 @@ const downloadBlog: DownloadBlog = async ({ path: { id } }, res: express.Respons
   fs.createReadStream(path.resolve(process.cwd(), 'README.md')).pipe(res)
 }
 
-export function handleHttpRequest(
-  app: express.Application,
-  method: 'get' | 'post' | 'put' | 'patch' | 'delete',
-  url: string,
-  tag: string,
-  validate: ValidateFunction,
-  handler: (input: any, res: express.Response<{}>) => Promise<{} | void>
-): void {
+const handleHttpRequest: HandleHttpRequest = (app, method, url, tag, validate, handler) => {
   app[method](url, async (req: express.Request<{}, {}, {}>, res: express.Response<{}>) => {
     try {
       await authorized(req, tag)
@@ -127,12 +120,12 @@ export function handleHttpRequest(
 }
 
 export function startRestfulApi(app: express.Application): void {
-  registerGetBlogs(app, getBlogs)
-  registerGetBlogById(app, getBlogById)
-  registerCreateBlog(app, createBlog)
-  registerPatchBlog(app, patchBlog)
-  registerDeleteBlog(app, deleteBlog)
-  registerDownloadBlog(app, downloadBlog)
+  registerGetBlogs(app, handleHttpRequest, getBlogs)
+  registerGetBlogById(app, handleHttpRequest, getBlogById)
+  registerCreateBlog(app, handleHttpRequest, createBlog)
+  registerPatchBlog(app, handleHttpRequest, patchBlog)
+  registerDeleteBlog(app, handleHttpRequest, deleteBlog)
+  registerDownloadBlog(app, handleHttpRequest, downloadBlog)
 }
 
 function getBlog<T extends BlogIgnorableField = never>(
