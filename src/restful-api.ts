@@ -1,6 +1,7 @@
 import * as express from 'express'
 import * as fs from 'fs'
 import * as path from 'path'
+import {Readable} from 'stream'
 
 import { blogs, posts } from './data'
 import { authorized, HttpError } from './auth'
@@ -88,12 +89,9 @@ const deleteBlog: DeleteBlog = async ({ path: { id } }) => {
   return {}
 }
 
-const downloadBlog: DownloadBlog = async ({ path: { id } }, res: express.Response<{}>) => {
+const downloadBlog: DownloadBlog = async ({ path: { id } }) => {
   console.info(id)
-  res.set({
-    'Content-Type': 'application/text',
-  })
-  fs.createReadStream(path.resolve(process.cwd(), 'README.md')).pipe(res)
+  return fs.createReadStream(path.resolve(process.cwd(), 'README.md'))
 }
 
 const handleHttpRequest: HandleHttpRequest = (app, method, url, tag, validate, handler) => {
@@ -105,8 +103,16 @@ const handleHttpRequest: HandleHttpRequest = (app, method, url, tag, validate, h
       if (!valid && validate.errors?.[0].message) {
         throw new HttpError(validate.errors[0].message, 400)
       }
-      const result = await handler(input, res)
-      if (result !== undefined) {
+      const result = await handler(input)
+      if (result !== null &&
+        typeof result === 'object' &&
+        typeof (result as Readable).pipe === 'function'
+      ) {
+        res.set({
+          'Content-Disposition': 'attachment',
+        });
+        (result as Readable).pipe(res)
+      } else {
         res.json(result)
       }
     } catch (error: unknown) {

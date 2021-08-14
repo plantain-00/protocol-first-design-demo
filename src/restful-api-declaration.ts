@@ -1,6 +1,7 @@
 /* eslint-disable */
 
-import type { Application, Response } from 'express'
+import type { Application } from 'express'
+import { Readable } from 'stream'
 import { ajv, HandleHttpRequest } from './restful-api-declaration-lib'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
 
@@ -10,7 +11,7 @@ export type RequestRestfulAPI = {
   <T extends BlogIgnorableField = never>(method: 'POST', url: '/api/blogs', args: { query?: { ignoredFields?: T[] }, body: { content: string } }): Promise<{ result: Omit<Blog, T> }>
   <T extends BlogIgnorableField = never>(method: 'PATCH', url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] }, body?: { content?: string, meta?: unknown } }): Promise<{ result: Omit<Blog, T> }>
   (method: 'DELETE', url: '/api/blogs/{id}', args: { path: { id: number } }): Promise<{  }>
-  (method: 'GET', url: '/api/blogs/{id}/download', args: { path: { id: number } }): Promise<void>
+  (method: 'GET', url: '/api/blogs/{id}/download', args: { path: { id: number } }): Promise<Readable>
 }
 
 export type GetRequestApiUrl = {
@@ -22,12 +23,12 @@ export type GetRequestApiUrl = {
   (url: '/api/blogs/{id}/download', args: { path: { id: number } }): string
 }
 
-export type GetBlogs = <T extends BlogIgnorableField = never>(req: { query: { skip: number, take: number, content?: string, sortField: "id" | "content", sortType: "asc" | "desc", ignoredFields?: T[], ids?: string[] } }, res: Response<{}>) => Promise<{ result: Omit<Blog, T>[], count: number }>
-export type GetBlogById = <T extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: T[] } }, res: Response<{}>) => Promise<{ result?: Omit<Blog, T> }>
-export type CreateBlog = <T extends BlogIgnorableField = never>(req: { query?: { ignoredFields?: T[] }, body: { content: string } }, res: Response<{}>) => Promise<{ result: Omit<Blog, T> }>
-export type PatchBlog = <T extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: T[] }, body?: { content?: string, meta?: unknown } }, res: Response<{}>) => Promise<{ result: Omit<Blog, T> }>
-export type DeleteBlog = (req: { path: { id: number } }, res: Response<{}>) => Promise<{  }>
-export type DownloadBlog = (req: { path: { id: number } }, res: Response<{}>) => Promise<void>
+export type GetBlogs = <T extends BlogIgnorableField = never>(req: { query: { skip: number, take: number, content?: string, sortField: "id" | "content", sortType: "asc" | "desc", ignoredFields?: T[], ids?: string[] } }) => Promise<{ result: Omit<Blog, T>[], count: number }>
+export type GetBlogById = <T extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: T[] } }) => Promise<{ result?: Omit<Blog, T> }>
+export type CreateBlog = <T extends BlogIgnorableField = never>(req: { query?: { ignoredFields?: T[] }, body: { content: string } }) => Promise<{ result: Omit<Blog, T> }>
+export type PatchBlog = <T extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: T[] }, body?: { content?: string, meta?: unknown } }) => Promise<{ result: Omit<Blog, T> }>
+export type DeleteBlog = (req: { path: { id: number } }) => Promise<{  }>
+export type DownloadBlog = (req: { path: { id: number } }) => Promise<Readable>
 
 const getBlogsValidate = ajv.compile({
   "type": "object",

@@ -112,9 +112,8 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
       if (backendParams.length > 0) {
         const optional = backendParams.every((q) => q.optional) ? '?' : ''
         backendParameters.push(`req${optional}: { ${backendParams.map((p) => p.value).join(', ')} }`)
-        backendParameters.push(`res: Response<{}>`)
       }
-      const returnType = declaration.type.kind === undefined ? 'void' : generateTypescriptOfType(declaration.type, (child) => child.kind === 'reference' ? `Omit<${child.name}, T>` : undefined)
+      const returnType = declaration.type.kind === undefined ? 'Readable' : generateTypescriptOfType(declaration.type, (child) => child.kind === 'reference' ? `Omit<${child.name}, T>` : undefined)
       let ignorableField = ''
       for (const p of declaration.parameters) {
         if (p.name === 'ignoredFields' && p.type.kind === 'array' && p.type.type.kind === 'reference') {
@@ -134,7 +133,8 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
   }
   return `/* eslint-disable */
 
-import type { Application, Response } from 'express'
+import type { Application } from 'express'
+import { Readable } from 'stream'
 import { ajv, HandleHttpRequest } from './restful-api-declaration-lib'
 import { ${Array.from(new Set(references)).join(', ')} } from './restful-api-schema'
 

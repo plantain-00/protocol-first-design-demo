@@ -1,5 +1,6 @@
 import Ajv, { ValidateFunction } from 'ajv'
-import * as express from 'express'
+import { Application } from 'express'
+import { Readable } from 'stream'
 
 export const ajv = new Ajv({
   removeAdditional: true,
@@ -8,10 +9,10 @@ export const ajv = new Ajv({
 })
 
 export type HandleHttpRequest = (
-  app: express.Application,
+  app: Application,
   method: 'get' | 'post' | 'put' | 'patch' | 'delete',
   url: string,
   tag: string,
   validate: ValidateFunction,
-  handler: (input: any, res: express.Response<{}>) => Promise<{} | void>
+  handler: (input: any) => Promise<{} | Readable>
 ) => void
