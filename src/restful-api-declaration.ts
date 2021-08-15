@@ -5,26 +5,6 @@ import { Readable } from 'stream'
 import { ajv, HandleHttpRequest } from './restful-api-declaration-lib'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
 
-export type RequestRestfulAPI = {
-  <T extends BlogIgnorableField = never>(method: 'GET', url: '/api/blogs', args?: { query?: { skip?: number, take?: number, content?: string, sortField?: "id" | "content", sortType?: "asc" | "desc", ignoredFields?: T[], ids?: string[] } }): Promise<{ result: Omit<Blog, T>[], count: number }>
-  <T extends BlogIgnorableField = never>(method: 'GET', url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] } }): Promise<{ result?: Omit<Blog, T> }>
-  <T extends BlogIgnorableField = never>(method: 'POST', url: '/api/blogs', args: { query?: { ignoredFields?: T[] }, body: { content: string } }): Promise<{ result: Omit<Blog, T> }>
-  <T extends BlogIgnorableField = never>(method: 'PATCH', url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] }, body?: { content?: string, meta?: unknown } }): Promise<{ result: Omit<Blog, T> }>
-  (method: 'DELETE', url: '/api/blogs/{id}', args: { path: { id: number } }): Promise<{  }>
-  (method: 'GET', url: '/api/blogs/{id}/download', args: { path: { id: number } }): Promise<Readable>
-  (method: 'POST', url: '/api/blogs/upload', args: { body: { file: File, id: number } }): Promise<{  }>
-}
-
-export type GetRequestApiUrl = {
-  <T extends BlogIgnorableField = never>(url: '/api/blogs', args?: { query?: { skip?: number, take?: number, content?: string, sortField?: "id" | "content", sortType?: "asc" | "desc", ignoredFields?: T[], ids?: string[] } }): string
-  <T extends BlogIgnorableField = never>(url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] } }): string
-  <T extends BlogIgnorableField = never>(url: '/api/blogs', args?: { query?: { ignoredFields?: T[] } }): string
-  <T extends BlogIgnorableField = never>(url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] } }): string
-  (url: '/api/blogs/{id}', args: { path: { id: number } }): string
-  (url: '/api/blogs/{id}/download', args: { path: { id: number } }): string
-  (url: '/api/blogs/upload'): string
-}
-
 export type GetBlogs = <T extends BlogIgnorableField = never>(req: { query: { skip: number, take: number, content?: string, sortField: "id" | "content", sortType: "asc" | "desc", ignoredFields?: T[], ids?: string[] } }) => Promise<{ result: Omit<Blog, T>[], count: number }>
 export type GetBlogById = <T extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: T[] } }) => Promise<{ result?: Omit<Blog, T> }>
 export type CreateBlog = <T extends BlogIgnorableField = never>(req: { query?: { ignoredFields?: T[] }, body: { content: string } }) => Promise<{ result: Omit<Blog, T> }>
@@ -32,6 +12,7 @@ export type PatchBlog = <T extends BlogIgnorableField = never>(req: { path: { id
 export type DeleteBlog = (req: { path: { id: number } }) => Promise<{  }>
 export type DownloadBlog = (req: { path: { id: number } }) => Promise<Readable>
 export type UploadBlog = (req: { body: { file: Readable, id: number } }) => Promise<{  }>
+export type GetBlogText = (req: { path: { id: number } }) => Promise<string>
 
 const getBlogsValidate = ajv.compile({
   "type": "object",
@@ -335,6 +316,36 @@ const uploadBlogValidate = ajv.compile({
   ],
   "definitions": {}
 })
+const getBlogTextValidate = ajv.compile({
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "query": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    },
+    "body": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "required": [
+    "path"
+  ],
+  "definitions": {}
+})
 
 export const registerGetBlogs = (app: Application, handleHttpRequest: HandleHttpRequest, handler: GetBlogs) => handleHttpRequest(app, 'get', '/api/blogs', 'blog', getBlogsValidate, handler)
 export const registerGetBlogById = (app: Application, handleHttpRequest: HandleHttpRequest, handler: GetBlogById) => handleHttpRequest(app, 'get', '/api/blogs/:id', 'blog', getBlogByIdValidate, handler)
@@ -343,3 +354,4 @@ export const registerPatchBlog = (app: Application, handleHttpRequest: HandleHtt
 export const registerDeleteBlog = (app: Application, handleHttpRequest: HandleHttpRequest, handler: DeleteBlog) => handleHttpRequest(app, 'delete', '/api/blogs/:id', 'blog', deleteBlogValidate, handler)
 export const registerDownloadBlog = (app: Application, handleHttpRequest: HandleHttpRequest, handler: DownloadBlog) => handleHttpRequest(app, 'get', '/api/blogs/:id/download', 'blog', downloadBlogValidate, handler)
 export const registerUploadBlog = (app: Application, handleHttpRequest: HandleHttpRequest, handler: UploadBlog) => handleHttpRequest(app, 'post', '/api/blogs/upload', 'blog', uploadBlogValidate, handler)
+export const registerGetBlogText = (app: Application, handleHttpRequest: HandleHttpRequest, handler: GetBlogText) => handleHttpRequest(app, 'get', '/api/blogs/:id/text', 'blog', getBlogTextValidate, handler)

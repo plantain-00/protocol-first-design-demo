@@ -1,11 +1,13 @@
 import { createApp, defineComponent } from 'vue'
 import qs from 'qs'
 import * as protobuf from 'protobufjs'
+import produce from 'immer'
 import { indexTemplateHtml, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
 import { ResolveResult } from '../src/generated/root'
-import type { RequestRestfulAPI, GetRequestApiUrl } from '../src/restful-api-declaration'
+import { RequestRestfulAPI, GetRequestApiUrl, validations } from './restful-api-declaration'
 import { WsCommand, WsPush } from '../src/ws-api-schema'
 import { srcGeneratedWsProto } from '../src/generated/variables'
+import { ajv } from './restful-api-declaration-lib'
 
 const root = protobuf.Root.fromJSON(srcGeneratedWsProto)
 const commandType = root.lookup('WsCommand') as protobuf.Type
@@ -48,12 +50,59 @@ const composeUrl = (
 
 const getRequestApiUrl: GetRequestApiUrl = composeUrl
 
+function validateByJsonSchema(
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+  url: string,
+  ignoredFields: string[] | undefined,
+  input: unknown,
+) {
+  const validation = validations.find((v) => v.method === method && v.url === url)
+  if (validation) {
+    if (ignoredFields && ignoredFields.length > 0) {
+      const schemaWithoutIgnoredFields = produce(
+        validation.schema as {
+          definitions: {
+            [key: string]: {
+              properties: { [key: string]: unknown }
+              required?: string[]
+            }
+          }
+        },
+        (draft) => {
+          for (const omittedReference of validation.omittedReferences) {
+            for (const ignoredField of ignoredFields) {
+              delete draft.definitions[omittedReference].properties[ignoredField]
+            }
+            const required = draft.definitions[omittedReference].required
+            if (required) {
+              draft.definitions[omittedReference].required = required.filter((r) => !ignoredFields.includes(r))
+            }
+          }
+        }
+      )
+      ajv.validate(schemaWithoutIgnoredFields, input)
+      if (ajv.errors?.[0].message) {
+        throw new Error(ajv.errors[0].message)
+      }
+    } else {
+      validation.validate(input)
+      if (validation.validate.errors?.[0].message) {
+        throw new Error(validation.validate.errors[0].message)
+      }
+    }
+  }
+}
+
 const requestRestfulAPI: RequestRestfulAPI = async (
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   url: string,
-  args?: { path?: { [key: string]: string | number }, query?: {}, body?: {} }
+  args?: {
+    path?: { [key: string]: string | number },
+    query?: { ignoredFields?: string[] },
+    body?: {}
+  }
 ) => {
-  url = composeUrl(url, args)
+  const composedUrl = composeUrl(url, args)
   let body: BodyInit | undefined
   let headers: HeadersInit | undefined
   if (args?.body) {
@@ -69,13 +118,21 @@ const requestRestfulAPI: RequestRestfulAPI = async (
     }
   }
   const result = await fetch(
-    url,
+    composedUrl,
     {
       method,
       body,
       headers,
     })
-  return result.json()
+  const contentType = result.headers.get('content-type')
+  if (contentType && contentType.includes('application/json')) {
+    const json = await result.json()
+    validateByJsonSchema(method, url, args?.query?.ignoredFields, json)
+    return json
+  }
+  const text = await result.text()
+  validateByJsonSchema(method, url, args?.query?.ignoredFields, text)
+  return text
 }
 
 (async () => {
@@ -153,7 +210,12 @@ const App = defineComponent({
           },
         })
       }
-    }
+    },
+    getRawText() {
+      requestRestfulAPI('GET', '/api/blogs/{id}/text', { path: { id: 1 } }).then((r) => {
+        console.info(r)
+      })
+    },
   }
 })
 

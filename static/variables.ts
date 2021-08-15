@@ -57,7 +57,10 @@ export function indexTemplateHtml(_ctx, _cache) {
     }, null, 32 /* HYDRATE_EVENTS */),
     _createVNode("button", {
       onClick: _cache[2] || (_cache[2] = (...args) => (_ctx.download && _ctx.download(...args)))
-    }, "download")
+    }, "download"),
+    _createVNode("button", {
+      onClick: _cache[3] || (_cache[3] = (...args) => (_ctx.getRawText && _ctx.getRawText(...args)))
+    }, "get raw text")
   ]))
 }
 /* eslint-enable */

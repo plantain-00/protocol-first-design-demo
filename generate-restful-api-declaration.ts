@@ -1,11 +1,12 @@
 import { Definition, FunctionParameter, generateTypescriptOfFunctionParameter, generateTypescriptOfType, getAllDefinitions, getJsonSchemaProperty, getReferencedDefinitions, getReferencesInType, Member, TypeDeclaration } from 'types-as-schema'
 
-export = (typeDeclarations: TypeDeclaration[]): string => {
+export = (typeDeclarations: TypeDeclaration[]): { path: string, content: string }[] => {
   const backendResult: string[] = []
   const frontendResult: string[] = []
   const getRequestApiUrlResult: string[] = []
   const references: string[] = []
-  const jsonSchemas: Array<{ name: string, schema: string }> = []
+  const requestJsonSchemas: Array<{ name: string, schema: string }> = []
+  const responseJsonSchemas: Array<{ name: string, url: string, method: string, schema: string, omittedReferences: string[] }> = []
   const registers: string[] = []
   const definitions = getAllDefinitions({ declarations: typeDeclarations, looseMode: true })
   for (const declaration of typeDeclarations) {
@@ -21,15 +22,23 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
       registers.push(`export const register${interfaceName} = (app: Application, handleHttpRequest: HandleHttpRequest, handler: ${interfaceName}) => handleHttpRequest(app, '${declaration.method}', '${path}', '${declaration.tags[0]}', ${declaration.name}Validate, handler)`)
 
       // json schema
-      const mergedDefinitions: { [name: string]: Definition } = {}
-      const referenceNames: string[] = []
+      const requestMergedDefinitions: { [name: string]: Definition } = {}
+      const requestReferenceNames: string[] = []
       for (const parameter of declaration.parameters) {
-        referenceNames.push(...getReferencesInType(parameter.type).map((r) => r.name))
+        requestReferenceNames.push(...getReferencesInType(parameter.type).map((r) => r.name))
       }
-      for (const referenceName of referenceNames) {
+      for (const referenceName of requestReferenceNames) {
         const referencedName = getReferencedDefinitions(referenceName, definitions, [])
-        Object.assign(mergedDefinitions, referencedName)
+        Object.assign(requestMergedDefinitions, referencedName)
       }
+
+      const responseMergedDefinitions: { [name: string]: Definition } = {}
+      const responseReferenceNames = getReferencesInType(declaration.type).map((r) => r.name)
+      for (const referenceName of responseReferenceNames) {
+        const referencedName = getReferencedDefinitions(referenceName, definitions, [])
+        Object.assign(responseMergedDefinitions, referencedName)
+      }
+
       const members: Member[] = []
       for (const type of allTypes) {
         const params = declaration.parameters.filter((d) => d.in === type)
@@ -48,7 +57,7 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
           optional: params.every((p) => p.optional),
         })
       }
-      jsonSchemas.push({
+      requestJsonSchemas.push({
         name: declaration.name,
         schema: JSON.stringify({
           ...getJsonSchemaProperty(
@@ -64,9 +73,23 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
             },
             { declarations: typeDeclarations, looseMode: true }
           ),
-          definitions: mergedDefinitions
+          definitions: requestMergedDefinitions
         }, null, 2)
       })
+      const responseJsonSchema = {
+        name: declaration.name,
+        method: declaration.method,
+        url: declaration.path,
+        omittedReferences: [] as string[],
+        schema: JSON.stringify({
+          ...getJsonSchemaProperty(
+            declaration.type,
+            { declarations: typeDeclarations, looseMode: true }
+          ),
+          definitions: responseMergedDefinitions
+        }, null, 2)
+      }
+      responseJsonSchemas.push(responseJsonSchema)
 
       // import reference
       references.push(...getReferencesInType(declaration.type).map((r) => r.name))
@@ -113,7 +136,22 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
         const optional = backendParams.every((q) => q.optional) ? '?' : ''
         backendParameters.push(`req${optional}: { ${backendParams.map((p) => p.value).join(', ')} }`)
       }
-      const returnType = declaration.type.kind === 'file' ? 'Readable' : generateTypescriptOfType(declaration.type, (child) => child.kind === 'reference' ? `Omit<${child.name}, T>` : undefined)
+
+      let returnType: string
+      const omittedReferences = new Set<string>()
+      if (declaration.type.kind === 'file') {
+        returnType = 'Readable'
+      } else {
+        returnType = generateTypescriptOfType(declaration.type, (child) => {
+          if (child.kind === 'reference') {
+            omittedReferences.add(child.name)
+            return `Omit<${child.name}, T>`
+          }
+          return undefined
+        })
+      }
+      responseJsonSchema.omittedReferences = Array.from(omittedReferences)
+
       let ignorableField = ''
       for (const p of declaration.parameters) {
         if (p.name === 'ignoredFields' && p.type.kind === 'array' && p.type.type.kind === 'reference') {
@@ -121,22 +159,35 @@ export = (typeDeclarations: TypeDeclaration[]): string => {
         }
       }
       if (ignorableField) {
-        frontendResult.push(`  <T extends ${ignorableField} = never>(${frontendParameters.join(', ')}): Promise<${returnType}>`)
+        if (declaration.type.kind !== 'file') {
+          frontendResult.push(`  <T extends ${ignorableField} = never>(${frontendParameters.join(', ')}): Promise<${returnType}>`)
+        }
         getRequestApiUrlResult.push(`  <T extends ${ignorableField} = never>(${getRequestApiUrlParameters.join(', ')}): string`)
         backendResult.push(`export type ${interfaceName} = <T extends ${ignorableField} = never>(${backendParameters.join(', ')}) => Promise<${returnType}>`)
       } else {
-        frontendResult.push(`  (${frontendParameters.join(', ')}): Promise<${returnType}>`)
+        if (declaration.type.kind !== 'file') {
+          frontendResult.push(`  (${frontendParameters.join(', ')}): Promise<${returnType}>`)
+        }
         getRequestApiUrlResult.push(`  (${getRequestApiUrlParameters.join(', ')}): string`)
         backendResult.push(`export type ${interfaceName} = (${backendParameters.join(', ')}) => Promise<${returnType}>`)
       }
     }
   }
-  return `/* eslint-disable */
+  const backendContent = `/* eslint-disable */
 
 import type { Application } from 'express'
 import { Readable } from 'stream'
 import { ajv, HandleHttpRequest } from './restful-api-declaration-lib'
 import { ${Array.from(new Set(references)).join(', ')} } from './restful-api-schema'
+
+${backendResult.join('\n')}
+
+${requestJsonSchemas.map((s) => `const ${s.name}Validate = ajv.compile(${s.schema})`).join('\n')}
+
+${registers.join('\n')}
+`
+  const frontendContent = `import { ${Array.from(new Set(references)).join(', ')} } from '../src/restful-api-schema'
+import { ajv } from './restful-api-declaration-lib'
 
 export type RequestRestfulAPI = {
 ${frontendResult.join('\n')}
@@ -146,12 +197,28 @@ export type GetRequestApiUrl = {
 ${getRequestApiUrlResult.join('\n')}
 }
 
-${backendResult.join('\n')}
+${responseJsonSchemas.map((s) => `const ${s.name}JsonSchema = ${s.schema}`).join('\n')}
 
-${jsonSchemas.map((s) => `const ${s.name}Validate = ajv.compile(${s.schema})`).join('\n')}
-
-${registers.join('\n')}
+export const validations = [
+${responseJsonSchemas.map((s) => `  {
+    url: '${s.url}',
+    method: '${s.method.toUpperCase()}',
+    schema: ${s.name}JsonSchema,
+    omittedReferences: [${s.omittedReferences.map((m) => `'${m}'`).join(',')}],
+    validate: ajv.compile(${s.name}JsonSchema),
+  },`).join('\n')}
+]
 `
+  return [
+    {
+      path: './src/restful-api-declaration.ts',
+      content: backendContent,
+    },
+    {
+      path: './static/restful-api-declaration.ts',
+      content: frontendContent,
+    },
+  ]
 }
 
 const allTypes = ['path', 'query', 'body'] as const

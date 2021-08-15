@@ -134,6 +134,18 @@ declare function deleteBlog(
    id: number,
 ): Promise<{}>
 
+/**
+ * @method get
+ * @path /api/blogs/{id}/text
+ * @tags blog
+ */
+ declare function getBlogText(
+  /**
+   * @in path
+   */
+  id: number,
+): Promise<string>
+
 export type BlogIgnorableField = 'posts' | 'meta'
 
 type integer = number

@@ -2742,6 +2742,11 @@ image-size@~0.5.0:
   resolved "https://registry.yarnpkg.com/image-size/-/image-size-0.5.5.tgz#09dfd4ab9d20e29eb1c3e80b8990378df9e3cb9c"
   integrity sha1-Cd/Uq50g4p6xw+gLiZA3jfnjy5w=
 
+immer@9.0.5:
+  version "9.0.5"
+  resolved "https://registry.yarnpkg.com/immer/-/immer-9.0.5.tgz#a7154f34fe7064f15f00554cc94c66cc0bf453ec"
+  integrity sha512-2WuIehr2y4lmYz9gaQzetPR2ECniCifk4ORaQbU3g5EalLt+0IVTosEPJ5BoYl/75ky2mivzdRzV8wWgQGOSYQ==
+
 import-cwd@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/import-cwd/-/import-cwd-3.0.0.tgz#20845547718015126ea9b3676b7592fb8bd4cf92"
@@ -5271,10 +5276,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-types-as-schema@1.39.2:
-  version "1.39.2"
-  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.39.2.tgz#c75c79a987e52b58b7aa0ffdbee81d06a5d09b0e"
-  integrity sha512-54mB1iNCY1XQxdX17Mt2Vi5gg46XZiCvnAS0Xv9hAGVOFjF+KUzfx19FZ7dcz9PMPtX0VTZuR2OSxSz3h6V31A==
+types-as-schema@1.40.0:
+  version "1.40.0"
+  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.40.0.tgz#a850fb7b97ac3b7a307dba027e01d37adbf902ec"
+  integrity sha512-QBbYh+kUeoikAvvFiUkr+gMhMVRcyUeSwvmYF4m8jN6aQZcKX5JEYPzOMPSmTEpLpBiKRRp7/OFMNLZVjZsCFg==
   dependencies:
     ajv "7 || 8"
     chokidar "3"

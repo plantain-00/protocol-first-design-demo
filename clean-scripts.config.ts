@@ -36,7 +36,7 @@ export default {
   },
   schema: [
     'types-as-schema src/graphql-api-schema.ts --graphql src/generated/data.gql --graphql-root-type src/generated/root.ts',
-    'types-as-schema src/restful-api-schema.ts --swagger static/swagger.json --swagger-base static/swagger-base.json --config ./generate-restful-api-declaration.ts --custom ./src/restful-api-declaration.ts',
+    'types-as-schema src/restful-api-schema.ts --swagger static/swagger.json --swagger-base static/swagger-base.json --config ./generate-restful-api-declaration.ts',
     'types-as-schema src/ws-api-schema.ts --json src/generated --protobuf src/generated/ws.proto --markdown src/generated/ws.md',
     'file2variable-cli --config file2variable.config.ts'
   ],
