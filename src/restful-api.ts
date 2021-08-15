@@ -120,11 +120,22 @@ const handleHttpRequest: HandleHttpRequest = (app, method, url, tag, validate, h
         typeof result === 'object' &&
         typeof (result as Readable).pipe === 'function'
       ) {
-        res.set({
-          'Content-Disposition': 'attachment',
-        });
+        if (typeof req.query.attachmentFileName === 'string') {
+          if (req.query.attachmentFileName) {
+            res.set({
+              'Content-Disposition': `attachment; filename="${req.query.attachmentFileName}"`,
+            })
+          } else {
+            res.set({
+              'Content-Disposition': 'attachment',
+            })
+          }
+        }
         (result as Readable).pipe(res)
       } else if (typeof result === 'string') {
+        res.set({
+          'content-type': 'text/plain; charset=UTF-8',
+        })
         res.send(result).end()
       } else {
         res.json(result)

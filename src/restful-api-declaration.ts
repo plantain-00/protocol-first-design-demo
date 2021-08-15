@@ -10,7 +10,7 @@ export type GetBlogById = <T extends BlogIgnorableField = never>(req: { path: { 
 export type CreateBlog = <T extends BlogIgnorableField = never>(req: { query?: { ignoredFields?: T[] }, body: { content: string } }) => Promise<{ result: Omit<Blog, T> }>
 export type PatchBlog = <T extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: T[] }, body?: { content?: string, meta?: unknown } }) => Promise<{ result: Omit<Blog, T> }>
 export type DeleteBlog = (req: { path: { id: number } }) => Promise<{  }>
-export type DownloadBlog = (req: { path: { id: number } }) => Promise<Readable>
+export type DownloadBlog = (req: { path: { id: number }, query?: { attachmentFileName?: string } }) => Promise<Readable>
 export type UploadBlog = (req: { body: { file: Readable, id: number } }) => Promise<{  }>
 export type GetBlogText = (req: { path: { id: number } }) => Promise<string>
 
@@ -270,7 +270,11 @@ const downloadBlogValidate = ajv.compile({
     },
     "query": {
       "type": "object",
-      "properties": {},
+      "properties": {
+        "attachmentFileName": {
+          "type": "string"
+        }
+      },
       "required": []
     },
     "body": {

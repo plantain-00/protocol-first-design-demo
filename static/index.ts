@@ -98,7 +98,7 @@ const requestRestfulAPI: RequestRestfulAPI = async (
   url: string,
   args?: {
     path?: { [key: string]: string | number },
-    query?: { ignoredFields?: string[] },
+    query?: { ignoredFields?: string[], attachmentFileName?: string },
     body?: {}
   }
 ) => {
@@ -125,14 +125,19 @@ const requestRestfulAPI: RequestRestfulAPI = async (
       headers,
     })
   const contentType = result.headers.get('content-type')
-  if (contentType && contentType.includes('application/json')) {
-    const json = await result.json()
-    validateByJsonSchema(method, url, args?.query?.ignoredFields, json)
-    return json
+  if (contentType) {
+    if (contentType.includes('application/json')) {
+      const json = await result.json()
+      validateByJsonSchema(method, url, args?.query?.ignoredFields, json)
+      return json
+    }
+    if (contentType.includes('text/')) {
+      const text = await result.text()
+      validateByJsonSchema(method, url, args?.query?.ignoredFields, text)
+      return text
+    }
   }
-  const text = await result.text()
-  validateByJsonSchema(method, url, args?.query?.ignoredFields, text)
-  return text
+  return result.blob()
 }
 
 (async () => {
@@ -198,7 +203,15 @@ const App = defineComponent({
   render: indexTemplateHtml,
   methods: {
     download() {
-      window.open(getRequestApiUrl('/api/blogs/{id}/download', { path: { id: 1 } }), '_blank')
+      window.open(getRequestApiUrl('/api/blogs/{id}/download', {
+        path: { id: 1 },
+        query: { attachmentFileName: 'a.txt' },
+      }), '_blank')
+    },
+    downloadData() {
+      requestRestfulAPI('GET', '/api/blogs/{id}/download', { path: { id: 1 } }).then((r) => {
+        console.info(r)
+      })
     },
     onChange(e: MouseEvent) {
       const input = e.target as HTMLInputElement

@@ -7,6 +7,7 @@ export type RequestRestfulAPI = {
   <T extends BlogIgnorableField = never>(method: 'POST', url: '/api/blogs', args: { query?: { ignoredFields?: T[] }, body: { content: string } }): Promise<{ result: Omit<Blog, T> }>
   <T extends BlogIgnorableField = never>(method: 'PATCH', url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] }, body?: { content?: string, meta?: unknown } }): Promise<{ result: Omit<Blog, T> }>
   (method: 'DELETE', url: '/api/blogs/{id}', args: { path: { id: number } }): Promise<{  }>
+  (method: 'GET', url: '/api/blogs/{id}/download', args: { path: { id: number }, query?: { attachmentFileName?: string } }): Promise<Blob>
   (method: 'POST', url: '/api/blogs/upload', args: { body: { file: File, id: number } }): Promise<{  }>
   (method: 'GET', url: '/api/blogs/{id}/text', args: { path: { id: number } }): Promise<string>
 }
@@ -17,7 +18,7 @@ export type GetRequestApiUrl = {
   <T extends BlogIgnorableField = never>(url: '/api/blogs', args?: { query?: { ignoredFields?: T[] } }): string
   <T extends BlogIgnorableField = never>(url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] } }): string
   (url: '/api/blogs/{id}', args: { path: { id: number } }): string
-  (url: '/api/blogs/{id}/download', args: { path: { id: number } }): string
+  (url: '/api/blogs/{id}/download', args: { path: { id: number }, query?: { attachmentFileName?: string } }): string
   (url: '/api/blogs/upload'): string
   (url: '/api/blogs/{id}/text', args: { path: { id: number } }): string
 }

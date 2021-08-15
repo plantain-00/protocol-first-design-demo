@@ -116,6 +116,10 @@ declare function deleteBlog(
    * @in path
    */
   id: number,
+  /**
+   * @in query
+   */
+  attachmentFileName?: string,
 ): Promise<File>
 
 /**

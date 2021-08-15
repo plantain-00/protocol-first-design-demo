@@ -59,7 +59,10 @@ export function indexTemplateHtml(_ctx, _cache) {
       onClick: _cache[2] || (_cache[2] = (...args) => (_ctx.download && _ctx.download(...args)))
     }, "download"),
     _createVNode("button", {
-      onClick: _cache[3] || (_cache[3] = (...args) => (_ctx.getRawText && _ctx.getRawText(...args)))
+      onClick: _cache[3] || (_cache[3] = (...args) => (_ctx.downloadData && _ctx.downloadData(...args)))
+    }, "download data"),
+    _createVNode("button", {
+      onClick: _cache[4] || (_cache[4] = (...args) => (_ctx.getRawText && _ctx.getRawText(...args)))
     }, "get raw text")
   ]))
 }

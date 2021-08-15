@@ -138,9 +138,11 @@ export = (typeDeclarations: TypeDeclaration[]): { path: string, content: string 
       }
 
       let returnType: string
+      let frontendReturnType: string | undefined
       const omittedReferences = new Set<string>()
       if (declaration.type.kind === 'file') {
         returnType = 'Readable'
+        frontendReturnType = 'Blob'
       } else {
         returnType = generateTypescriptOfType(declaration.type, (child) => {
           if (child.kind === 'reference') {
@@ -159,15 +161,11 @@ export = (typeDeclarations: TypeDeclaration[]): { path: string, content: string 
         }
       }
       if (ignorableField) {
-        if (declaration.type.kind !== 'file') {
-          frontendResult.push(`  <T extends ${ignorableField} = never>(${frontendParameters.join(', ')}): Promise<${returnType}>`)
-        }
+        frontendResult.push(`  <T extends ${ignorableField} = never>(${frontendParameters.join(', ')}): Promise<${frontendReturnType || returnType}>`)
         getRequestApiUrlResult.push(`  <T extends ${ignorableField} = never>(${getRequestApiUrlParameters.join(', ')}): string`)
         backendResult.push(`export type ${interfaceName} = <T extends ${ignorableField} = never>(${backendParameters.join(', ')}) => Promise<${returnType}>`)
       } else {
-        if (declaration.type.kind !== 'file') {
-          frontendResult.push(`  (${frontendParameters.join(', ')}): Promise<${returnType}>`)
-        }
+        frontendResult.push(`  (${frontendParameters.join(', ')}): Promise<${frontendReturnType || returnType}>`)
         getRequestApiUrlResult.push(`  (${getRequestApiUrlParameters.join(', ')}): string`)
         backendResult.push(`export type ${interfaceName} = (${backendParameters.join(', ')}) => Promise<${returnType}>`)
       }

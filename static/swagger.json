@@ -289,6 +289,14 @@
             "schema": {
               "type": "number"
             }
+          },
+          {
+            "name": "attachmentFileName",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "tags": [
