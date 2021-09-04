@@ -81,12 +81,12 @@ function validateByJsonSchema(
         }
       )
       ajv.validate(schemaWithoutIgnoredFields, input)
-      if (ajv.errors?.[0].message) {
+      if (ajv.errors?.[0]?.message) {
         throw new Error(ajv.errors[0].message)
       }
     } else {
       validation.validate(input)
-      if (validation.validate.errors?.[0].message) {
+      if (validation.validate.errors?.[0]?.message) {
         throw new Error(validation.validate.errors[0].message)
       }
     }

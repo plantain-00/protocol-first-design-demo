@@ -112,7 +112,7 @@ const handleHttpRequest: HandleHttpRequest = (app, method, url, tag, validate, h
       }
       const input = { path: req.params, query: req.query, body }
       const valid = validate(input)
-      if (!valid && validate.errors?.[0].message) {
+      if (!valid && validate.errors?.[0]?.message) {
         throw new HttpError(validate.errors[0].message, 400)
       }
       const result = await handler(input)
