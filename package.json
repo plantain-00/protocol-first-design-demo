@@ -9,12 +9,12 @@
     "@types/cookie": "0.4.1",
     "@types/express": "4.17.13",
     "@types/multer": "1.4.7",
-    "@types/node": "16.7.10",
+    "@types/node": "16.9.1",
     "@types/qs": "6.9.7",
     "@types/webpack": "5.28.0",
     "@types/ws": "7.4.7",
-    "@typescript-eslint/eslint-plugin": "4.30.0",
-    "@typescript-eslint/parser": "4.30.0",
+    "@typescript-eslint/eslint-plugin": "4.31.0",
+    "@typescript-eslint/parser": "4.31.0",
     "autoprefixer": "10.3.4",
     "ava": "3.15.0",
     "clean-css-cli": "5.3.3",
@@ -42,10 +42,10 @@
     "tsconfig-plantain": "0.0.2",
     "type-coverage": "2.18.2",
     "types-as-schema": "1.40.0",
-    "typescript": "4.4.2",
-    "vue": "3.2.8",
+    "typescript": "4.4.3",
+    "vue": "3.2.11",
     "watch-then-execute": "1.2.0",
-    "webpack": "5.52.0",
+    "webpack": "5.52.1",
     "webpack-cli": "4.8.0"
   },
   "scripts": {
@@ -68,10 +68,10 @@
     "dataloader": "2.0.0",
     "express": "4.17.1",
     "express-graphql": "0.12.0",
-    "graphql": "15.5.2",
+    "graphql": "15.5.3",
     "multer": "1.4.3",
     "protobufjs": "6.11.2",
     "tslib": "1 || 2",
-    "ws": "8.2.1"
+    "ws": "8.2.2"
   }
 }
