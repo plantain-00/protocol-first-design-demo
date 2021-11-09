@@ -31,19 +31,12 @@ async function fetchGraphql<T>(query: string, variables = {}) {
 
 const composeUrl = (
   url: string,
-  args?: { path?: { [key: string]: string | number }, query?: {} }
+  args?: { query?: {} }
 ) => {
-  if (args) {
-    if (args.path) {
-      for (const key in args.path) {
-        url = url.replace(`{${key}}`, args.path[key].toString())
-      }
-    }
-    if (args.query) {
-      url += '?' + qs.stringify(args.query, {
-        arrayFormat: 'brackets',
-      })
-    }
+  if (args?.query) {
+    url += '?' + qs.stringify(args.query, {
+      arrayFormat: 'brackets',
+    })
   }
   return url
 }
@@ -97,7 +90,6 @@ const requestRestfulAPI: RequestRestfulAPI = async (
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   url: string,
   args?: {
-    path?: { [key: string]: string | number },
     query?: { ignoredFields?: string[], attachmentFileName?: string },
     body?: {}
   }
@@ -149,16 +141,16 @@ const requestRestfulAPI: RequestRestfulAPI = async (
   const blogsResult = await requestRestfulAPI('GET', '/api/blogs', { query: { sortType: 'desc', ignoredFields: ['posts', 'meta'], ids } })
   console.info('rest blogs', blogsResult.result, blogsResult.count)
 
-  const blogResult = await requestRestfulAPI('GET', '/api/blogs/{id}', { path: { id: 1 } })
+  const blogResult = await requestRestfulAPI('GET', `/api/blogs/1`)
   console.info('rest blog', blogResult.result)
 
   const createBlogResult = await requestRestfulAPI('POST', '/api/blogs', { body: { content: 'test' }, query: { ignoredFields: ['posts'] } })
   console.info('rest create blog', createBlogResult.result)
 
-  const patchBlogResult = await requestRestfulAPI('PATCH', '/api/blogs/{id}', { path: { id: 1 }, body: { content: 'test222' } })
+  const patchBlogResult = await requestRestfulAPI('PATCH', '/api/blogs/1', { body: { content: 'test222' } })
   console.info('rest patch blog', patchBlogResult.result)
 
-  const deleteBlogResult = await requestRestfulAPI('DELETE', '/api/blogs/{id}', { path: { id: 2 } })
+  const deleteBlogResult = await requestRestfulAPI('DELETE', '/api/blogs/2')
   console.info('rest delete blog', deleteBlogResult)
 
   const graphqlBlogsResult = await fetchGraphql(gqlBlogsGql, { pagination: { skip: 1, take: 1 } })
@@ -203,13 +195,12 @@ const App = defineComponent({
   render: indexTemplateHtml,
   methods: {
     download() {
-      window.open(getRequestApiUrl('/api/blogs/{id}/download', {
-        path: { id: 1 },
+      window.open(getRequestApiUrl('/api/blogs/1/download', {
         query: { attachmentFileName: 'a.txt' },
       }), '_blank')
     },
     downloadData() {
-      requestRestfulAPI('GET', '/api/blogs/{id}/download', { path: { id: 1 } }).then((r) => {
+      requestRestfulAPI('GET', '/api/blogs/1/download').then((r) => {
         console.info(r)
       })
     },
@@ -225,7 +216,7 @@ const App = defineComponent({
       }
     },
     getRawText() {
-      requestRestfulAPI('GET', '/api/blogs/{id}/text', { path: { id: 1 } }).then((r) => {
+      requestRestfulAPI('GET', '/api/blogs/1/text').then((r) => {
         console.info(r)
       })
     },

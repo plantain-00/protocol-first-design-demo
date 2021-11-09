@@ -101,16 +101,22 @@ export = (typeDeclarations: TypeDeclaration[]): { path: string, content: string 
       const backendParams: { optional: boolean, value: string }[] = []
       const frontendParams: { optional: boolean, value: string }[] = []
       const getRequestApiUrlParam: { optional: boolean, value: string }[] = []
+      let frontendPath = declaration.path
       for (const type of allTypes) {
         const parameter = declaration.parameters.filter((d) => d.in === type)
         if (parameter.length > 0) {
-          if (type !== 'body') {
+          if (type === 'query') {
             getRequestApiUrlParam.push(getParam(type, parameter))
           }
-          frontendParams.push(getParam(type, parameter))
+          if (type !== 'path') {
+            frontendParams.push(getParam(type, parameter))
+          }
           parameter.forEach((q) => {
             if (q.type.default !== undefined) {
               q.optional = false
+            }
+            if (type === 'path') {
+              frontendPath = frontendPath.split('{id}').join(`\${${q.type.kind}}`)
             }
           })
           backendParams.push(getParam(type, parameter, true))
@@ -118,14 +124,14 @@ export = (typeDeclarations: TypeDeclaration[]): { path: string, content: string 
       }
       const frontendParameters = [
         `method: '${declaration.method.toUpperCase()}'`,
-        `url: '${declaration.path}'`,
+        `url: \`${frontendPath}\``,
       ]
       if (frontendParams.length > 0) {
         const optional = frontendParams.every((q) => q.optional) ? '?' : ''
         frontendParameters.push(`args${optional}: { ${frontendParams.map((p) => p.value).join(', ')} }`)
       }
       const getRequestApiUrlParameters = [
-        `url: '${declaration.path}'`,
+        `url: \`${frontendPath}\``,
       ]
       if (getRequestApiUrlParam.length > 0) {
         const optional = getRequestApiUrlParam.every((q) => q.optional) ? '?' : ''
