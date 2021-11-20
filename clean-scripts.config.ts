@@ -42,7 +42,6 @@ export default {
   ],
   lint: {
     ts: `eslint --ext .js,.ts,.tsx ${tsFiles}`,
-    less: `stylelint ${lessFiles}`,
     export: `no-unused-export ${tsFiles} ${lessFiles} --exclude "src/generated/*.ts"`,
     markdown: `markdownlint README.md`,
     typeCoverage: 'type-coverage -p src --strict --ignore-files src/generated/*.ts',
@@ -53,8 +52,7 @@ export default {
     start: new Program('clean-release --config clean-run.config.ts', 30000)
   },
   fix: {
-    ts: `eslint --ext .js,.ts,.tsx ${tsFiles} --fix`,
-    less: `stylelint --fix ${lessFiles}`
+    ts: `eslint --ext .js,.ts,.tsx ${tsFiles} --fix`
   },
   watch: {
     back: `${tscSrcCommand} --watch`,
