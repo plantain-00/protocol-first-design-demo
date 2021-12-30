@@ -1,8 +1,8 @@
 {
-  "name": "graphql-demo",
+  "name": "protocol-first-design-demo",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/plantain-00/graphql-demo.git",
+  "repository": "https://github.com/plantain-00/protocol-first-design-demo.git",
   "author": "York Yao",
   "license": "MIT",
   "devDependencies": {

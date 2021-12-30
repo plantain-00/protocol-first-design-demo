@@ -1,10 +1,10 @@
-# graphql-demo
+# protocol-first-design-demo
 
-[![Dependency Status](https://david-dm.org/plantain-00/graphql-demo.svg)](https://david-dm.org/plantain-00/graphql-demo)
-[![devDependency Status](https://david-dm.org/plantain-00/graphql-demo/dev-status.svg)](https://david-dm.org/plantain-00/graphql-demo#info=devDependencies)
-[![Build Status: Windows](https://ci.appveyor.com/api/projects/status/github/plantain-00/graphql-demo?branch=master&svg=true)](https://ci.appveyor.com/project/plantain-00/graphql-demo/branch/master)
-![Github CI](https://github.com/plantain-00/graphql-demo/workflows/Github%20CI/badge.svg)
-[![type-coverage](https://img.shields.io/badge/dynamic/json.svg?label=type-coverage&prefix=%E2%89%A5&suffix=%&query=$.typeCoverage.atLeast&uri=https%3A%2F%2Fraw.githubusercontent.com%2Fplantain-00%2Fgraphql-demo%2Fmaster%2Fpackage.json)](https://github.com/plantain-00/graphql-demo)
+[![Dependency Status](https://david-dm.org/plantain-00/protocol-first-design-demo.svg)](https://david-dm.org/plantain-00/protocol-first-design-demo)
+[![devDependency Status](https://david-dm.org/plantain-00/protocol-first-design-demo/dev-status.svg)](https://david-dm.org/plantain-00/protocol-first-design-demo#info=devDependencies)
+[![Build Status: Windows](https://ci.appveyor.com/api/projects/status/github/plantain-00/protocol-first-design-demo?branch=master&svg=true)](https://ci.appveyor.com/project/plantain-00/protocol-first-design-demo/branch/master)
+![Github CI](https://github.com/plantain-00/protocol-first-design-demo/workflows/Github%20CI/badge.svg)
+[![type-coverage](https://img.shields.io/badge/dynamic/json.svg?label=type-coverage&prefix=%E2%89%A5&suffix=%&query=$.typeCoverage.atLeast&uri=https%3A%2F%2Fraw.githubusercontent.com%2Fplantain-00%2Fprotocol-first-design-demo%2Fmaster%2Fpackage.json)](https://github.com/plantain-00/protocol-first-design-demo)
 
 ## design document
 
@@ -265,7 +265,7 @@ ws.on('message', (data) => {
 ## install
 
 ```bash
-git clone https://github.com/plantain-00/graphql-demo-release.git . --depth=1 && yarn add --production
+git clone https://github.com/plantain-00/protocol-first-design-demo-release.git . --depth=1 && yarn add --production
 ```
 
 set `foo=admin` in browser cookie.
@@ -273,5 +273,5 @@ set `foo=admin` in browser cookie.
 ## docker
 
 ```bash
-docker run -d -p 6767:6767 plantain-00/graphql-demo
+docker run -d -p 6767:6767 plantain-00/protocol-first-design-demo
 ```
