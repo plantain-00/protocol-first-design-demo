@@ -1,4 +1,6 @@
 import * as sqlite from 'sqlite3'
+import { CountRow, DeleteRow, GetRow, InsertRow, SelectRow, tableSchemas, UpdateRow } from './db-declaration'
+import { RowFilterOptions, RowSelectOneOptions, RowSelectOptions } from './db-declaration-lib'
 
 const db = new sqlite.Database(':memory:')
 
@@ -52,29 +54,12 @@ function restoreComplexFields(complexFields: string[], row: Record<string, unkno
   return row
 }
 
-export interface BlogSchema {
-  id: number
-  content: string
-  meta: unknown
-}
-
-interface PostScheme {
-  id: number
-  content: string
-  blogId: number
-}
-
 /**
  * @public
  */
 export async function createTable(tableName: keyof typeof tableSchemas) {
   const fieldNames = tableSchemas[tableName].fieldNames
   await run(`CREATE TABLE IF NOT EXISTS ${tableName}(${fieldNames.join(', ')})`)
-}
-
-type InsertRow = {
-  (tableName: 'blogs', value: BlogSchema): Promise<BlogSchema>
-  (tableName: 'posts', value: PostScheme): Promise<PostScheme>
 }
 
 export const insertRow: InsertRow = async<T>(
@@ -87,11 +72,6 @@ export const insertRow: InsertRow = async<T>(
   return value
 }
 
-type UpdateRow = {
-  (tableName: 'blogs', value?: Partial<BlogSchema>, options?: RowFilterOptions<BlogSchema>): Promise<void>
-  (tableName: 'posts', value?: Partial<PostScheme>, options?: RowFilterOptions<PostScheme>): Promise<void>
-}
-
 export const updateRow: UpdateRow = async <T>(
   tableName: keyof typeof tableSchemas,
   value?: T,
@@ -101,11 +81,6 @@ export const updateRow: UpdateRow = async <T>(
   const { values, fields } = getFieldsAndValues(allFields, value)
   const { sql, values: whereValues } = getWhereSql(allFields, options)
   await run(`UPDATE ${tableName} SET ${fields.map((f) => `${f} = ?`).join(', ')} ${sql}`, ...values, ...whereValues)
-}
-
-type DeleteRow = {
-  (tableName: 'blogs', options?: RowFilterOptions<BlogSchema>): Promise<void>
-  (tableName: 'posts', options?: RowFilterOptions<PostScheme>): Promise<void>
 }
 
 export const deleteRow: DeleteRow = async <T>(
@@ -136,31 +111,6 @@ function getFieldsAndValues<T>(
     values,
   }
 }
-
-const tableSchemas = {
-  blogs: {
-    fieldNames: ['id', 'content', 'meta'],
-    complexFields: ['meta'],
-  },
-  posts: {
-    fieldNames: ['id', 'content', 'blogId'],
-    complexFields: [],
-  },
-}
-
-type RowSelectOptions<T> = Partial<{
-  pagination: { take: number, skip: number }
-}> & RowSelectOneOptions<T>
-
-type RowSelectOneOptions<T> = Partial<{
-  ignoredFields: string[]
-  sort: { field: keyof T, type: 'asc' | 'desc' }[]
-}> & RowFilterOptions<T>
-
-type RowFilterOptions<T> = Partial<{
-  filter: { [P in keyof T]?: T[P] | readonly T[P][] }
-  fuzzyFilter: { [P in keyof T]?: T[P] | readonly T[P][] }
-}>
 
 function getWhereSql<T>(
   allFields: string[],
@@ -261,22 +211,12 @@ function getSelectOneSql<T>(
   }
 }
 
-type SelectRow = {
-  (tableName: 'blogs', options?: RowSelectOptions<BlogSchema>): Promise<BlogSchema[]>
-  (tableName: 'posts', options?: RowSelectOptions<PostScheme>): Promise<PostScheme[]>
-}
-
 export const selectRows: SelectRow = async <T>(
   tableName: keyof typeof tableSchemas,
   options?: RowSelectOptions<T>
 ) => {
   const { sql, values } = getSelectSql(tableName, options)
   return all<T>(sql, tableSchemas[tableName].complexFields, ...values)
-}
-
-type CountRow = {
-  (tableName: 'blogs', options?: RowFilterOptions<BlogSchema>): Promise<number>
-  (tableName: 'posts', options?: RowFilterOptions<PostScheme>): Promise<number>
 }
 
 export const countRows: CountRow = async <T>(
@@ -286,11 +226,6 @@ export const countRows: CountRow = async <T>(
   const { sql, values } = getWhereSql(tableSchemas[tableName].fieldNames, options)
   const result = await all<{ 'COUNT(1)': number }>(`SELECT COUNT(1) FROM ${tableName} ${sql}`, [], ...values)
   return result[0]!['COUNT(1)']
-}
-
-type GetRow = {
-  (tableName: 'blogs', options?: RowSelectOneOptions<BlogSchema>): Promise<BlogSchema | undefined>
-  (tableName: 'posts', options?: RowSelectOneOptions<PostScheme>): Promise<PostScheme | undefined>
 }
 
 export const getRow: GetRow = async <T>(

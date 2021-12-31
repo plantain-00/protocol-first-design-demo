@@ -4,11 +4,12 @@ import * as path from 'path'
 import stream, { Readable } from 'stream'
 import multer from 'multer'
 
-import { BlogSchema, countRows, deleteRow, getRow, insertRow, selectRows, updateRow } from './data'
+import { countRows, deleteRow, getRow, insertRow, selectRows, updateRow } from './data'
 import { authorized, HttpError } from './auth'
 import { CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, GetBlogText, PatchBlog, registerCreateBlog, registerDeleteBlog, registerDownloadBlog, registerGetBlogById, registerGetBlogs, registerGetBlogText, registerPatchBlog, registerUploadBlog, UploadBlog } from './restful-api-declaration'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
 import { HandleHttpRequest } from './restful-api-declaration-lib'
+import { BlogSchema } from './db-schema'
 
 const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip, take, ignoredFields } }) => {
   const selectOptions = {
