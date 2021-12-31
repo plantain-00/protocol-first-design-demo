@@ -31,8 +31,13 @@ async function fetchGraphql<T>(query: string, variables = {}) {
 
 const composeUrl = (
   url: string,
-  args?: { query?: {} }
+  args?: { path?: { [key: string]: string | number }, query?: {} }
 ) => {
+  if (args?.path) {
+    for (const key in args.path) {
+      url = url.replace(`{${key}}`, args.path[key].toString())
+    }
+  }
   if (args?.query) {
     url += '?' + qs.stringify(args.query, {
       arrayFormat: 'brackets',
@@ -90,6 +95,7 @@ const requestRestfulAPI: RequestRestfulAPI = async (
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   url: string,
   args?: {
+    path?: { [key: string]: string | number },
     query?: { ignoredFields?: string[], attachmentFileName?: string },
     body?: {}
   }

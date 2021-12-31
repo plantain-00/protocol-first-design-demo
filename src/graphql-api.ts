@@ -2,7 +2,7 @@ import * as express from 'express'
 import { graphqlHTTP } from 'express-graphql'
 import { buildSchema } from 'graphql'
 
-import { blogs } from './data'
+import { countBlogs, getBlog, insertBlog, selectBlogs, selectPosts } from './data'
 import { srcGeneratedDataGql } from './generated/variables'
 import { Root } from './generated/root'
 import { authorized } from './auth'
@@ -10,42 +10,44 @@ import { Request } from '.'
 
 export function startGraphqlApi(app: express.Application) {
   const root: Root<Request> = {
-    blogs: async({ pagination }, req) => {
+    blogs: async ({ pagination }, req) => {
       await authorized(req, 'blog')
+      const blogs = await selectBlogs({
+        pagination,
+      })
+      const total = await countBlogs()
       return {
-        count: blogs.length,
-        result: blogs.slice(pagination.skip, pagination.skip + pagination.take)
+        count: total,
+        result: blogs
           .map((blog) => ({
             id: blog.id,
             content: () => blog.content,
-            posts: ({ id }) => req.dataloaders!.postsLoader.loadMany(blog.posts),
+            posts: ({ id }) => selectPosts({ filter: { blogId: id } }),
             meta: () => blog.meta
           }))
       }
     },
-    blog: async({ id }, req) => {
+    blog: async ({ id }, req) => {
       await authorized(req, 'blog')
-      const blog = blogs.find((b) => b.id === id)
+      const blog = await getBlog({ filter: { id } })
       return {
         result: blog ? {
           id: blog.id,
           content: () => blog.content,
-          posts: ({ id }) => req.dataloaders!.postsLoader.loadMany(blog.posts),
+          posts: ({ id }) => selectPosts({ filter: { blogId: id } }),
           meta: () => blog.meta
         } : undefined
       }
     },
-    createBlog: async({ content }, req) => {
+    createBlog: async ({ content }, req) => {
       await authorized(req, 'blog')
-      const blog: any = {
+      const blog = await insertBlog({
         id: 3,
         content,
         meta: {
           baz: 222
         },
-        posts: []
-      }
-      blogs.push(blog)
+      })
       return {
         result: { ...blog, content: () => blog.content, posts: () => [] }
       }

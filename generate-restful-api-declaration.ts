@@ -100,16 +100,22 @@ export = (typeDeclarations: TypeDeclaration[]): { path: string, content: string 
       // backend / frontend types
       const backendParams: { optional: boolean, value: string }[] = []
       const frontendParams: { optional: boolean, value: string }[] = []
+      const frontendPathParams: { optional: boolean, value: string }[] = []
       const getRequestApiUrlParam: { optional: boolean, value: string }[] = []
+      const getRequestApiUrlPathParam: { optional: boolean, value: string }[] = []
       let frontendPath = declaration.path
       for (const type of allTypes) {
         const parameter = declaration.parameters.filter((d) => d.in === type)
         if (parameter.length > 0) {
           if (type === 'query') {
             getRequestApiUrlParam.push(getParam(type, parameter))
+          } else if (type === 'path') {
+            getRequestApiUrlPathParam.push(getParam(type, parameter))
           }
           if (type !== 'path') {
             frontendParams.push(getParam(type, parameter))
+          } else {
+            frontendPathParams.push(getParam(type, parameter))
           }
           parameter.forEach((q) => {
             if (q.type.default !== undefined) {
@@ -126,16 +132,37 @@ export = (typeDeclarations: TypeDeclaration[]): { path: string, content: string 
         `method: '${declaration.method.toUpperCase()}'`,
         `url: \`${frontendPath}\``,
       ]
+      const frontendParameters2: string[] = []
+      if (frontendPathParams.length > 0) {
+        frontendParameters2.push(
+          `method: '${declaration.method.toUpperCase()}'`,
+          `url: '${declaration.path}'`,
+        )
+      }
       if (frontendParams.length > 0) {
         const optional = frontendParams.every((q) => q.optional) ? '?' : ''
         frontendParameters.push(`args${optional}: { ${frontendParams.map((p) => p.value).join(', ')} }`)
       }
+      if (frontendPathParams.length > 0) {
+        const optional = frontendParams.every((q) => q.optional) && frontendPathParams.every((q) => q.optional) ? '?' : ''
+        frontendParameters2.push(`args${optional}: { ${[...frontendPathParams, ...frontendParams].map((p) => p.value).join(', ')} }`)
+      }
       const getRequestApiUrlParameters = [
         `url: \`${frontendPath}\``,
       ]
+      const getRequestApiUrlParameters2: string[] = []
+      if (getRequestApiUrlPathParam.length > 0) {
+        getRequestApiUrlParameters2.push(
+          `url: '${declaration.path}'`,
+        )
+      }
       if (getRequestApiUrlParam.length > 0) {
         const optional = getRequestApiUrlParam.every((q) => q.optional) ? '?' : ''
         getRequestApiUrlParameters.push(`args${optional}: { ${getRequestApiUrlParam.map((p) => p.value).join(', ')} }`)
+      }
+      if (getRequestApiUrlPathParam.length > 0) {
+        const optional = getRequestApiUrlParam.every((q) => q.optional) && getRequestApiUrlPathParam.every((q) => q.optional) ? '?' : ''
+        getRequestApiUrlParameters2.push(`args${optional}: { ${[...getRequestApiUrlPathParam, ...getRequestApiUrlParam].map((p) => p.value).join(', ')} }`)
       }
       const backendParameters: string[] = []
       if (backendParams.length > 0) {
@@ -168,11 +195,23 @@ export = (typeDeclarations: TypeDeclaration[]): { path: string, content: string 
       }
       if (ignorableField) {
         frontendResult.push(`  <T extends ${ignorableField} = never>(${frontendParameters.join(', ')}): Promise<${frontendReturnType || returnType}>`)
+        if (frontendParameters2.length > 0) {
+          frontendResult.push(`  <T extends ${ignorableField} = never>(${frontendParameters2.join(', ')}): Promise<${frontendReturnType || returnType}>`)
+        }
         getRequestApiUrlResult.push(`  <T extends ${ignorableField} = never>(${getRequestApiUrlParameters.join(', ')}): string`)
+        if (getRequestApiUrlParameters2.length > 0) {
+          getRequestApiUrlResult.push(`  <T extends ${ignorableField} = never>(${getRequestApiUrlParameters2.join(', ')}): string`)
+        }
         backendResult.push(`export type ${interfaceName} = <T extends ${ignorableField} = never>(${backendParameters.join(', ')}) => Promise<${returnType}>`)
       } else {
         frontendResult.push(`  (${frontendParameters.join(', ')}): Promise<${frontendReturnType || returnType}>`)
+        if (frontendParameters2.length > 0) {
+          frontendResult.push(`  (${frontendParameters2.join(', ')}): Promise<${frontendReturnType || returnType}>`)
+        }
         getRequestApiUrlResult.push(`  (${getRequestApiUrlParameters.join(', ')}): string`)
+        if (getRequestApiUrlParameters2.length > 0) {
+          getRequestApiUrlResult.push(`  (${getRequestApiUrlParameters2.join(', ')}): string`)
+        }
         backendResult.push(`export type ${interfaceName} = (${backendParameters.join(', ')}) => Promise<${returnType}>`)
       }
     }

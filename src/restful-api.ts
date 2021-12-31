@@ -4,31 +4,42 @@ import * as path from 'path'
 import stream, { Readable } from 'stream'
 import multer from 'multer'
 
-import { blogs, posts } from './data'
+import { BlogSchema, countBlogs, deleteBlogs, getBlog, insertBlog, selectBlogs, selectPosts, updateBlogs } from './data'
 import { authorized, HttpError } from './auth'
 import { CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, GetBlogText, PatchBlog, registerCreateBlog, registerDeleteBlog, registerDownloadBlog, registerGetBlogById, registerGetBlogs, registerGetBlogText, registerPatchBlog, registerUploadBlog, UploadBlog } from './restful-api-declaration'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
 import { HandleHttpRequest } from './restful-api-declaration-lib'
 
 const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip, take, ignoredFields } }) => {
-  const filteredBlogs = content ? blogs.filter((b) => b.content.includes(content)) : blogs
-  filteredBlogs.sort((a, b) => {
-    if (sortField === 'id') {
-      return sortType === 'asc' ? a[sortField] - b[sortField] : b[sortField] - a[sortField]
-    }
-    return (sortType === 'asc' ? 1 : -1) * a[sortField].localeCompare(b[sortField])
-  })
+  const selectOptions = {
+    fuzzyFilter: {
+      content,
+    },
+    sort: [
+      {
+        field: sortField,
+        type: sortType,
+      }
+    ],
+    ignoredFields: ignoredFields as (keyof BlogSchema)[] | undefined,
+    pagination: {
+      take,
+      skip,
+    },
+  }
+  const filteredBlogs = await selectBlogs(selectOptions)
+  const total = await countBlogs(selectOptions)
 
   return {
-    result: filteredBlogs.slice(skip, skip + take).map((blog) => getBlog(blog, ignoredFields)),
-    count: filteredBlogs.length,
+    result: await Promise.all(filteredBlogs.map((blog) => getBlogWithoutIngoredFields(blog, ignoredFields))),
+    count: total,
   }
 }
 
 const getBlogById: GetBlogById = async ({ query, path: { id } }) => {
-  const blog = blogs.find((b) => b.id === id)
+  const blog = await getBlog({ filter: { id }, ignoredFields: query?.ignoredFields as (keyof BlogSchema)[] | undefined })
   return {
-    result: blog ? getBlog(blog, query?.ignoredFields) : undefined
+    result: blog ? await getBlogWithoutIngoredFields(blog, query?.ignoredFields) : undefined
   }
 }
 
@@ -50,43 +61,31 @@ export const createBlog: CreateBlog = async ({ query, body: { content } }) => {
   if (!content) {
     throw new HttpError('invalid parameter: content', 400)
   }
-  const blog = {
+  const blog = await insertBlog({
     id: generateId(),
     content,
     meta: {
       baz: 222
     },
-    posts: []
-  }
-  blogs.push(blog)
+  })
   return {
-    result: getBlog(blog, query?.ignoredFields)
+    result: await getBlogWithoutIngoredFields(blog, query?.ignoredFields)
   }
 }
 
 const patchBlog: PatchBlog = async ({ path: { id }, query, body }) => {
-  const blog = blogs.find((b) => b.id === id)
+  await updateBlogs(body, { filter: { id } })
+  const blog = await getBlog({ filter: { id }, ignoredFields: query?.ignoredFields as (keyof BlogSchema)[] | undefined })
   if (!blog) {
     throw new HttpError('invalid parameter: id', 400)
   }
-  if (body) {
-    if (body.content) {
-      blog.content = body.content
-    }
-    if (body.meta) {
-      blog.meta = body.meta
-    }
-  }
   return {
-    result: getBlog(blog, query?.ignoredFields)
+    result: await getBlogWithoutIngoredFields(blog, query?.ignoredFields)
   }
 }
 
 const deleteBlog: DeleteBlog = async ({ path: { id } }) => {
-  const index = blogs.findIndex((b) => b.id === id)
-  if (index >= 0) {
-    blogs.splice(index, 1)
-  }
+  await deleteBlogs({ filter: { id } })
   return {}
 }
 
@@ -184,19 +183,18 @@ export function startRestfulApi(app: express.Application): void {
   registerGetBlogText(app, handleHttpRequest, getBlogText)
 }
 
-function getBlog<T extends BlogIgnorableField = never>(
+async function getBlogWithoutIngoredFields<T extends BlogIgnorableField = never>(
   blog: {
     id: number,
     content: string,
     meta: unknown,
-    posts: number[],
   },
   ignoredFields?: T[],
 ) {
+  const fields = ignoredFields as BlogIgnorableField[] | undefined
   return {
-    id: blog.id,
-    content: blog.content,
-    posts: ignoredFields && (ignoredFields as BlogIgnorableField[]).includes('posts') ? undefined : posts.filter((p) => p.blogId === blog.id),
-    meta: ignoredFields && (ignoredFields as BlogIgnorableField[]).includes('meta') ? undefined : blog.meta,
+    ...blog,
+    posts: fields?.includes('posts') ? undefined : await selectPosts({ filter: { blogId: blog.id } }),
+    meta: fields?.includes('meta') ? undefined : blog.meta,
   } as Omit<Blog, T>
 }
