@@ -4,7 +4,7 @@ import * as path from 'path'
 import stream, { Readable } from 'stream'
 import multer from 'multer'
 
-import { BlogSchema, countBlogs, deleteBlogs, getBlog, insertBlog, selectBlogs, selectPosts, updateBlogs } from './data'
+import { BlogSchema, countRows, deleteRow, getRow, insertRow, selectRows, updateRow } from './data'
 import { authorized, HttpError } from './auth'
 import { CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, GetBlogText, PatchBlog, registerCreateBlog, registerDeleteBlog, registerDownloadBlog, registerGetBlogById, registerGetBlogs, registerGetBlogText, registerPatchBlog, registerUploadBlog, UploadBlog } from './restful-api-declaration'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
@@ -27,8 +27,8 @@ const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip,
       skip,
     },
   }
-  const filteredBlogs = await selectBlogs(selectOptions)
-  const total = await countBlogs(selectOptions)
+  const filteredBlogs = await selectRows('blogs', selectOptions)
+  const total = await countRows('blogs', selectOptions)
 
   return {
     result: await Promise.all(filteredBlogs.map((blog) => getBlogWithoutIngoredFields(blog, ignoredFields))),
@@ -37,7 +37,7 @@ const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip,
 }
 
 const getBlogById: GetBlogById = async ({ query, path: { id } }) => {
-  const blog = await getBlog({ filter: { id }, ignoredFields: query?.ignoredFields as (keyof BlogSchema)[] | undefined })
+  const blog = await getRow('blogs', { filter: { id }, ignoredFields: query?.ignoredFields as (keyof BlogSchema)[] | undefined })
   return {
     result: blog ? await getBlogWithoutIngoredFields(blog, query?.ignoredFields) : undefined
   }
@@ -61,7 +61,7 @@ export const createBlog: CreateBlog = async ({ query, body: { content } }) => {
   if (!content) {
     throw new HttpError('invalid parameter: content', 400)
   }
-  const blog = await insertBlog({
+  const blog = await insertRow('blogs', {
     id: generateId(),
     content,
     meta: {
@@ -74,8 +74,8 @@ export const createBlog: CreateBlog = async ({ query, body: { content } }) => {
 }
 
 const patchBlog: PatchBlog = async ({ path: { id }, query, body }) => {
-  await updateBlogs(body, { filter: { id } })
-  const blog = await getBlog({ filter: { id }, ignoredFields: query?.ignoredFields as (keyof BlogSchema)[] | undefined })
+  await updateRow('blogs', body, { filter: { id } })
+  const blog = await getRow('blogs', { filter: { id }, ignoredFields: query?.ignoredFields as (keyof BlogSchema)[] | undefined })
   if (!blog) {
     throw new HttpError('invalid parameter: id', 400)
   }
@@ -85,7 +85,7 @@ const patchBlog: PatchBlog = async ({ path: { id }, query, body }) => {
 }
 
 const deleteBlog: DeleteBlog = async ({ path: { id } }) => {
-  await deleteBlogs({ filter: { id } })
+  await deleteRow('blogs', { filter: { id } })
   return {}
 }
 
@@ -194,7 +194,7 @@ async function getBlogWithoutIngoredFields<T extends BlogIgnorableField = never>
   const fields = ignoredFields as BlogIgnorableField[] | undefined
   return {
     ...blog,
-    posts: fields?.includes('posts') ? undefined : await selectPosts({ filter: { blogId: blog.id } }),
+    posts: fields?.includes('posts') ? undefined : await selectRows('posts', { filter: { blogId: blog.id } }),
     meta: fields?.includes('meta') ? undefined : blog.meta,
   } as Omit<Blog, T>
 }

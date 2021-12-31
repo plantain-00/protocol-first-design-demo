@@ -1,12 +1,12 @@
 import test from 'ava'
-import { createTableBlogs } from '../src/data'
+import { createTable } from '../src/data'
 
 import { createBlog, mockGeneratedId } from '../src/restful-api'
 
 mockGeneratedId(() => 3)
 
 test('create blog', async (t) => {
-  await createTableBlogs()
+  await createTable('blogs')
 
   const blog = await createBlog({
     body: {

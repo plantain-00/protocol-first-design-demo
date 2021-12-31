@@ -14,31 +14,35 @@ function run(sql: string, ...args: unknown[]) {
   })
 }
 
-function all<T>(sql: string, complexFields: (keyof T)[], ...args: unknown[]) {
+function all<T>(sql: string, complexFields: string[], ...args: unknown[]) {
   return new Promise<T[]>((resolve, reject) => {
     db.all(sql, args, (err, rows) => {
       if (err) {
         reject(err)
       } else {
-        resolve(rows.map((row) => restoreComplexFields(complexFields, row)))
+        for (const row of rows) {
+          restoreComplexFields(complexFields, row)
+        }
+        resolve(rows)
       }
     })
   })
 }
 
-function get<T>(sql: string, complexFields: (keyof T)[], ...args: unknown[]) {
+function get<T>(sql: string, complexFields: string[], ...args: unknown[]) {
   return new Promise<T | undefined>((resolve, reject) => {
     db.get(sql, args, (err, row) => {
       if (err) {
         reject(err)
       } else {
-        resolve(restoreComplexFields(complexFields, row))
+        restoreComplexFields(complexFields, row)
+        resolve(row)
       }
     })
   })
 }
 
-function restoreComplexFields<T>(complexFields: (keyof T)[], row: T) {
+function restoreComplexFields(complexFields: string[], row: Record<string, unknown>) {
   for (const field of complexFields) {
     const value = row[field]
     if (value && typeof value === 'string') {
@@ -60,50 +64,67 @@ interface PostScheme {
   blogId: number
 }
 
-async function createTable(tableName: keyof typeof tableSchemas) {
+/**
+ * @public
+ */
+export async function createTable(tableName: keyof typeof tableSchemas) {
   const fieldNames = tableSchemas[tableName].fieldNames
   await run(`CREATE TABLE IF NOT EXISTS ${tableName}(${fieldNames.join(', ')})`)
 }
 
-async function insertRow<T>(
-  tableName: string,
-  allFields: (keyof T)[],
+type InsertRow = {
+  (tableName: 'blogs', value: BlogSchema): Promise<BlogSchema>
+  (tableName: 'posts', value: PostScheme): Promise<PostScheme>
+}
+
+export const insertRow: InsertRow = async<T>(
+  tableName: keyof typeof tableSchemas,
   value: T,
-) {
+) => {
+  const allFields = tableSchemas[tableName].fieldNames
   const { values, fields } = getFieldsAndValues(allFields, value)
   await run(`INSERT INTO ${tableName} (${fields.join(', ')}) VALUES (${new Array(fields.length).fill('?').join(', ')})`, ...values)
   return value
 }
 
-async function updateRow<T>(
-  tableName: string,
-  allFields: (keyof T)[],
+type UpdateRow = {
+  (tableName: 'blogs', value?: Partial<BlogSchema>, options?: RowFilterOptions<BlogSchema>): Promise<void>
+  (tableName: 'posts', value?: Partial<PostScheme>, options?: RowFilterOptions<PostScheme>): Promise<void>
+}
+
+export const updateRow: UpdateRow = async <T>(
+  tableName: keyof typeof tableSchemas,
   value?: T,
   options?: RowFilterOptions<T>,
-) {
+) => {
+  const allFields = tableSchemas[tableName].fieldNames
   const { values, fields } = getFieldsAndValues(allFields, value)
   const { sql, values: whereValues } = getWhereSql(allFields, options)
   await run(`UPDATE ${tableName} SET ${fields.map((f) => `${f} = ?`).join(', ')} ${sql}`, ...values, ...whereValues)
 }
 
-async function deleteRow<T>(
-  tableName: string,
-  allFields: (keyof T)[],
+type DeleteRow = {
+  (tableName: 'blogs', options?: RowFilterOptions<BlogSchema>): Promise<void>
+  (tableName: 'posts', options?: RowFilterOptions<PostScheme>): Promise<void>
+}
+
+export const deleteRow: DeleteRow = async <T>(
+  tableName: keyof typeof tableSchemas,
   options?: RowFilterOptions<T>,
-) {
-  const { sql, values } = getWhereSql(allFields, options)
+) => {
+  const { sql, values } = getWhereSql(tableSchemas[tableName].fieldNames, options)
   await run(`DELETE FROM ${tableName} ${sql}`, ...values)
 }
 
 function getFieldsAndValues<T>(
-  allFields: (keyof T)[],
+  allFields: string[],
   value?: T,
 ) {
   const values: unknown[] = []
   const fields: string[] = []
   if (value) {
     for (const [key, fieldValue] of Object.entries(value)) {
-      if (!allFields.includes(key as keyof T)) {
+      if (!allFields.includes(key)) {
         continue
       }
       fields.push(key)
@@ -118,39 +139,21 @@ function getFieldsAndValues<T>(
 
 const tableSchemas = {
   blogs: {
-    fieldNames: ['id', 'content', 'meta']
+    fieldNames: ['id', 'content', 'meta'],
+    complexFields: ['meta'],
   },
   posts: {
-    fieldNames: ['id', 'content', 'blogId']
+    fieldNames: ['id', 'content', 'blogId'],
+    complexFields: [],
   },
 }
-
-/**
- * @public
- */
-export const createTableBlogs = () => createTable('blogs')
-const createTablePosts = () => createTable('posts')
-
-export const insertBlog = (value: BlogSchema) => insertRow('blogs', ['id', 'content', 'meta'], value)
-const insertPost = (value: PostScheme) => insertRow('posts', ['id', 'content', 'blogId'], value)
-
-export const selectBlogs = (options?: RowSelectOptions<BlogSchema>) => selectRows('blogs', ['id', 'content', 'meta'], ['meta'], options)
-export const selectPosts = (options?: RowSelectOptions<PostScheme>) => selectRows('posts', ['id', 'content', 'blogId'], [], options)
-
-export const getBlog = (options?: RowSelectOneOptions<BlogSchema>) => getRow('blogs', ['id', 'content', 'meta'], ['meta'], options)
-
-export const updateBlogs = (value?: Partial<BlogSchema>, options?: RowFilterOptions<BlogSchema>) => updateRow('blogs', ['id', 'content', 'meta'], value, options)
-
-export const deleteBlogs = (options?: RowFilterOptions<BlogSchema>) => deleteRow('blogs', ['id', 'content', 'meta'], options)
-
-export const countBlogs = (options?: RowFilterOptions<BlogSchema>) => countRows('blogs', ['id', 'content', 'meta'], options)
 
 type RowSelectOptions<T> = Partial<{
   pagination: { take: number, skip: number }
 }> & RowSelectOneOptions<T>
 
 type RowSelectOneOptions<T> = Partial<{
-  ignoredFields: (keyof T)[]
+  ignoredFields: string[]
   sort: { field: keyof T, type: 'asc' | 'desc' }[]
 }> & RowFilterOptions<T>
 
@@ -160,7 +163,7 @@ type RowFilterOptions<T> = Partial<{
 }>
 
 function getWhereSql<T>(
-  allFields: (keyof T)[],
+  allFields: string[],
   options?: RowFilterOptions<T>,
 ) {
   const values: unknown[] = []
@@ -177,7 +180,7 @@ function getWhereSql<T>(
   })[] = []
   if (options?.filter) {
     for (const [key, fieldValue] of Object.entries(options.filter)) {
-      if (!allFields.includes(key as keyof T) || fieldValue === undefined) {
+      if (!allFields.includes(key) || fieldValue === undefined) {
         continue
       }
       if (Array.isArray(fieldValue)) {
@@ -198,7 +201,7 @@ function getWhereSql<T>(
   }
   if (options?.fuzzyFilter) {
     for (const [key, fieldValue] of Object.entries(options.fuzzyFilter)) {
-      if (!allFields.includes(key as keyof T) || fieldValue === undefined) {
+      if (!allFields.includes(key) || fieldValue === undefined) {
         continue
       }
       filterValue.push({
@@ -227,11 +230,10 @@ function getWhereSql<T>(
 }
 
 function getSelectSql<T>(
-  tableName: string,
-  allFields: (keyof T)[],
+  tableName: keyof typeof tableSchemas,
   options?: RowSelectOptions<T>
 ) {
-  const { sql, values } = getSelectOneSql(tableName, allFields, options)
+  const { sql, values } = getSelectOneSql(tableName, options)
   let limit = ''
   if (options?.pagination) {
     limit = `LIMIT ${options.pagination.take} OFFSET ${options.pagination.skip}`
@@ -243,66 +245,76 @@ function getSelectSql<T>(
 }
 
 function getSelectOneSql<T>(
-  tableName: string,
-  allFields: (keyof T)[],
+  tableName: keyof typeof tableSchemas,
   options?: RowSelectOneOptions<T>
 ) {
+  const allFields = tableSchemas[tableName].fieldNames
   const { sql, values } = getWhereSql(allFields, options)
   let orderBy = ''
   if (options?.sort && options.sort.length > 0) {
     orderBy = 'ORDER BY ' + options.sort.map((s) => `${s.field} ${s.type}`).join(', ')
   }
-  const fieldNames = allFields.filter((f) => !options?.ignoredFields?.includes(f as keyof T)).join(', ')
+  const fieldNames = allFields.filter((f) => !options?.ignoredFields?.includes(f)).join(', ')
   return {
     sql: `SELECT ${fieldNames} FROM ${tableName} ${sql} ${orderBy}`,
     values,
   }
 }
 
-async function selectRows<T>(
-  tableName: string,
-  allFields: (keyof T)[],
-  complexFields: (keyof T)[],
-  options?: RowSelectOptions<T>
-) {
-  const { sql, values } = getSelectSql(tableName, allFields, options)
-  return all<T>(sql, complexFields, ...values)
+type SelectRow = {
+  (tableName: 'blogs', options?: RowSelectOptions<BlogSchema>): Promise<BlogSchema[]>
+  (tableName: 'posts', options?: RowSelectOptions<PostScheme>): Promise<PostScheme[]>
 }
 
-async function countRows<T>(
-  tableName: string,
-  allFields: (keyof T)[],
+export const selectRows: SelectRow = async <T>(
+  tableName: keyof typeof tableSchemas,
+  options?: RowSelectOptions<T>
+) => {
+  const { sql, values } = getSelectSql(tableName, options)
+  return all<T>(sql, tableSchemas[tableName].complexFields, ...values)
+}
+
+type CountRow = {
+  (tableName: 'blogs', options?: RowFilterOptions<BlogSchema>): Promise<number>
+  (tableName: 'posts', options?: RowFilterOptions<PostScheme>): Promise<number>
+}
+
+export const countRows: CountRow = async <T>(
+  tableName: keyof typeof tableSchemas,
   options?: RowFilterOptions<T>
-) {
-  const { sql, values } = getWhereSql(allFields, options)
+) => {
+  const { sql, values } = getWhereSql(tableSchemas[tableName].fieldNames, options)
   const result = await all<{ 'COUNT(1)': number }>(`SELECT COUNT(1) FROM ${tableName} ${sql}`, [], ...values)
   return result[0]!['COUNT(1)']
 }
 
-async function getRow<T>(
-  tableName: string,
-  allFields: (keyof T)[],
-  complexFields: (keyof T)[],
+type GetRow = {
+  (tableName: 'blogs', options?: RowSelectOneOptions<BlogSchema>): Promise<BlogSchema | undefined>
+  (tableName: 'posts', options?: RowSelectOneOptions<PostScheme>): Promise<PostScheme | undefined>
+}
+
+export const getRow: GetRow = async <T>(
+  tableName: keyof typeof tableSchemas,
   options?: RowSelectOneOptions<T>
-) {
-  const { sql, values } = getSelectSql(tableName, allFields, options)
-  return get<T>(sql, complexFields, ...values)
+) => {
+  const { sql, values } = getSelectSql(tableName, options)
+  return get<T>(sql, tableSchemas[tableName].complexFields, ...values)
 }
 
 (async () => {
-  await createTableBlogs()
-  await createTablePosts()
+  await createTable('blogs')
+  await createTable('posts')
 
-  await insertBlog({ id: 1, content: 'blog 1 content', meta: { foo: 'bar' } })
-  await insertBlog({ id: 2, content: 'blog 2 content', meta: { bar: 123 } })
+  await insertRow('blogs', { id: 1, content: 'blog 1 content', meta: { foo: 'bar' } })
+  await insertRow('blogs', { id: 2, content: 'blog 2 content', meta: { bar: 123 } })
 
-  await insertPost({ id: 11, content: 'post 11 content', blogId: 1 })
-  await insertPost({ id: 12, content: 'post 12 content', blogId: 1 })
-  await insertPost({ id: 13, content: 'post 13 content', blogId: 1 })
-  await insertPost({ id: 21, content: 'post 21 content', blogId: 2 })
-  await insertPost({ id: 22, content: 'post 22 content', blogId: 2 })
-  await insertPost({ id: 23, content: 'post 23 content', blogId: 2 })
+  await insertRow('posts', { id: 11, content: 'post 11 content', blogId: 1 })
+  await insertRow('posts', { id: 12, content: 'post 12 content', blogId: 1 })
+  await insertRow('posts', { id: 13, content: 'post 13 content', blogId: 1 })
+  await insertRow('posts', { id: 21, content: 'post 21 content', blogId: 2 })
+  await insertRow('posts', { id: 22, content: 'post 22 content', blogId: 2 })
+  await insertRow('posts', { id: 23, content: 'post 23 content', blogId: 2 })
 
-  console.info(await selectBlogs())
-  console.info(await selectPosts())
+  console.info(await selectRows('blogs'))
+  console.info(await selectRows('posts'))
 })()
