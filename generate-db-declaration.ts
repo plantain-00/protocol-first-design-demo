@@ -17,11 +17,11 @@ export = (typeDeclarations: TypeDeclaration[]): { path: string, content: string 
 import { ${schemas.map((s) => s.typeName).join(', ')} } from "./db-schema"
 
 export type GetRow = {
-${schemas.map((s) => `  (tableName: '${s.tableName}', options?: RowSelectOneOptions<${s.typeName}>): Promise<${s.typeName} | undefined>`).join('\n')}
+${schemas.map((s) => `  <T extends keyof ${s.typeName} = never>(tableName: '${s.tableName}', options?: RowSelectOneOptions<${s.typeName}> & { ignoredFields?: T[] }): Promise<Omit<${s.typeName}, T> | undefined>`).join('\n')}
 }
 
 export type SelectRow = {
-${schemas.map((s) => `  (tableName: '${s.tableName}', options?: RowSelectOptions<${s.typeName}>): Promise<${s.typeName}[]>`).join('\n')}
+${schemas.map((s) => `  <T extends keyof ${s.typeName} = never>(tableName: '${s.tableName}', options?: RowSelectOptions<${s.typeName}> & { ignoredFields?: T[] }): Promise<Omit<${s.typeName}, T>[]>`).join('\n')}
 }
 
 export type InsertRow = {

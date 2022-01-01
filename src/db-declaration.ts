@@ -2,13 +2,13 @@ import { RowFilterOptions, RowSelectOneOptions, RowSelectOptions } from "./db-de
 import { BlogSchema, PostSchema } from "./db-schema"
 
 export type GetRow = {
-  (tableName: 'blogs', options?: RowSelectOneOptions<BlogSchema>): Promise<BlogSchema | undefined>
-  (tableName: 'posts', options?: RowSelectOneOptions<PostSchema>): Promise<PostSchema | undefined>
+  <T extends keyof BlogSchema = never>(tableName: 'blogs', options?: RowSelectOneOptions<BlogSchema> & { ignoredFields?: T[] }): Promise<Omit<BlogSchema, T> | undefined>
+  <T extends keyof PostSchema = never>(tableName: 'posts', options?: RowSelectOneOptions<PostSchema> & { ignoredFields?: T[] }): Promise<Omit<PostSchema, T> | undefined>
 }
 
 export type SelectRow = {
-  (tableName: 'blogs', options?: RowSelectOptions<BlogSchema>): Promise<BlogSchema[]>
-  (tableName: 'posts', options?: RowSelectOptions<PostSchema>): Promise<PostSchema[]>
+  <T extends keyof BlogSchema = never>(tableName: 'blogs', options?: RowSelectOptions<BlogSchema> & { ignoredFields?: T[] }): Promise<Omit<BlogSchema, T>[]>
+  <T extends keyof PostSchema = never>(tableName: 'posts', options?: RowSelectOptions<PostSchema> & { ignoredFields?: T[] }): Promise<Omit<PostSchema, T>[]>
 }
 
 export type InsertRow = {

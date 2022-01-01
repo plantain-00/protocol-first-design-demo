@@ -16,9 +16,9 @@ function run(sql: string, ...args: unknown[]) {
   })
 }
 
-function all<T>(sql: string, complexFields: string[], ...args: unknown[]) {
+function all<T extends Record<string, unknown>>(sql: string, complexFields: string[], ...args: unknown[]) {
   return new Promise<T[]>((resolve, reject) => {
-    db.all(sql, args, (err, rows) => {
+    db.all(sql, args, (err, rows: T[]) => {
       if (err) {
         reject(err)
       } else {
@@ -31,9 +31,9 @@ function all<T>(sql: string, complexFields: string[], ...args: unknown[]) {
   })
 }
 
-function get<T>(sql: string, complexFields: string[], ...args: unknown[]) {
+function get<T extends Record<string, unknown>>(sql: string, complexFields: string[], ...args: unknown[]) {
   return new Promise<T | undefined>((resolve, reject) => {
-    db.get(sql, args, (err, row) => {
+    db.get(sql, args, (err, row: T) => {
       if (err) {
         reject(err)
       } else {
@@ -59,7 +59,7 @@ async function createTable(tableName: keyof typeof tableSchemas) {
   await run(`CREATE TABLE IF NOT EXISTS ${tableName}(${fieldNames.join(', ')})`)
 }
 
-export const insertRow: InsertRow = async<T>(
+export const insertRow: InsertRow = async<T extends Record<string, unknown>>(
   tableName: keyof typeof tableSchemas,
   value: T,
 ) => {
@@ -68,7 +68,7 @@ export const insertRow: InsertRow = async<T>(
   return value
 }
 
-export const updateRow: UpdateRow = async <T>(
+export const updateRow: UpdateRow = async <T extends Record<string, unknown>>(
   tableName: keyof typeof tableSchemas,
   value?: T,
   options?: RowFilterOptions<T>,
@@ -86,7 +86,7 @@ export const deleteRow: DeleteRow = async <T>(
   await run(`DELETE FROM ${tableName} ${sql}`, ...values)
 }
 
-function getFieldsAndValues<T>(
+function getFieldsAndValues<T extends Record<string, unknown>>(
   tableName: keyof typeof tableSchemas,
   value?: T,
 ) {
@@ -129,7 +129,7 @@ function getWhereSql<T>(
       if (!allFields.includes(key) || fieldValue === undefined) {
         continue
       }
-      if (Array.isArray(fieldValue)) {
+      if (isArray(fieldValue)) {
         filterValue.push({
           type: 'in',
           name: key,
@@ -199,14 +199,14 @@ function getSelectOneSql<T>(
   if (options?.sort && options.sort.length > 0) {
     orderBy = 'ORDER BY ' + options.sort.map((s) => `${s.field} ${s.type}`).join(', ')
   }
-  const fieldNames = tableSchemas[tableName].fieldNames.filter((f) => !options?.ignoredFields?.includes(f)).join(', ')
+  const fieldNames = tableSchemas[tableName].fieldNames.filter((f) => !options?.ignoredFields?.includes(f as keyof T)).join(', ')
   return {
     sql: `SELECT ${fieldNames} FROM ${tableName} ${sql} ${orderBy}`,
     values,
   }
 }
 
-export const selectRows: SelectRow = async <T>(
+export const selectRows: SelectRow = async <T extends Record<string, unknown>>(
   tableName: keyof typeof tableSchemas,
   options?: RowSelectOptions<T>
 ) => {
@@ -223,7 +223,7 @@ export const countRows: CountRow = async <T>(
   return result[0]!['COUNT(1)']
 }
 
-export const getRow: GetRow = async <T>(
+export const getRow: GetRow = async <T extends Record<string, unknown>>(
   tableName: keyof typeof tableSchemas,
   options?: RowSelectOneOptions<T>
 ) => {
@@ -231,6 +231,7 @@ export const getRow: GetRow = async <T>(
   return get<T>(sql, tableSchemas[tableName].complexFields, ...values)
 }
 
+const isArray = (arg: unknown): arg is unknown[] => Array.isArray(arg)
 const getKeys: <T>(obj: T) => (keyof T)[] = Object.keys
 
 export async function intializeDatabase() {

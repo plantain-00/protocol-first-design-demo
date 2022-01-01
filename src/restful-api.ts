@@ -10,26 +10,30 @@ import { CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, GetBlogTex
 import { Blog, BlogIgnorableField } from './restful-api-schema'
 import { HandleHttpRequest } from './restful-api-declaration-lib'
 import { BlogSchema } from './db-schema'
+import { tableSchemas } from './db-declaration'
+import { RowFilterOptions } from './db-declaration-lib'
 
 const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip, take, ignoredFields } }) => {
-  const selectOptions = {
+  const filter: RowFilterOptions<BlogSchema> = {
     fuzzyFilter: {
       content,
     },
+  }
+  const filteredBlogs = await selectRows('blogs', {
+    ...filter,
     sort: [
       {
         field: sortField,
         type: sortType,
       }
     ],
-    ignoredFields: ignoredFields as (keyof BlogSchema)[] | undefined,
+    ignoredFields: extractDbIgnoredFields(ignoredFields),
     pagination: {
       take,
       skip,
     },
-  }
-  const filteredBlogs = await selectRows('blogs', selectOptions)
-  const total = await countRows('blogs', selectOptions)
+  })
+  const total = await countRows('blogs', filter)
 
   return {
     result: await Promise.all(filteredBlogs.map((blog) => getBlogWithoutIngoredFields(blog, ignoredFields))),
@@ -38,7 +42,7 @@ const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip,
 }
 
 const getBlogById: GetBlogById = async ({ query, path: { id } }) => {
-  const blog = await getRow('blogs', { filter: { id }, ignoredFields: query?.ignoredFields as (keyof BlogSchema)[] | undefined })
+  const blog = await getRow('blogs', { filter: { id }, ignoredFields: extractDbIgnoredFields(query?.ignoredFields) })
   return {
     result: blog ? await getBlogWithoutIngoredFields(blog, query?.ignoredFields) : undefined
   }
@@ -76,7 +80,7 @@ export const createBlog: CreateBlog = async ({ query, body: { content } }) => {
 
 const patchBlog: PatchBlog = async ({ path: { id }, query, body }) => {
   await updateRow('blogs', body, { filter: { id } })
-  const blog = await getRow('blogs', { filter: { id }, ignoredFields: query?.ignoredFields as (keyof BlogSchema)[] | undefined })
+  const blog = await getRow('blogs', { filter: { id }, ignoredFields: extractDbIgnoredFields(query?.ignoredFields) })
   if (!blog) {
     throw new HttpError('invalid parameter: id', 400)
   }
@@ -184,15 +188,17 @@ export function startRestfulApi(app: express.Application): void {
   registerGetBlogText(app, handleHttpRequest, getBlogText)
 }
 
+type BlogDbIgnorableField = Extract<BlogIgnorableField, keyof BlogSchema>
+
+function extractDbIgnoredFields(ignoredFields?: BlogIgnorableField[]) {
+  return ignoredFields?.filter(tableSchemas.blogs.fieldNames.includes) as BlogDbIgnorableField[] | undefined
+}
+
 async function getBlogWithoutIngoredFields<T extends BlogIgnorableField = never>(
-  blog: {
-    id: number,
-    content: string,
-    meta: unknown,
-  },
+  blog: Pick<Partial<Blog>, BlogDbIgnorableField> & Omit<BlogSchema, BlogDbIgnorableField>,
   ignoredFields?: T[],
 ) {
-  const fields = ignoredFields as BlogIgnorableField[] | undefined
+  const fields: BlogIgnorableField[] | undefined = ignoredFields
   return {
     ...blog,
     posts: fields?.includes('posts') ? undefined : await selectRows('posts', { filter: { blogId: blog.id } }),
