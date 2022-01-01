@@ -1,3 +1,5 @@
+import { BlogSchema, PostSchema } from "./db-schema"
+
 /**
  * @method get
  * @path /api/blogs
@@ -154,17 +156,11 @@ export type BlogIgnorableField = 'posts' | 'meta'
 
 type integer = number
 
-export interface Blog {
-  id: integer
-  content: string
+export interface Blog extends BlogSchema {
   posts: Post[]
-  meta: unknown
 }
 
 /**
  * @public
  */
-export interface Post {
-  id: integer
-  content: string
-}
+export type Post = PostSchema

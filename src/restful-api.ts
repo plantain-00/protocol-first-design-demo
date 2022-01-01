@@ -4,7 +4,7 @@ import * as path from 'path'
 import stream, { Readable } from 'stream'
 import multer from 'multer'
 
-import { countRows, deleteRow, getRow, insertRow, selectRows, updateRow } from './data'
+import { countRows, deleteRow, getRow, insertRow, selectRows, updateRow } from './db-access'
 import { authorized, HttpError } from './auth'
 import { CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, GetBlogText, PatchBlog, registerCreateBlog, registerDeleteBlog, registerDownloadBlog, registerGetBlogById, registerGetBlogs, registerGetBlogText, registerPatchBlog, registerUploadBlog, UploadBlog } from './restful-api-declaration'
 import { Blog, BlogIgnorableField } from './restful-api-schema'

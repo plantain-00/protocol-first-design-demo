@@ -376,29 +376,32 @@
     "Blog": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "content": {
-          "type": "string"
-        },
         "posts": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Post"
           }
         },
+        "id": {
+          "type": "integer"
+        },
+        "content": {
+          "type": "string"
+        },
         "meta": {}
       },
       "required": [
+        "posts",
         "id",
         "content",
-        "posts",
         "meta"
       ],
       "additionalProperties": false
     },
     "Post": {
+      "$ref": "#/definitions/PostSchema"
+    },
+    "PostSchema": {
       "type": "object",
       "properties": {
         "id": {
@@ -406,11 +409,15 @@
         },
         "content": {
           "type": "string"
+        },
+        "blogId": {
+          "type": "integer"
         }
       },
       "required": [
         "id",
-        "content"
+        "content",
+        "blogId"
       ],
       "additionalProperties": false
     },

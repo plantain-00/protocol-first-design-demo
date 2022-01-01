@@ -54,28 +54,31 @@ const getBlogsJsonSchema = {
     "Blog": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "content": {
-          "type": "string"
-        },
         "posts": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Post"
           }
         },
+        "id": {
+          "type": "integer"
+        },
+        "content": {
+          "type": "string"
+        },
         "meta": {}
       },
       "required": [
+        "posts",
         "id",
         "content",
-        "posts",
         "meta"
       ]
     },
     "Post": {
+      "$ref": "#/definitions/PostSchema"
+    },
+    "PostSchema": {
       "type": "object",
       "properties": {
         "id": {
@@ -83,11 +86,15 @@ const getBlogsJsonSchema = {
         },
         "content": {
           "type": "string"
+        },
+        "blogId": {
+          "type": "integer"
         }
       },
       "required": [
         "id",
-        "content"
+        "content",
+        "blogId"
       ]
     }
   }
@@ -104,28 +111,31 @@ const getBlogByIdJsonSchema = {
     "Blog": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "content": {
-          "type": "string"
-        },
         "posts": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Post"
           }
         },
+        "id": {
+          "type": "integer"
+        },
+        "content": {
+          "type": "string"
+        },
         "meta": {}
       },
       "required": [
+        "posts",
         "id",
         "content",
-        "posts",
         "meta"
       ]
     },
     "Post": {
+      "$ref": "#/definitions/PostSchema"
+    },
+    "PostSchema": {
       "type": "object",
       "properties": {
         "id": {
@@ -133,11 +143,15 @@ const getBlogByIdJsonSchema = {
         },
         "content": {
           "type": "string"
+        },
+        "blogId": {
+          "type": "integer"
         }
       },
       "required": [
         "id",
-        "content"
+        "content",
+        "blogId"
       ]
     }
   }
@@ -156,28 +170,31 @@ const createBlogJsonSchema = {
     "Blog": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "content": {
-          "type": "string"
-        },
         "posts": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Post"
           }
         },
+        "id": {
+          "type": "integer"
+        },
+        "content": {
+          "type": "string"
+        },
         "meta": {}
       },
       "required": [
+        "posts",
         "id",
         "content",
-        "posts",
         "meta"
       ]
     },
     "Post": {
+      "$ref": "#/definitions/PostSchema"
+    },
+    "PostSchema": {
       "type": "object",
       "properties": {
         "id": {
@@ -185,11 +202,15 @@ const createBlogJsonSchema = {
         },
         "content": {
           "type": "string"
+        },
+        "blogId": {
+          "type": "integer"
         }
       },
       "required": [
         "id",
-        "content"
+        "content",
+        "blogId"
       ]
     }
   }
@@ -208,28 +229,31 @@ const patchBlogJsonSchema = {
     "Blog": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "content": {
-          "type": "string"
-        },
         "posts": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Post"
           }
         },
+        "id": {
+          "type": "integer"
+        },
+        "content": {
+          "type": "string"
+        },
         "meta": {}
       },
       "required": [
+        "posts",
         "id",
         "content",
-        "posts",
         "meta"
       ]
     },
     "Post": {
+      "$ref": "#/definitions/PostSchema"
+    },
+    "PostSchema": {
       "type": "object",
       "properties": {
         "id": {
@@ -237,11 +261,15 @@ const patchBlogJsonSchema = {
         },
         "content": {
           "type": "string"
+        },
+        "blogId": {
+          "type": "integer"
         }
       },
       "required": [
         "id",
-        "content"
+        "content",
+        "blogId"
       ]
     }
   }

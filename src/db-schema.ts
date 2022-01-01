@@ -1,11 +1,13 @@
 export interface BlogSchema {
-  id: number
+  id: integer
   content: string
   meta: unknown
 }
 
-export interface PostScheme {
-  id: number
+export interface PostSchema {
+  id: integer
   content: string
-  blogId: number
+  blogId: integer
 }
+
+type integer = number

@@ -6,6 +6,7 @@ import { startRestfulApi } from './restful-api'
 import { startGraphqlApi } from './graphql-api'
 import { startWsApi } from './ws-api'
 import { verify } from './auth'
+import { intializeDatabase } from './db-access'
 
 function printInConsole(message: string) {
   console.log(message)
@@ -25,6 +26,8 @@ app.use((req: Request, res: express.Response<{}>, next) => {
     res.status(403).end()
   }
 })
+
+intializeDatabase()
 
 startGraphqlApi(app)
 startRestfulApi(app)

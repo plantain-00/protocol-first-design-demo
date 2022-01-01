@@ -2,7 +2,7 @@ import * as express from 'express'
 import { graphqlHTTP } from 'express-graphql'
 import { buildSchema } from 'graphql'
 
-import { countRows, getRow, insertRow, selectRows } from './data'
+import { countRows, getRow, insertRow, selectRows } from './db-access'
 import { srcGeneratedDataGql } from './generated/variables'
 import { Root } from './generated/root'
 import { authorized } from './auth'

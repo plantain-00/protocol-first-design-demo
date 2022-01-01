@@ -54,10 +54,7 @@ function restoreComplexFields(complexFields: string[], row: Record<string, unkno
   return row
 }
 
-/**
- * @public
- */
-export async function createTable(tableName: keyof typeof tableSchemas) {
+async function createTable(tableName: keyof typeof tableSchemas) {
   const fieldNames = tableSchemas[tableName].fieldNames
   await run(`CREATE TABLE IF NOT EXISTS ${tableName}(${fieldNames.join(', ')})`)
 }
@@ -66,8 +63,7 @@ export const insertRow: InsertRow = async<T>(
   tableName: keyof typeof tableSchemas,
   value: T,
 ) => {
-  const allFields = tableSchemas[tableName].fieldNames
-  const { values, fields } = getFieldsAndValues(allFields, value)
+  const { values, fields } = getFieldsAndValues(tableName, value)
   await run(`INSERT INTO ${tableName} (${fields.join(', ')}) VALUES (${new Array(fields.length).fill('?').join(', ')})`, ...values)
   return value
 }
@@ -77,9 +73,8 @@ export const updateRow: UpdateRow = async <T>(
   value?: T,
   options?: RowFilterOptions<T>,
 ) => {
-  const allFields = tableSchemas[tableName].fieldNames
-  const { values, fields } = getFieldsAndValues(allFields, value)
-  const { sql, values: whereValues } = getWhereSql(allFields, options)
+  const { values, fields } = getFieldsAndValues(tableName, value)
+  const { sql, values: whereValues } = getWhereSql(tableName, options)
   await run(`UPDATE ${tableName} SET ${fields.map((f) => `${f} = ?`).join(', ')} ${sql}`, ...values, ...whereValues)
 }
 
@@ -87,23 +82,23 @@ export const deleteRow: DeleteRow = async <T>(
   tableName: keyof typeof tableSchemas,
   options?: RowFilterOptions<T>,
 ) => {
-  const { sql, values } = getWhereSql(tableSchemas[tableName].fieldNames, options)
+  const { sql, values } = getWhereSql(tableName, options)
   await run(`DELETE FROM ${tableName} ${sql}`, ...values)
 }
 
 function getFieldsAndValues<T>(
-  allFields: string[],
+  tableName: keyof typeof tableSchemas,
   value?: T,
 ) {
   const values: unknown[] = []
   const fields: string[] = []
   if (value) {
     for (const [key, fieldValue] of Object.entries(value)) {
-      if (!allFields.includes(key)) {
+      if (!tableSchemas[tableName].fieldNames.includes(key)) {
         continue
       }
       fields.push(key)
-      values.push(fieldValue && typeof fieldValue === 'object' || Array.isArray(fieldValue) ? JSON.stringify(fieldValue) : fieldValue)
+      values.push(fieldValue && tableSchemas[tableName].complexFields.includes(key) ? JSON.stringify(fieldValue) : fieldValue)
     }
   }
   return {
@@ -113,9 +108,10 @@ function getFieldsAndValues<T>(
 }
 
 function getWhereSql<T>(
-  allFields: string[],
+  tableName: keyof typeof tableSchemas,
   options?: RowFilterOptions<T>,
 ) {
+  const allFields = tableSchemas[tableName].fieldNames
   const values: unknown[] = []
   const filterValue: ({
     type: '='
@@ -145,7 +141,7 @@ function getWhereSql<T>(
           type: '=',
           name: key,
         })
-        values.push(fieldValue && typeof fieldValue === 'object' ? JSON.stringify(fieldValue) : fieldValue)
+        values.push(fieldValue && tableSchemas[tableName].complexFields.includes(key) ? JSON.stringify(fieldValue) : fieldValue)
       }
     }
   }
@@ -198,13 +194,12 @@ function getSelectOneSql<T>(
   tableName: keyof typeof tableSchemas,
   options?: RowSelectOneOptions<T>
 ) {
-  const allFields = tableSchemas[tableName].fieldNames
-  const { sql, values } = getWhereSql(allFields, options)
+  const { sql, values } = getWhereSql(tableName, options)
   let orderBy = ''
   if (options?.sort && options.sort.length > 0) {
     orderBy = 'ORDER BY ' + options.sort.map((s) => `${s.field} ${s.type}`).join(', ')
   }
-  const fieldNames = allFields.filter((f) => !options?.ignoredFields?.includes(f)).join(', ')
+  const fieldNames = tableSchemas[tableName].fieldNames.filter((f) => !options?.ignoredFields?.includes(f)).join(', ')
   return {
     sql: `SELECT ${fieldNames} FROM ${tableName} ${sql} ${orderBy}`,
     values,
@@ -223,7 +218,7 @@ export const countRows: CountRow = async <T>(
   tableName: keyof typeof tableSchemas,
   options?: RowFilterOptions<T>
 ) => {
-  const { sql, values } = getWhereSql(tableSchemas[tableName].fieldNames, options)
+  const { sql, values } = getWhereSql(tableName, options)
   const result = await all<{ 'COUNT(1)': number }>(`SELECT COUNT(1) FROM ${tableName} ${sql}`, [], ...values)
   return result[0]!['COUNT(1)']
 }
@@ -236,9 +231,12 @@ export const getRow: GetRow = async <T>(
   return get<T>(sql, tableSchemas[tableName].complexFields, ...values)
 }
 
-(async () => {
-  await createTable('blogs')
-  await createTable('posts')
+const getKeys: <T>(obj: T) => (keyof T)[] = Object.keys
+
+export async function intializeDatabase() {
+  for (const tableName of getKeys(tableSchemas)) {
+    await createTable(tableName)
+  }
 
   await insertRow('blogs', { id: 1, content: 'blog 1 content', meta: { foo: 'bar' } })
   await insertRow('blogs', { id: 2, content: 'blog 2 content', meta: { bar: 123 } })
@@ -249,7 +247,4 @@ export const getRow: GetRow = async <T>(
   await insertRow('posts', { id: 21, content: 'post 21 content', blogId: 2 })
   await insertRow('posts', { id: 22, content: 'post 22 content', blogId: 2 })
   await insertRow('posts', { id: 23, content: 'post 23 content', blogId: 2 })
-
-  console.info(await selectRows('blogs'))
-  console.info(await selectRows('posts'))
-})()
+}
