@@ -191,7 +191,19 @@ export function startRestfulApi(app: express.Application): void {
 type BlogDbIgnorableField = Extract<BlogIgnorableField, keyof BlogSchema>
 
 function extractDbIgnoredFields(ignoredFields?: BlogIgnorableField[]) {
-  return ignoredFields?.filter(tableSchemas.blogs.fieldNames.includes) as BlogDbIgnorableField[] | undefined
+  if (!ignoredFields) {
+    return undefined
+  }
+  const result: BlogDbIgnorableField[] = []
+  for (const item of ignoredFields) {
+    for (const r of tableSchemas.blogs.fieldNames) {
+      if (item === r) {
+        result.push(item)
+        break
+      }
+    }
+  }
+  return result
 }
 
 async function getBlogWithoutIngoredFields<T extends BlogIgnorableField = never>(

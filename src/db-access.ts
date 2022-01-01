@@ -92,9 +92,10 @@ function getFieldsAndValues<T extends Record<string, unknown>>(
 ) {
   const values: unknown[] = []
   const fields: string[] = []
+  const allFields: string[] = tableSchemas[tableName].fieldNames
   if (value) {
     for (const [key, fieldValue] of Object.entries(value)) {
-      if (!tableSchemas[tableName].fieldNames.includes(key)) {
+      if (!allFields.includes(key)) {
         continue
       }
       fields.push(key)
@@ -111,7 +112,7 @@ function getWhereSql<T>(
   tableName: keyof typeof tableSchemas,
   options?: RowFilterOptions<T>,
 ) {
-  const allFields = tableSchemas[tableName].fieldNames
+  const allFields: string[] = tableSchemas[tableName].fieldNames
   const values: unknown[] = []
   const filterValue: ({
     type: '='
@@ -175,7 +176,7 @@ function getWhereSql<T>(
   }
 }
 
-function getSelectSql<T>(
+function getSelectSql<T extends Record<string, unknown>>(
   tableName: keyof typeof tableSchemas,
   options?: RowSelectOptions<T>
 ) {
@@ -190,7 +191,7 @@ function getSelectSql<T>(
   }
 }
 
-function getSelectOneSql<T>(
+function getSelectOneSql<T extends Record<string, unknown>>(
   tableName: keyof typeof tableSchemas,
   options?: RowSelectOneOptions<T>
 ) {
@@ -199,7 +200,8 @@ function getSelectOneSql<T>(
   if (options?.sort && options.sort.length > 0) {
     orderBy = 'ORDER BY ' + options.sort.map((s) => `${s.field} ${s.type}`).join(', ')
   }
-  const fieldNames = tableSchemas[tableName].fieldNames.filter((f) => !options?.ignoredFields?.includes(f as keyof T)).join(', ')
+  const allFields: string[] = tableSchemas[tableName].fieldNames
+  const fieldNames = allFields.filter((f) => !options?.ignoredFields?.includes(f)).join(', ')
   return {
     sql: `SELECT ${fieldNames} FROM ${tableName} ${sql} ${orderBy}`,
     values,

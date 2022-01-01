@@ -42,7 +42,7 @@ ${schemas.map((s) => `  (tableName: '${s.tableName}', options?: RowFilterOptions
 
 export const tableSchemas = {
 ${schemas.map((s) => `  ${s.tableName}: {
-    fieldNames: [${s.fields.map((f) => `'${f}'`).join(', ')}],
+    fieldNames: [${s.fields.map((f) => `'${f}'`).join(', ')}] as (keyof ${s.typeName})[],
     complexFields: [${s.complexFields.map((f) => `'${f}'`).join(', ')}] as string[],
   },`).join('\n')}
 }

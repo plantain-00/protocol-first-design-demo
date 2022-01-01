@@ -33,11 +33,11 @@ export type CountRow = {
 
 export const tableSchemas = {
   blogs: {
-    fieldNames: ['id', 'content', 'meta'],
+    fieldNames: ['id', 'content', 'meta'] as (keyof BlogSchema)[],
     complexFields: ['meta'] as string[],
   },
   posts: {
-    fieldNames: ['id', 'content', 'blogId'],
+    fieldNames: ['id', 'content', 'blogId'] as (keyof PostSchema)[],
     complexFields: [] as string[],
   },
 }
