@@ -10,4 +10,5 @@ export type RowSelectOneOptions<T> = Partial<{
 export type RowFilterOptions<T> = Partial<{
   filter: { [P in keyof T]?: T[P] | readonly T[P][] }
   fuzzyFilter: { [P in keyof T]?: T[P] | readonly T[P][] }
+  rawFilter: { sql: string, value: unknown[] }
 }>

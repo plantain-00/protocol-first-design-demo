@@ -114,34 +114,17 @@ function getWhereSql<T>(
 ) {
   const allFields: string[] = tableSchemas[tableName].fieldNames
   const values: unknown[] = []
-  const filterValue: ({
-    type: '='
-    name: string
-  } | {
-    type: 'in'
-    name: string
-    count: number
-  } | {
-    type: 'like'
-    name: string
-  })[] = []
+  const filterValue: string[] = []
   if (options?.filter) {
     for (const [key, fieldValue] of Object.entries(options.filter)) {
       if (!allFields.includes(key) || fieldValue === undefined) {
         continue
       }
       if (isArray(fieldValue)) {
-        filterValue.push({
-          type: 'in',
-          name: key,
-          count: fieldValue.length,
-        })
+        filterValue.push(`${key} IN (${new Array(fieldValue.length).fill('?').join(', ')})`)
         values.push(...fieldValue)
       } else {
-        filterValue.push({
-          type: '=',
-          name: key,
-        })
+        filterValue.push(`${key} = ?`)
         values.push(fieldValue && tableSchemas[tableName].complexFields.includes(key) ? JSON.stringify(fieldValue) : fieldValue)
       }
     }
@@ -151,24 +134,17 @@ function getWhereSql<T>(
       if (!allFields.includes(key) || fieldValue === undefined) {
         continue
       }
-      filterValue.push({
-        type: 'like',
-        name: key,
-      })
+      filterValue.push(`${key} LIKE '%' || ? || '%'`)
       values.push(String(fieldValue))
     }
   }
+  if (options?.rawFilter) {
+    filterValue.push(options.rawFilter.sql)
+    values.push(...options.rawFilter.value)
+  }
   let sql = ''
   if (filterValue.length > 0) {
-    sql += 'WHERE ' + filterValue.map((f) => {
-      if (f.type === 'in') {
-        return `${f.name} IN (${new Array(f.count).fill('?').join(', ')})`
-      }
-      if (f.type === 'like') {
-        return `${f.name} LIKE '%' || ? || '%'`
-      }
-      return `${f.name} = ?`
-    }).join(' AND ')
+    sql += 'WHERE ' + filterValue.join(' AND ')
   }
   return {
     sql,
