@@ -2,7 +2,7 @@ import * as express from 'express'
 import { graphqlHTTP } from 'express-graphql'
 import { buildSchema } from 'graphql'
 
-import { countRows, getRow, insertRow, selectRows } from './db-access'
+import { countRow, getRow, insertRow, selectRow } from './db-access'
 import { srcGeneratedDataGql } from './generated/variables'
 import { Root } from './generated/root'
 import { authorized } from './auth'
@@ -12,17 +12,17 @@ export function startGraphqlApi(app: express.Application) {
   const root: Root<Request> = {
     blogs: async ({ pagination }, req) => {
       await authorized(req, 'blog')
-      const blogs = await selectRows('blogs', {
+      const blogs = await selectRow('blogs', {
         pagination,
       })
-      const total = await countRows('blogs')
+      const total = await countRow('blogs')
       return {
         count: total,
         result: blogs
           .map((blog) => ({
             id: blog.id,
             content: () => blog.content,
-            posts: ({ id }) => selectRows('posts', { filter: { blogId: id } }),
+            posts: ({ id }) => selectRow('posts', { filter: { blogId: id } }),
             meta: () => blog.meta
           }))
       }
@@ -34,7 +34,7 @@ export function startGraphqlApi(app: express.Application) {
         result: blog ? {
           id: blog.id,
           content: () => blog.content,
-          posts: ({ id }) => selectRows('posts', { filter: { blogId: id } }),
+          posts: ({ id }) => selectRow('posts', { filter: { blogId: id } }),
           meta: () => blog.meta
         } : undefined
       }

@@ -1,13 +1,11 @@
 import { createApp, defineComponent } from 'vue'
-import qs from 'qs'
 import * as protobuf from 'protobufjs'
-import produce from 'immer'
+import { ApiAccessorFetch } from 'protocol-based-web-framework'
 import { indexTemplateHtml, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
 import { ResolveResult } from '../src/generated/root'
 import { RequestRestfulAPI, GetRequestApiUrl, validations } from './restful-api-declaration'
 import { WsCommand, WsPush } from '../src/ws-api-schema'
 import { srcGeneratedWsProto } from '../src/generated/variables'
-import { ajv } from './restful-api-declaration-lib'
 
 const root = protobuf.Root.fromJSON(srcGeneratedWsProto)
 const commandType = root.lookup('WsCommand') as protobuf.Type
@@ -29,116 +27,13 @@ async function fetchGraphql<T>(query: string, variables = {}) {
   return data.data
 }
 
-const composeUrl = (
-  url: string,
-  args?: { path?: { [key: string]: string | number }, query?: {} }
-) => {
-  if (args?.path) {
-    for (const key in args.path) {
-      url = url.replace(`{${key}}`, args.path[key].toString())
-    }
-  }
-  if (args?.query) {
-    url += '?' + qs.stringify(args.query, {
-      arrayFormat: 'brackets',
-    })
-  }
-  return url
-}
+const apiAccessor = new ApiAccessorFetch(validations)
 
-const getRequestApiUrl: GetRequestApiUrl = composeUrl
+const getRequestApiUrl: GetRequestApiUrl = apiAccessor.composeUrl.bind(apiAccessor)
 
-function validateByJsonSchema(
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-  url: string,
-  ignoredFields: string[] | undefined,
-  input: unknown,
-) {
-  const validation = validations.find((v) => v.method === method && v.url === url)
-  if (validation) {
-    if (ignoredFields && ignoredFields.length > 0) {
-      const schemaWithoutIgnoredFields = produce(
-        validation.schema as {
-          definitions: {
-            [key: string]: {
-              properties: { [key: string]: unknown }
-              required?: string[]
-            }
-          }
-        },
-        (draft) => {
-          for (const omittedReference of validation.omittedReferences) {
-            for (const ignoredField of ignoredFields) {
-              delete draft.definitions[omittedReference].properties[ignoredField]
-            }
-            const required = draft.definitions[omittedReference].required
-            if (required) {
-              draft.definitions[omittedReference].required = required.filter((r) => !ignoredFields.includes(r))
-            }
-          }
-        }
-      )
-      ajv.validate(schemaWithoutIgnoredFields, input)
-      if (ajv.errors?.[0]?.message) {
-        throw new Error(ajv.errors[0].message)
-      }
-    } else {
-      validation.validate(input)
-      if (validation.validate.errors?.[0]?.message) {
-        throw new Error(validation.validate.errors[0].message)
-      }
-    }
-  }
-}
+const requestRestfulAPI: RequestRestfulAPI = apiAccessor.requestRestfulAPI.bind(apiAccessor)
 
-const requestRestfulAPI: RequestRestfulAPI = async (
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-  url: string,
-  args?: {
-    path?: { [key: string]: string | number },
-    query?: { ignoredFields?: string[], attachmentFileName?: string },
-    body?: {}
-  }
-) => {
-  const composedUrl = composeUrl(url, args)
-  let body: BodyInit | undefined
-  let headers: HeadersInit | undefined
-  if (args?.body) {
-    if (typeof args.body === 'object' && Object.values(args.body).some((b) => b instanceof Blob)) {
-      const formData = new FormData()
-      for (const key in args.body) {
-        formData.append(key, (args.body as { [key: string]: string | Blob })[key])
-      }
-      body = formData
-    } else {
-      body = JSON.stringify(args.body)
-      headers = { 'content-type': 'application/json' }
-    }
-  }
-  const result = await fetch(
-    composedUrl,
-    {
-      method,
-      body,
-      headers,
-    })
-  const contentType = result.headers.get('content-type')
-  if (contentType) {
-    if (contentType.includes('application/json')) {
-      const json = await result.json()
-      validateByJsonSchema(method, url, args?.query?.ignoredFields, json)
-      return json
-    }
-    if (contentType.includes('text/')) {
-      const text = await result.text()
-      validateByJsonSchema(method, url, args?.query?.ignoredFields, text)
-      return text
-    }
-  }
-  return result.blob()
-}
-
-(async () => {
+;(async () => {
   const ids: string[] = []
   for (let i = 0; i < 50; i++) {
     ids.push(Math.round(16 ** 11 * 15 * Math.random() + 16 ** 11).toString(16))

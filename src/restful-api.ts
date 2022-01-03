@@ -4,14 +4,13 @@ import * as path from 'path'
 import stream, { Readable } from 'stream'
 import multer from 'multer'
 
-import { countRows, deleteRow, getRow, insertRow, selectRows, updateRow } from './db-access'
+import { countRow, deleteRow, getRow, insertRow, selectRow, updateRow } from './db-access'
 import { authorized, HttpError } from './auth'
 import { CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, GetBlogText, PatchBlog, registerCreateBlog, registerDeleteBlog, registerDownloadBlog, registerGetBlogById, registerGetBlogs, registerGetBlogText, registerPatchBlog, registerUploadBlog, UploadBlog } from './restful-api-declaration'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
-import { HandleHttpRequest } from './restful-api-declaration-lib'
+import { HandleHttpRequest, RowFilterOptions } from 'protocol-based-web-framework'
 import { BlogSchema } from './db-schema'
 import { tableSchemas } from './db-declaration'
-import { RowFilterOptions } from './db-declaration-lib'
 
 const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip, take, ignoredFields } }) => {
   const filter: RowFilterOptions<BlogSchema> = {
@@ -19,7 +18,7 @@ const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip,
       content,
     },
   }
-  const filteredBlogs = await selectRows('blogs', {
+  const filteredBlogs = await selectRow('blogs', {
     ...filter,
     sort: [
       {
@@ -27,13 +26,13 @@ const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip,
         type: sortType,
       }
     ],
-    ignoredFields: extractDbIgnoredFields(ignoredFields),
+    ignoredFields: extractDbIgnoredFieldsFromBlogIgnoredField(ignoredFields),
     pagination: {
       take,
       skip,
     },
   })
-  const total = await countRows('blogs', filter)
+  const total = await countRow('blogs', filter)
 
   return {
     result: await Promise.all(filteredBlogs.map((blog) => getBlogWithoutIngoredFields(blog, ignoredFields))),
@@ -42,7 +41,7 @@ const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip,
 }
 
 const getBlogById: GetBlogById = async ({ query, path: { id } }) => {
-  const blog = await getRow('blogs', { filter: { id }, ignoredFields: extractDbIgnoredFields(query?.ignoredFields) })
+  const blog = await getRow('blogs', { filter: { id }, ignoredFields: extractDbIgnoredFieldsFromBlogIgnoredField(query?.ignoredFields) })
   return {
     result: blog ? await getBlogWithoutIngoredFields(blog, query?.ignoredFields) : undefined
   }
@@ -80,7 +79,7 @@ export const createBlog: CreateBlog = async ({ query, body: { content } }) => {
 
 const patchBlog: PatchBlog = async ({ path: { id }, query, body }) => {
   await updateRow('blogs', body, { filter: { id } })
-  const blog = await getRow('blogs', { filter: { id }, ignoredFields: extractDbIgnoredFields(query?.ignoredFields) })
+  const blog = await getRow('blogs', { filter: { id }, ignoredFields: extractDbIgnoredFieldsFromBlogIgnoredField(query?.ignoredFields) })
   if (!blog) {
     throw new HttpError('invalid parameter: id', 400)
   }
@@ -190,7 +189,7 @@ export function startRestfulApi(app: express.Application): void {
 
 type BlogDbIgnorableField = Extract<BlogIgnorableField, keyof BlogSchema>
 
-function extractDbIgnoredFields(ignoredFields?: BlogIgnorableField[]) {
+function extractDbIgnoredFieldsFromBlogIgnoredField(ignoredFields?: BlogIgnorableField[]) {
   if (!ignoredFields) {
     return undefined
   }
@@ -213,7 +212,7 @@ async function getBlogWithoutIngoredFields<T extends BlogIgnorableField = never>
   const fields: BlogIgnorableField[] | undefined = ignoredFields
   return {
     ...blog,
-    posts: fields?.includes('posts') ? undefined : await selectRows('posts', { filter: { blogId: blog.id } }),
+    posts: fields?.includes('posts') ? undefined : await selectRow('posts', { filter: { blogId: blog.id } }),
     meta: fields?.includes('meta') ? undefined : blog.meta,
   } as Omit<Blog, T>
 }

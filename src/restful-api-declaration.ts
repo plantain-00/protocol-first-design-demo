@@ -2,7 +2,7 @@
 
 import type { Application } from 'express'
 import { Readable } from 'stream'
-import { ajv, HandleHttpRequest } from './restful-api-declaration-lib'
+import { ajvBackend, HandleHttpRequest } from 'protocol-based-web-framework'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
 
 export type GetBlogs = <T extends BlogIgnorableField = never>(req: { query: { skip: number, take: number, content?: string, sortField: "id" | "content", sortType: "asc" | "desc", ignoredFields?: T[], ids?: string[] } }) => Promise<{ result: Omit<Blog, T>[], count: number }>
@@ -14,7 +14,7 @@ export type DownloadBlog = (req: { path: { id: number }, query?: { attachmentFil
 export type UploadBlog = (req: { body: { file: Readable, id: number } }) => Promise<{  }>
 export type GetBlogText = (req: { path: { id: number } }) => Promise<string>
 
-const getBlogsValidate = ajv.compile({
+const getBlogsValidate = ajvBackend.compile({
   "type": "object",
   "properties": {
     "path": {
@@ -84,7 +84,7 @@ const getBlogsValidate = ajv.compile({
     }
   }
 })
-const getBlogByIdValidate = ajv.compile({
+const getBlogByIdValidate = ajvBackend.compile({
   "type": "object",
   "properties": {
     "path": {
@@ -129,7 +129,7 @@ const getBlogByIdValidate = ajv.compile({
     }
   }
 })
-const createBlogValidate = ajv.compile({
+const createBlogValidate = ajvBackend.compile({
   "type": "object",
   "properties": {
     "path": {
@@ -174,7 +174,7 @@ const createBlogValidate = ajv.compile({
     }
   }
 })
-const patchBlogValidate = ajv.compile({
+const patchBlogValidate = ajvBackend.compile({
   "type": "object",
   "properties": {
     "path": {
@@ -224,7 +224,7 @@ const patchBlogValidate = ajv.compile({
     }
   }
 })
-const deleteBlogValidate = ajv.compile({
+const deleteBlogValidate = ajvBackend.compile({
   "type": "object",
   "properties": {
     "path": {
@@ -254,7 +254,7 @@ const deleteBlogValidate = ajv.compile({
   ],
   "definitions": {}
 })
-const downloadBlogValidate = ajv.compile({
+const downloadBlogValidate = ajvBackend.compile({
   "type": "object",
   "properties": {
     "path": {
@@ -288,7 +288,7 @@ const downloadBlogValidate = ajv.compile({
   ],
   "definitions": {}
 })
-const uploadBlogValidate = ajv.compile({
+const uploadBlogValidate = ajvBackend.compile({
   "type": "object",
   "properties": {
     "path": {
@@ -320,7 +320,7 @@ const uploadBlogValidate = ajv.compile({
   ],
   "definitions": {}
 })
-const getBlogTextValidate = ajv.compile({
+const getBlogTextValidate = ajvBackend.compile({
   "type": "object",
   "properties": {
     "path": {

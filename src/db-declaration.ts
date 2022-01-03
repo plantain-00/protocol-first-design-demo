@@ -1,4 +1,4 @@
-import { RowFilterOptions, RowSelectOneOptions, RowSelectOptions } from "./db-declaration-lib"
+import { RowFilterOptions, RowSelectOneOptions, RowSelectOptions, getKeys } from "protocol-based-web-framework"
 import { BlogSchema, PostSchema } from "./db-schema"
 
 export type GetRow = {
@@ -41,3 +41,5 @@ export const tableSchemas = {
     complexFields: [] as string[],
   },
 }
+
+export const tableNames = getKeys(tableSchemas)
