@@ -11,7 +11,7 @@ import { Request } from '.'
 export function startGraphqlApi(app: express.Application) {
   const root: Root<Request> = {
     blogs: async ({ pagination }, req) => {
-      await authorized(req, 'blog')
+      await authorized(req, ['blog'])
       const blogs = await selectRow('blogs', {
         pagination,
       })
@@ -28,7 +28,7 @@ export function startGraphqlApi(app: express.Application) {
       }
     },
     blog: async ({ id }, req) => {
-      await authorized(req, 'blog')
+      await authorized(req, ['blog'])
       const blog = await getRow('blogs', { filter: { id } })
       return {
         result: blog ? {
@@ -40,7 +40,7 @@ export function startGraphqlApi(app: express.Application) {
       }
     },
     createBlog: async ({ content }, req) => {
-      await authorized(req, 'blog')
+      await authorized(req, ['blog'])
       const blog = await insertRow('blogs', {
         id: 3,
         content,

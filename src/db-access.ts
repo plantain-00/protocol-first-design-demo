@@ -5,12 +5,12 @@ import { SqliteAccessor } from 'protocol-based-web-framework'
 const db = new sqlite.Database(':memory:')
 
 const sqliteAccessor = new SqliteAccessor(db, tableSchemas)
-export const insertRow: InsertRow = sqliteAccessor.insertRow.bind(sqliteAccessor)
-export const updateRow: UpdateRow = sqliteAccessor.updateRow.bind(sqliteAccessor)
-export const getRow: GetRow = sqliteAccessor.getRow.bind(sqliteAccessor)
-export const selectRow: SelectRow = sqliteAccessor.selectRow.bind(sqliteAccessor)
-export const deleteRow: DeleteRow = sqliteAccessor.deleteRow.bind(sqliteAccessor)
-export const countRow: CountRow = sqliteAccessor.countRow.bind(sqliteAccessor)
+export const insertRow: InsertRow = sqliteAccessor.insertRow
+export const updateRow: UpdateRow = sqliteAccessor.updateRow
+export const getRow: GetRow = sqliteAccessor.getRow
+export const selectRow: SelectRow = sqliteAccessor.selectRow
+export const deleteRow: DeleteRow = sqliteAccessor.deleteRow
+export const countRow: CountRow = sqliteAccessor.countRow
 
 export async function intializeDatabase() {
   for (const tableName of tableNames) {

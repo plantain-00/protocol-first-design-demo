@@ -29,9 +29,9 @@ async function fetchGraphql<T>(query: string, variables = {}) {
 
 const apiAccessor = new ApiAccessorFetch(validations)
 
-const getRequestApiUrl: GetRequestApiUrl = apiAccessor.composeUrl.bind(apiAccessor)
+const getRequestApiUrl: GetRequestApiUrl = apiAccessor.composeUrl
 
-const requestRestfulAPI: RequestRestfulAPI = apiAccessor.requestRestfulAPI.bind(apiAccessor)
+const requestRestfulAPI: RequestRestfulAPI = apiAccessor.requestRestfulAPI
 
 ;(async () => {
   const ids: string[] = []

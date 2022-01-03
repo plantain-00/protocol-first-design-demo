@@ -9,7 +9,7 @@ export function verify(cookieString: string | string[] | undefined) {
   return ''
 }
 
-export async function authorized(req: Request, _resourceName: string) {
+export async function authorized(req: Request, tags: string[]) {
   if (req.user === 'admin') {
     return
   }

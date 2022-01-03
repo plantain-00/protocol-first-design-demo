@@ -1,14 +1,14 @@
 import * as express from 'express'
 import * as fs from 'fs'
 import * as path from 'path'
-import stream, { Readable } from 'stream'
+import stream from 'stream'
 import multer from 'multer'
 
 import { countRow, deleteRow, getRow, insertRow, selectRow, updateRow } from './db-access'
 import { authorized, HttpError } from './auth'
 import { CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, GetBlogText, PatchBlog, registerCreateBlog, registerDeleteBlog, registerDownloadBlog, registerGetBlogById, registerGetBlogs, registerGetBlogText, registerPatchBlog, registerUploadBlog, UploadBlog } from './restful-api-declaration'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
-import { HandleHttpRequest, RowFilterOptions } from 'protocol-based-web-framework'
+import { HandleHttpRequest, RowFilterOptions, getAndValidateRequestInput, respondHandleResult } from 'protocol-based-web-framework'
 import { BlogSchema } from './db-schema'
 import { tableSchemas } from './db-declaration'
 
@@ -103,46 +103,16 @@ const getBlogText: GetBlogText = async ({ path: { id } }) => {
   return fs.readFileSync(path.resolve(process.cwd(), 'README.md')).toString()
 }
 
-const handleHttpRequest: HandleHttpRequest = (app, method, url, tag, validate, handler) => {
+const handleHttpRequest: HandleHttpRequest = (app, method, url, tags, validate, handler) => {
   app[method](url, upload.any(), async (req: express.Request<{}, {}, {}>, res: express.Response<{}>) => {
     try {
-      await authorized(req, tag)
-      const body: { [key: string]: unknown } = req.body
-      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-        for (const file of req.files) {
-          body[file.fieldname] = file.stream
-        }
-      }
-      const input = { path: req.params, query: req.query, body }
-      const valid = validate(input)
-      if (!valid && validate.errors?.[0]?.message) {
-        throw new HttpError(validate.errors[0].message, 400)
+      await authorized(req, tags)
+      const input = getAndValidateRequestInput(req, validate)
+      if (typeof input === 'string') {
+        throw new HttpError(input, 400)
       }
       const result = await handler(input)
-      if (result !== null &&
-        typeof result === 'object' &&
-        typeof (result as Readable).pipe === 'function'
-      ) {
-        if (typeof req.query.attachmentFileName === 'string') {
-          if (req.query.attachmentFileName) {
-            res.set({
-              'Content-Disposition': `attachment; filename="${req.query.attachmentFileName}"`,
-            })
-          } else {
-            res.set({
-              'Content-Disposition': 'attachment',
-            })
-          }
-        }
-        (result as Readable).pipe(res)
-      } else if (typeof result === 'string') {
-        res.set({
-          'content-type': 'text/plain; charset=UTF-8',
-        })
-        res.send(result).end()
-      } else {
-        res.json(result)
-      }
+      respondHandleResult(result, req, res)
     } catch (error: unknown) {
       const statusCode = error instanceof HttpError ? error.statusCode : 500
       const message = error instanceof Error ? error.message : error
