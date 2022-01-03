@@ -6,38 +6,14 @@ import { BlogSchema, PostSchema } from "./db-schema"
  * @tags blog
  */
 declare function getBlogs(
-  /**
-   * @in query
-   * @default 0
-   */
-  skip?: integer,
-  /**
-   * @in query
-   * @default 10
-   */
-  take?: integer,
-  /**
-   * @in query
-   */
-  content?: string,
-  /**
-   * @in query
-   * @default id
-   */
-  sortField?: 'id' | 'content',
-  /**
-   * @in query
-   * @default asc
-   */
-  sortType?: 'asc' | 'desc',
-  /**
-   * @in query
-   */
-  ignoredFields?: BlogIgnorableField[],
-  /**
-   * @in query
-   */
-   ids?: string[],
+  query: PaginationFields & BlogIgnoredField & SortTypeField & {
+    content?: string,
+    /**
+     * @default id
+     */
+    sortField?: 'id' | 'content',
+    ids?: string[],
+  },
 ): Promise<{ result: Blog[], count: integer }>
 
 /**
@@ -46,14 +22,8 @@ declare function getBlogs(
  * @tags blog
  */
 declare function getBlogById(
-  /**
-   * @in path
-   */
-  id: number,
-  /**
-   * @in query
-   */
-  ignoredFields?: BlogIgnorableField[],
+  path: IdField,
+  query: BlogIgnoredField,
 ): Promise<{ result?: Blog }>
 
 /**
@@ -62,14 +32,10 @@ declare function getBlogById(
  * @tags blog
  */
 declare function createBlog(
-  /**
-   * @in body
-   */
-  content: string,
-  /**
-   * @in query
-   */
-  ignoredFields?: BlogIgnorableField[],
+  query: BlogIgnoredField,
+  body: {
+    content: string,
+  },
 ): Promise<{ result: Blog }>
 
 /**
@@ -78,22 +44,12 @@ declare function createBlog(
  * @tags blog
  */
 declare function patchBlog(
-  /**
-   * @in path
-   */
-  id: number,
-  /**
-   * @in body
-   */
-  content?: string,
-  /**
-   * @in body
-   */
-  meta?: unknown,
-  /**
-   * @in query
-   */
-  ignoredFields?: BlogIgnorableField[],
+  path: IdField,
+  query: BlogIgnoredField,
+  body: {
+    content?: string,
+    meta?: unknown,
+  },
 ): Promise<{ result: Blog }>
 
 /**
@@ -102,10 +58,7 @@ declare function patchBlog(
  * @tags blog
  */
 declare function deleteBlog(
-  /**
-   * @in path
-   */
-  id: number,
+  path: IdField,
 ): Promise<{}>
 
 /**
@@ -113,15 +66,11 @@ declare function deleteBlog(
  * @path /api/blogs/{id}/download
  * @tags blog
  */
- declare function downloadBlog(
-  /**
-   * @in path
-   */
-  id: number,
-  /**
-   * @in query
-   */
-  attachmentFileName?: string,
+declare function downloadBlog(
+  path: IdField,
+  query: {
+    attachmentFileName?: string,
+  },
 ): Promise<File>
 
 /**
@@ -129,15 +78,11 @@ declare function deleteBlog(
  * @path /api/blogs/upload
  * @tags blog
  */
- declare function uploadBlog(
-  /**
-   * @in body
-   */
-  file: File,
-  /**
-   * @in body
-   */
-   id: number,
+declare function uploadBlog(
+  body: {
+    file: File,
+    id: number,
+  },
 ): Promise<{}>
 
 /**
@@ -145,11 +90,8 @@ declare function deleteBlog(
  * @path /api/blogs/{id}/text
  * @tags blog
  */
- declare function getBlogText(
-  /**
-   * @in path
-   */
-  id: number,
+declare function getBlogText(
+  path: IdField,
 ): Promise<string>
 
 export type BlogIgnorableField = 'posts' | 'meta'
@@ -164,3 +106,29 @@ export interface Blog extends BlogSchema {
  * @public
  */
 export type Post = PostSchema
+
+interface PaginationFields {
+  /**
+   * @default 0
+   */
+  skip?: integer,
+  /**
+   * @default 10
+   */
+  take?: integer,
+}
+
+interface SortTypeField {
+  /**
+   * @default asc
+   */
+  sortType?: 'asc' | 'desc',
+}
+
+interface IdField {
+  id: integer,
+}
+
+interface BlogIgnoredField {
+  ignoredFields?: BlogIgnorableField[],
+}

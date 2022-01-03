@@ -25,6 +25,30 @@
             }
           },
           {
+            "name": "ignoredFields",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/BlogIgnorableField"
+              }
+            }
+          },
+          {
+            "name": "sortType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          },
+          {
             "name": "content",
             "required": false,
             "in": "query",
@@ -43,30 +67,6 @@
                 "content"
               ],
               "default": "id"
-            }
-          },
-          {
-            "name": "sortType",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "asc",
-                "desc"
-              ],
-              "default": "asc"
-            }
-          },
-          {
-            "name": "ignoredFields",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/BlogIgnorableField"
-              }
             }
           },
           {
@@ -112,14 +112,6 @@
         "operationId": "createBlog",
         "parameters": [
           {
-            "name": "content",
-            "required": true,
-            "in": "body",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "ignoredFields",
             "required": false,
             "in": "query",
@@ -128,6 +120,14 @@
               "items": {
                 "$ref": "#/definitions/BlogIgnorableField"
               }
+            }
+          },
+          {
+            "name": "content",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -161,7 +161,7 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "number"
+              "type": "integer"
             }
           },
           {
@@ -202,7 +202,18 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "number"
+              "type": "integer"
+            }
+          },
+          {
+            "name": "ignoredFields",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/BlogIgnorableField"
+              }
             }
           },
           {
@@ -218,17 +229,6 @@
             "required": false,
             "in": "body",
             "schema": {}
-          },
-          {
-            "name": "ignoredFields",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/BlogIgnorableField"
-              }
-            }
           }
         ],
         "tags": [
@@ -259,7 +259,7 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "number"
+              "type": "integer"
             }
           }
         ],
@@ -287,7 +287,7 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "number"
+              "type": "integer"
             }
           },
           {
@@ -355,7 +355,7 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "number"
+              "type": "integer"
             }
           }
         ],

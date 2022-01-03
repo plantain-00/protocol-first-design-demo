@@ -5,7 +5,7 @@ import { Readable } from 'stream'
 import { ajvBackend, HandleHttpRequest } from 'protocol-based-web-framework'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
 
-export type GetBlogs = <T extends BlogIgnorableField = never>(req: { query: { skip: number, take: number, content?: string, sortField: "id" | "content", sortType: "asc" | "desc", ignoredFields?: T[], ids?: string[] } }) => Promise<{ result: Omit<Blog, T>[], count: number }>
+export type GetBlogs = <T extends BlogIgnorableField = never>(req: { query: { skip: number, take: number, ignoredFields?: T[], sortType: "asc" | "desc", content?: string, sortField: "id" | "content", ids?: string[] } }) => Promise<{ result: Omit<Blog, T>[], count: number }>
 export type GetBlogById = <T extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: T[] } }) => Promise<{ result?: Omit<Blog, T> }>
 export type CreateBlog = <T extends BlogIgnorableField = never>(req: { query?: { ignoredFields?: T[] }, body: { content: string } }) => Promise<{ result: Omit<Blog, T> }>
 export type PatchBlog = <T extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: T[] }, body?: { content?: string, meta?: unknown } }) => Promise<{ result: Omit<Blog, T> }>
@@ -33,6 +33,20 @@ const getBlogsValidate = ajvBackend.compile({
           "type": "integer",
           "default": 10
         },
+        "ignoredFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BlogIgnorableField"
+          }
+        },
+        "sortType": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "asc"
+        },
         "content": {
           "type": "string"
         },
@@ -43,20 +57,6 @@ const getBlogsValidate = ajvBackend.compile({
             "content"
           ],
           "default": "id"
-        },
-        "sortType": {
-          "type": "string",
-          "enum": [
-            "asc",
-            "desc"
-          ],
-          "default": "asc"
-        },
-        "ignoredFields": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/BlogIgnorableField"
-          }
         },
         "ids": {
           "type": "array",
@@ -91,7 +91,7 @@ const getBlogByIdValidate = ajvBackend.compile({
       "type": "object",
       "properties": {
         "id": {
-          "type": "number"
+          "type": "integer"
         }
       },
       "required": [
@@ -181,7 +181,7 @@ const patchBlogValidate = ajvBackend.compile({
       "type": "object",
       "properties": {
         "id": {
-          "type": "number"
+          "type": "integer"
         }
       },
       "required": [
@@ -231,7 +231,7 @@ const deleteBlogValidate = ajvBackend.compile({
       "type": "object",
       "properties": {
         "id": {
-          "type": "number"
+          "type": "integer"
         }
       },
       "required": [
@@ -261,7 +261,7 @@ const downloadBlogValidate = ajvBackend.compile({
       "type": "object",
       "properties": {
         "id": {
-          "type": "number"
+          "type": "integer"
         }
       },
       "required": [
@@ -327,7 +327,7 @@ const getBlogTextValidate = ajvBackend.compile({
       "type": "object",
       "properties": {
         "id": {
-          "type": "number"
+          "type": "integer"
         }
       },
       "required": [
