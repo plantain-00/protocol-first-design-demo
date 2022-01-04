@@ -1,8 +1,7 @@
 /* eslint-disable */
 
-import type { Application } from 'express'
-import { Readable } from 'stream'
-import { ajvBackend, HandleHttpRequest } from 'protocol-based-web-framework'
+import type { Readable } from 'stream'
+import { ajvBackend } from 'protocol-based-web-framework'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
 
 export type GetBlogs = <T extends BlogIgnorableField = never>(req: { query: { skip: number, take: number, ignoredFields?: T[], sortType: "asc" | "desc", content?: string, sortField: "id" | "content", ids?: string[] } }) => Promise<{ result: Omit<Blog, T>[], count: number }>
@@ -17,11 +16,6 @@ export type GetBlogText = (req: { path: { id: number } }) => Promise<string>
 const getBlogsValidate = ajvBackend.compile({
   "type": "object",
   "properties": {
-    "path": {
-      "type": "object",
-      "properties": {},
-      "required": []
-    },
     "query": {
       "type": "object",
       "properties": {
@@ -66,11 +60,6 @@ const getBlogsValidate = ajvBackend.compile({
         }
       },
       "required": []
-    },
-    "body": {
-      "type": "object",
-      "properties": {},
-      "required": []
     }
   },
   "required": [],
@@ -109,11 +98,6 @@ const getBlogByIdValidate = ajvBackend.compile({
         }
       },
       "required": []
-    },
-    "body": {
-      "type": "object",
-      "properties": {},
-      "required": []
     }
   },
   "required": [
@@ -132,11 +116,6 @@ const getBlogByIdValidate = ajvBackend.compile({
 const createBlogValidate = ajvBackend.compile({
   "type": "object",
   "properties": {
-    "path": {
-      "type": "object",
-      "properties": {},
-      "required": []
-    },
     "query": {
       "type": "object",
       "properties": {
@@ -237,16 +216,6 @@ const deleteBlogValidate = ajvBackend.compile({
       "required": [
         "id"
       ]
-    },
-    "query": {
-      "type": "object",
-      "properties": {},
-      "required": []
-    },
-    "body": {
-      "type": "object",
-      "properties": {},
-      "required": []
     }
   },
   "required": [
@@ -276,11 +245,6 @@ const downloadBlogValidate = ajvBackend.compile({
         }
       },
       "required": []
-    },
-    "body": {
-      "type": "object",
-      "properties": {},
-      "required": []
     }
   },
   "required": [
@@ -291,16 +255,6 @@ const downloadBlogValidate = ajvBackend.compile({
 const uploadBlogValidate = ajvBackend.compile({
   "type": "object",
   "properties": {
-    "path": {
-      "type": "object",
-      "properties": {},
-      "required": []
-    },
-    "query": {
-      "type": "object",
-      "properties": {},
-      "required": []
-    },
     "body": {
       "type": "object",
       "properties": {
@@ -333,16 +287,6 @@ const getBlogTextValidate = ajvBackend.compile({
       "required": [
         "id"
       ]
-    },
-    "query": {
-      "type": "object",
-      "properties": {},
-      "required": []
-    },
-    "body": {
-      "type": "object",
-      "properties": {},
-      "required": []
     }
   },
   "required": [
@@ -351,11 +295,85 @@ const getBlogTextValidate = ajvBackend.compile({
   "definitions": {}
 })
 
-export const registerGetBlogs = (app: Application, handleHttpRequest: HandleHttpRequest, handler: GetBlogs) => handleHttpRequest(app, 'get', '/api/blogs', ["blog"], getBlogsValidate, handler)
-export const registerGetBlogById = (app: Application, handleHttpRequest: HandleHttpRequest, handler: GetBlogById) => handleHttpRequest(app, 'get', '/api/blogs/:id', ["blog"], getBlogByIdValidate, handler)
-export const registerCreateBlog = (app: Application, handleHttpRequest: HandleHttpRequest, handler: CreateBlog) => handleHttpRequest(app, 'post', '/api/blogs', ["blog"], createBlogValidate, handler)
-export const registerPatchBlog = (app: Application, handleHttpRequest: HandleHttpRequest, handler: PatchBlog) => handleHttpRequest(app, 'patch', '/api/blogs/:id', ["blog"], patchBlogValidate, handler)
-export const registerDeleteBlog = (app: Application, handleHttpRequest: HandleHttpRequest, handler: DeleteBlog) => handleHttpRequest(app, 'delete', '/api/blogs/:id', ["blog"], deleteBlogValidate, handler)
-export const registerDownloadBlog = (app: Application, handleHttpRequest: HandleHttpRequest, handler: DownloadBlog) => handleHttpRequest(app, 'get', '/api/blogs/:id/download', ["blog"], downloadBlogValidate, handler)
-export const registerUploadBlog = (app: Application, handleHttpRequest: HandleHttpRequest, handler: UploadBlog) => handleHttpRequest(app, 'post', '/api/blogs/upload', ["blog"], uploadBlogValidate, handler)
-export const registerGetBlogText = (app: Application, handleHttpRequest: HandleHttpRequest, handler: GetBlogText) => handleHttpRequest(app, 'get', '/api/blogs/:id/text', ["blog"], getBlogTextValidate, handler)
+export const apiSchemas = [
+  {
+    name: 'GetBlogs',
+    method: 'get' as const,
+    url: '/api/blogs',
+    tags: ["blog"],
+    validate: getBlogsValidate,
+    handler: undefined as ((req: unknown) => Promise<{} | Readable>) | undefined,
+  },
+  {
+    name: 'GetBlogById',
+    method: 'get' as const,
+    url: '/api/blogs/:id',
+    tags: ["blog"],
+    validate: getBlogByIdValidate,
+    handler: undefined as ((req: unknown) => Promise<{} | Readable>) | undefined,
+  },
+  {
+    name: 'CreateBlog',
+    method: 'post' as const,
+    url: '/api/blogs',
+    tags: ["blog"],
+    validate: createBlogValidate,
+    handler: undefined as ((req: unknown) => Promise<{} | Readable>) | undefined,
+  },
+  {
+    name: 'PatchBlog',
+    method: 'patch' as const,
+    url: '/api/blogs/:id',
+    tags: ["blog"],
+    validate: patchBlogValidate,
+    handler: undefined as ((req: unknown) => Promise<{} | Readable>) | undefined,
+  },
+  {
+    name: 'DeleteBlog',
+    method: 'delete' as const,
+    url: '/api/blogs/:id',
+    tags: ["blog"],
+    validate: deleteBlogValidate,
+    handler: undefined as ((req: unknown) => Promise<{} | Readable>) | undefined,
+  },
+  {
+    name: 'DownloadBlog',
+    method: 'get' as const,
+    url: '/api/blogs/:id/download',
+    tags: ["blog"],
+    validate: downloadBlogValidate,
+    handler: undefined as ((req: unknown) => Promise<{} | Readable>) | undefined,
+  },
+  {
+    name: 'UploadBlog',
+    method: 'post' as const,
+    url: '/api/blogs/upload',
+    tags: ["blog"],
+    validate: uploadBlogValidate,
+    handler: undefined as ((req: unknown) => Promise<{} | Readable>) | undefined,
+  },
+  {
+    name: 'GetBlogText',
+    method: 'get' as const,
+    url: '/api/blogs/:id/text',
+    tags: ["blog"],
+    validate: getBlogTextValidate,
+    handler: undefined as ((req: unknown) => Promise<{} | Readable>) | undefined,
+  },
+]
+
+export const bindRestfulApiHandler: {
+  (name: 'GetBlogs', req: GetBlogs): void
+  (name: 'GetBlogById', req: GetBlogById): void
+  (name: 'CreateBlog', req: CreateBlog): void
+  (name: 'PatchBlog', req: PatchBlog): void
+  (name: 'DeleteBlog', req: DeleteBlog): void
+  (name: 'DownloadBlog', req: DownloadBlog): void
+  (name: 'UploadBlog', req: UploadBlog): void
+  (name: 'GetBlogText', req: GetBlogText): void
+} = (name: string, handler: (input: any) => Promise<{} | Readable>) => {
+  const schema = apiSchemas.find((s) => s.name === name)
+  if (schema) {
+    schema.handler = handler
+  }
+}
