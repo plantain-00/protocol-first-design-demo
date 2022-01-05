@@ -3898,10 +3898,10 @@ protobufjs@6, protobufjs@6.11.2:
     "@types/node" ">=13.7.0"
     long "^4.0.0"
 
-protocol-based-web-framework@0.0.10:
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/protocol-based-web-framework/-/protocol-based-web-framework-0.0.10.tgz#4511ca70044ca64dfcb036a0a732ea6304a124c7"
-  integrity sha512-WzPVFrvIPcAYox/4J4cO/i+HXa1R6qmbpDoNNs9Rgh01w1AQKyyiIO5MaQbx18hmRbToV1jGguDtHeNcnTrIzw==
+protocol-based-web-framework@0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/protocol-based-web-framework/-/protocol-based-web-framework-0.0.11.tgz#26156205bf97aeb7c1760faa73e72df0cfabd9f9"
+  integrity sha512-lN2OBiDesEeF0+g9HK8O1OdWtbcrylUICONQH4AqqdttUTYHE7KFK8QF3U8nUJWBQX26G42qI+4G2DUEpq+NWg==
   dependencies:
     ajv "8"
     immer "9"
@@ -4851,10 +4851,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-types-as-schema@1.41.1:
-  version "1.41.1"
-  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.41.1.tgz#a8bdc304e06819284b7287957750e02f3484a505"
-  integrity sha512-aMfcmTi7mlgTqP9WhRGXAXc1F0q1vBtQO1Mr9/YDQ3JMwgR++ID7RVurKJwMaD8pJBwNkQfSDce9qyXP7L4jWw==
+types-as-schema@1.42.0:
+  version "1.42.0"
+  resolved "https://registry.yarnpkg.com/types-as-schema/-/types-as-schema-1.42.0.tgz#55e277dde66cb89d03f8df3105d525612eb048ac"
+  integrity sha512-pIfcWwtlOLWt/adZ16L98aK7iNQl4Dr/cOvFirozcliIxW/80e6N5QgEqbXPEavxeX77W0+GEltYVL/YZXpblw==
   dependencies:
     ajv "7 || 8"
     chokidar "3"

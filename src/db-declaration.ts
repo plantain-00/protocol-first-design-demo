@@ -2,13 +2,13 @@ import { RowFilterOptions, RowSelectOneOptions, RowSelectOptions, getKeys } from
 import { BlogSchema, PostSchema } from "./db-schema"
 
 export type GetRow = {
-  <T extends keyof BlogSchema = never>(tableName: 'blogs', options?: RowSelectOneOptions<BlogSchema> & { ignoredFields?: T[] }): Promise<Omit<BlogSchema, T> | undefined>
-  <T extends keyof PostSchema = never>(tableName: 'posts', options?: RowSelectOneOptions<PostSchema> & { ignoredFields?: T[] }): Promise<Omit<PostSchema, T> | undefined>
+  <TIgnored extends keyof BlogSchema = never, TPicked extends keyof BlogSchema = keyof BlogSchema>(tableName: 'blogs', options?: RowSelectOneOptions<BlogSchema> & { ignoredFields?: TIgnored[], pickedFields?: TPicked[] }): Promise<Omit<Pick<BlogSchema, TPicked>, TIgnored> | undefined>
+  <TIgnored extends keyof PostSchema = never, TPicked extends keyof PostSchema = keyof PostSchema>(tableName: 'posts', options?: RowSelectOneOptions<PostSchema> & { ignoredFields?: TIgnored[], pickedFields?: TPicked[] }): Promise<Omit<Pick<PostSchema, TPicked>, TIgnored> | undefined>
 }
 
 export type SelectRow = {
-  <T extends keyof BlogSchema = never>(tableName: 'blogs', options?: RowSelectOptions<BlogSchema> & { ignoredFields?: T[] }): Promise<Omit<BlogSchema, T>[]>
-  <T extends keyof PostSchema = never>(tableName: 'posts', options?: RowSelectOptions<PostSchema> & { ignoredFields?: T[] }): Promise<Omit<PostSchema, T>[]>
+  <TIgnored extends keyof BlogSchema = never, TPicked extends keyof BlogSchema = keyof BlogSchema>(tableName: 'blogs', options?: RowSelectOptions<BlogSchema> & { ignoredFields?: TIgnored[], pickedFields?: TPicked[] }): Promise<Omit<Pick<BlogSchema, TPicked>, TIgnored>[]>
+  <TIgnored extends keyof PostSchema = never, TPicked extends keyof PostSchema = keyof PostSchema>(tableName: 'posts', options?: RowSelectOptions<PostSchema> & { ignoredFields?: TIgnored[], pickedFields?: TPicked[] }): Promise<Omit<Pick<PostSchema, TPicked>, TIgnored>[]>
 }
 
 export type InsertRow = {

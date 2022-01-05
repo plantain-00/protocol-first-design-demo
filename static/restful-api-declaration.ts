@@ -2,12 +2,12 @@ import { Blog, BlogIgnorableField } from '../src/restful-api-schema'
 import { ajvFrontend } from 'protocol-based-web-framework'
 
 export type RequestRestfulAPI = {
-  <T extends BlogIgnorableField = never>(method: 'GET', url: `/api/blogs`, args?: { query?: { skip?: number, take?: number, ignoredFields?: T[], sortType?: "asc" | "desc", content?: string, sortField?: "id" | "content", ids?: string[] } }): Promise<{ result: Omit<Blog, T>[], count: number }>
-  <T extends BlogIgnorableField = never>(method: 'GET', url: `/api/blogs/${number}`, args?: { query?: { ignoredFields?: T[] } }): Promise<{ result?: Omit<Blog, T> }>
-  <T extends BlogIgnorableField = never>(method: 'GET', url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] } }): Promise<{ result?: Omit<Blog, T> }>
-  <T extends BlogIgnorableField = never>(method: 'POST', url: `/api/blogs`, args: { query?: { ignoredFields?: T[] }, body: { content: string } }): Promise<{ result: Omit<Blog, T> }>
-  <T extends BlogIgnorableField = never>(method: 'PATCH', url: `/api/blogs/${number}`, args?: { query?: { ignoredFields?: T[] }, body?: { content?: string, meta?: unknown } }): Promise<{ result: Omit<Blog, T> }>
-  <T extends BlogIgnorableField = never>(method: 'PATCH', url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] }, body?: { content?: string, meta?: unknown } }): Promise<{ result: Omit<Blog, T> }>
+  <TIgnored extends BlogIgnorableField = never>(method: 'GET', url: `/api/blogs`, args?: { query?: { skip?: number, take?: number, ignoredFields?: TIgnored[], sortType?: "asc" | "desc", content?: string, sortField?: "id" | "content", ids?: string[] } }): Promise<{ result: Omit<Blog, TIgnored>[], count: number }>
+  <TIgnored extends BlogIgnorableField = never>(method: 'GET', url: `/api/blogs/${number}`, args?: { query?: { ignoredFields?: TIgnored[] } }): Promise<{ result?: Omit<Blog, TIgnored> }>
+  <TIgnored extends BlogIgnorableField = never>(method: 'GET', url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: TIgnored[] } }): Promise<{ result?: Omit<Blog, TIgnored> }>
+  <TIgnored extends BlogIgnorableField = never>(method: 'POST', url: `/api/blogs`, args: { query?: { ignoredFields?: TIgnored[] }, body: { content: string } }): Promise<{ result: Omit<Blog, TIgnored> }>
+  <TIgnored extends BlogIgnorableField = never>(method: 'PATCH', url: `/api/blogs/${number}`, args?: { query?: { ignoredFields?: TIgnored[] }, body?: { content?: string, meta?: unknown } }): Promise<{ result: Omit<Blog, TIgnored> }>
+  <TIgnored extends BlogIgnorableField = never>(method: 'PATCH', url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: TIgnored[] }, body?: { content?: string, meta?: unknown } }): Promise<{ result: Omit<Blog, TIgnored> }>
   (method: 'DELETE', url: `/api/blogs/${number}`): Promise<{  }>
   (method: 'DELETE', url: '/api/blogs/{id}', args: { path: { id: number } }): Promise<{  }>
   (method: 'GET', url: `/api/blogs/${number}/download`, args?: { query?: { attachmentFileName?: string } }): Promise<Blob>
@@ -18,12 +18,12 @@ export type RequestRestfulAPI = {
 }
 
 export type GetRequestApiUrl = {
-  <T extends BlogIgnorableField = never>(url: `/api/blogs`, args?: { query?: { skip?: number, take?: number, ignoredFields?: T[], sortType?: "asc" | "desc", content?: string, sortField?: "id" | "content", ids?: string[] } }): string
-  <T extends BlogIgnorableField = never>(url: `/api/blogs/${number}`, args?: { query?: { ignoredFields?: T[] } }): string
-  <T extends BlogIgnorableField = never>(url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] } }): string
-  <T extends BlogIgnorableField = never>(url: `/api/blogs`, args?: { query?: { ignoredFields?: T[] } }): string
-  <T extends BlogIgnorableField = never>(url: `/api/blogs/${number}`, args?: { query?: { ignoredFields?: T[] } }): string
-  <T extends BlogIgnorableField = never>(url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: T[] } }): string
+  <TIgnored extends BlogIgnorableField = never>(url: `/api/blogs`, args?: { query?: { skip?: number, take?: number, ignoredFields?: TIgnored[], sortType?: "asc" | "desc", content?: string, sortField?: "id" | "content", ids?: string[] } }): string
+  <TIgnored extends BlogIgnorableField = never>(url: `/api/blogs/${number}`, args?: { query?: { ignoredFields?: TIgnored[] } }): string
+  <TIgnored extends BlogIgnorableField = never>(url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: TIgnored[] } }): string
+  <TIgnored extends BlogIgnorableField = never>(url: `/api/blogs`, args?: { query?: { ignoredFields?: TIgnored[] } }): string
+  <TIgnored extends BlogIgnorableField = never>(url: `/api/blogs/${number}`, args?: { query?: { ignoredFields?: TIgnored[] } }): string
+  <TIgnored extends BlogIgnorableField = never>(url: '/api/blogs/{id}', args: { path: { id: number }, query?: { ignoredFields?: TIgnored[] } }): string
   (url: `/api/blogs/${number}`): string
   (url: '/api/blogs/{id}', args: { path: { id: number } }): string
   (url: `/api/blogs/${number}/download`, args?: { query?: { attachmentFileName?: string } }): string

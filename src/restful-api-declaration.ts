@@ -4,10 +4,10 @@ import type { Readable } from 'stream'
 import { ajvBackend } from 'protocol-based-web-framework'
 import { Blog, BlogIgnorableField } from './restful-api-schema'
 
-export type GetBlogs = <T extends BlogIgnorableField = never>(req: { query: { skip: number, take: number, ignoredFields?: T[], sortType: "asc" | "desc", content?: string, sortField: "id" | "content", ids?: string[] } }) => Promise<{ result: Omit<Blog, T>[], count: number }>
-export type GetBlogById = <T extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: T[] } }) => Promise<{ result?: Omit<Blog, T> }>
-export type CreateBlog = <T extends BlogIgnorableField = never>(req: { query?: { ignoredFields?: T[] }, body: { content: string } }) => Promise<{ result: Omit<Blog, T> }>
-export type PatchBlog = <T extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: T[] }, body?: { content?: string, meta?: unknown } }) => Promise<{ result: Omit<Blog, T> }>
+export type GetBlogs = <TIgnored extends BlogIgnorableField = never>(req: { query: { skip: number, take: number, ignoredFields?: TIgnored[], sortType: "asc" | "desc", content?: string, sortField: "id" | "content", ids?: string[] } }) => Promise<{ result: Omit<Blog, TIgnored>[], count: number }>
+export type GetBlogById = <TIgnored extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: TIgnored[] } }) => Promise<{ result?: Omit<Blog, TIgnored> }>
+export type CreateBlog = <TIgnored extends BlogIgnorableField = never>(req: { query?: { ignoredFields?: TIgnored[] }, body: { content: string } }) => Promise<{ result: Omit<Blog, TIgnored> }>
+export type PatchBlog = <TIgnored extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: TIgnored[] }, body?: { content?: string, meta?: unknown } }) => Promise<{ result: Omit<Blog, TIgnored> }>
 export type DeleteBlog = (req: { path: { id: number } }) => Promise<{  }>
 export type DownloadBlog = (req: { path: { id: number }, query?: { attachmentFileName?: string } }) => Promise<Readable>
 export type UploadBlog = (req: { body: { file: Readable, id: number } }) => Promise<{  }>
