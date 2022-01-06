@@ -1,34 +1,34 @@
-import { RowFilterOptions, RowSelectOneOptions, RowSelectOptions, getKeys } from "protocol-based-web-framework"
+import { RowFilterOptions, RowSelectOneOptions, RowSelectOptions, getKeys, SqlRawFilter } from "protocol-based-web-framework"
 import { BlogSchema, PostSchema } from "./db-schema"
 
-export type GetRow = {
-  <TIgnored extends keyof BlogSchema = never, TPicked extends keyof BlogSchema = keyof BlogSchema>(tableName: 'blogs', options?: RowSelectOneOptions<BlogSchema> & { ignoredFields?: TIgnored[], pickedFields?: TPicked[] }): Promise<Omit<Pick<BlogSchema, TPicked>, TIgnored> | undefined>
-  <TIgnored extends keyof PostSchema = never, TPicked extends keyof PostSchema = keyof PostSchema>(tableName: 'posts', options?: RowSelectOneOptions<PostSchema> & { ignoredFields?: TIgnored[], pickedFields?: TPicked[] }): Promise<Omit<Pick<PostSchema, TPicked>, TIgnored> | undefined>
+export type GetRow<T = SqlRawFilter> = {
+  <TIgnored extends keyof BlogSchema = never, TPicked extends keyof BlogSchema = keyof BlogSchema>(tableName: 'blogs', options?: RowSelectOneOptions<BlogSchema, T> & { ignoredFields?: TIgnored[], pickedFields?: TPicked[] }): Promise<Omit<Pick<BlogSchema, TPicked>, TIgnored> | undefined>
+  <TIgnored extends keyof PostSchema = never, TPicked extends keyof PostSchema = keyof PostSchema>(tableName: 'posts', options?: RowSelectOneOptions<PostSchema, T> & { ignoredFields?: TIgnored[], pickedFields?: TPicked[] }): Promise<Omit<Pick<PostSchema, TPicked>, TIgnored> | undefined>
 }
 
-export type SelectRow = {
-  <TIgnored extends keyof BlogSchema = never, TPicked extends keyof BlogSchema = keyof BlogSchema>(tableName: 'blogs', options?: RowSelectOptions<BlogSchema> & { ignoredFields?: TIgnored[], pickedFields?: TPicked[] }): Promise<Omit<Pick<BlogSchema, TPicked>, TIgnored>[]>
-  <TIgnored extends keyof PostSchema = never, TPicked extends keyof PostSchema = keyof PostSchema>(tableName: 'posts', options?: RowSelectOptions<PostSchema> & { ignoredFields?: TIgnored[], pickedFields?: TPicked[] }): Promise<Omit<Pick<PostSchema, TPicked>, TIgnored>[]>
+export type SelectRow<T = SqlRawFilter> = {
+  <TIgnored extends keyof BlogSchema = never, TPicked extends keyof BlogSchema = keyof BlogSchema>(tableName: 'blogs', options?: RowSelectOptions<BlogSchema, T> & { ignoredFields?: TIgnored[], pickedFields?: TPicked[] }): Promise<Omit<Pick<BlogSchema, TPicked>, TIgnored>[]>
+  <TIgnored extends keyof PostSchema = never, TPicked extends keyof PostSchema = keyof PostSchema>(tableName: 'posts', options?: RowSelectOptions<PostSchema, T> & { ignoredFields?: TIgnored[], pickedFields?: TPicked[] }): Promise<Omit<Pick<PostSchema, TPicked>, TIgnored>[]>
 }
 
-export type InsertRow = {
-  (tableName: 'blogs', value: BlogSchema): Promise<BlogSchema>
-  (tableName: 'posts', value: PostSchema): Promise<PostSchema>
+export type InsertRow<T = number> = {
+  (tableName: 'blogs', value: BlogSchema): Promise<T>
+  (tableName: 'posts', value: PostSchema): Promise<T>
 }
 
-export type UpdateRow = {
-  (tableName: 'blogs', value?: Partial<BlogSchema>, options?: RowFilterOptions<BlogSchema>): Promise<void>
-  (tableName: 'posts', value?: Partial<PostSchema>, options?: RowFilterOptions<PostSchema>): Promise<void>
+export type UpdateRow<T = SqlRawFilter> = {
+  (tableName: 'blogs', value?: Partial<BlogSchema>, options?: RowFilterOptions<BlogSchema, T>): Promise<number>
+  (tableName: 'posts', value?: Partial<PostSchema>, options?: RowFilterOptions<PostSchema, T>): Promise<number>
 }
 
-export type DeleteRow = {
-  (tableName: 'blogs', options?: RowFilterOptions<BlogSchema>): Promise<void>
-  (tableName: 'posts', options?: RowFilterOptions<PostSchema>): Promise<void>
+export type DeleteRow<T = SqlRawFilter> = {
+  (tableName: 'blogs', options?: RowFilterOptions<BlogSchema, T>): Promise<void>
+  (tableName: 'posts', options?: RowFilterOptions<PostSchema, T>): Promise<void>
 }
 
-export type CountRow = {
-  (tableName: 'blogs', options?: RowFilterOptions<BlogSchema>): Promise<number>
-  (tableName: 'posts', options?: RowFilterOptions<PostSchema>): Promise<number>
+export type CountRow<T = SqlRawFilter> = {
+  (tableName: 'blogs', options?: RowFilterOptions<BlogSchema, T>): Promise<number>
+  (tableName: 'posts', options?: RowFilterOptions<PostSchema, T>): Promise<number>
 }
 
 export const tableSchemas = {

@@ -41,13 +41,14 @@ export function startGraphqlApi(app: express.Application) {
     },
     createBlog: async ({ content }, req) => {
       await authorized(req, ['blog'])
-      const blog = await insertRow('blogs', {
+      const blog = {
         id: 3,
         content,
         meta: {
           baz: 222
         },
-      })
+      }
+      await insertRow('blogs', blog)
       return {
         result: { ...blog, content: () => blog.content, posts: () => [] }
       }

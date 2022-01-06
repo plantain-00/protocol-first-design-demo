@@ -67,13 +67,14 @@ export const createBlog: CreateBlog = async ({ query, body: { content } }) => {
   if (!content) {
     throw new HttpError('invalid parameter: content', 400)
   }
-  const blog = await insertRow('blogs', {
+  const blog = {
     id: generateId(),
     content,
     meta: {
       baz: 222
     },
-  })
+  }
+  await insertRow('blogs', blog)
   return {
     result: await getBlogWithoutIngoredFields(blog, query?.ignoredFields)
   }
