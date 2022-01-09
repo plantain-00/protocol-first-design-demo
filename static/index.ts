@@ -1,6 +1,6 @@
 import { createApp, defineComponent } from 'vue'
 import * as protobuf from 'protobufjs'
-import { ApiAccessorFetch } from 'protocol-based-web-framework'
+import { ApiAccessorFetch, composeUrl } from 'protocol-based-web-framework'
 import { indexTemplateHtml, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
 import { ResolveResult } from '../src/generated/root'
 import { RequestRestfulAPI, GetRequestApiUrl, validations } from './restful-api-declaration'
@@ -29,7 +29,7 @@ async function fetchGraphql<T>(query: string, variables = {}) {
 
 const apiAccessor = new ApiAccessorFetch(validations)
 
-const getRequestApiUrl: GetRequestApiUrl = apiAccessor.composeUrl
+const getRequestApiUrl: GetRequestApiUrl = composeUrl
 
 const requestRestfulAPI: RequestRestfulAPI = apiAccessor.requestRestfulAPI
 

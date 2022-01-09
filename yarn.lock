@@ -3898,10 +3898,10 @@ protobufjs@6, protobufjs@6.11.2:
     "@types/node" ">=13.7.0"
     long "^4.0.0"
 
-protocol-based-web-framework@0.0.12:
-  version "0.0.12"
-  resolved "https://registry.yarnpkg.com/protocol-based-web-framework/-/protocol-based-web-framework-0.0.12.tgz#3f70d5b8446dd727024594325d9858fd7b36c7b3"
-  integrity sha512-dcy8g9MscPEvBJHK+DKi0FC83RITwrhK/uxlM4e/ia7K+yRW/jh63VOu5vj8qydMwBdMyp51bp2oxQfiJZ/Mxw==
+protocol-based-web-framework@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/protocol-based-web-framework/-/protocol-based-web-framework-1.0.0.tgz#0c53ecce9135d0f00528c22784407df7b36a7fc0"
+  integrity sha512-qdW7VrQrNMi1Gp8MIME9NJedKz1GdjrzPLEgiIth51DLxfcYOJpKagf8DsuK6bNQlO6hp0UYb89DguVVRcz4lw==
   dependencies:
     ajv "8"
     immer "9"
