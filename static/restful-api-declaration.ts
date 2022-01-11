@@ -1,5 +1,6 @@
 import { Blog, BlogIgnorableField } from '../src/restful-api-schema'
 import { ajvFrontend } from 'protocol-based-web-framework'
+import type { Readable } from 'stream'
 
 export type RequestRestfulAPI = {
   <TIgnored extends BlogIgnorableField = never>(method: 'GET', url: `/api/blogs`, args?: { query?: { skip?: number, take?: number, ignoredFields?: TIgnored[], sortType?: "asc" | "desc", content?: string, sortField?: "id" | "content", ids?: string[] } }): Promise<{ result: Omit<Blog, TIgnored>[], count: number }>
@@ -12,7 +13,7 @@ export type RequestRestfulAPI = {
   (method: 'DELETE', url: '/api/blogs/{id}', args: { path: { id: number } }): Promise<{  }>
   (method: 'GET', url: `/api/blogs/${number}/download`, args?: { query?: { attachmentFileName?: string } }): Promise<Blob>
   (method: 'GET', url: '/api/blogs/{id}/download', args: { path: { id: number }, query?: { attachmentFileName?: string } }): Promise<Blob>
-  (method: 'POST', url: `/api/blogs/upload`, args: { body: { file: File, id: number } }): Promise<{  }>
+  (method: 'POST', url: `/api/blogs/upload`, args: { body: { file: File | Buffer | Readable, id: number } }): Promise<{  }>
   (method: 'GET', url: `/api/blogs/${number}/text`): Promise<string>
   (method: 'GET', url: '/api/blogs/{id}/text', args: { path: { id: number } }): Promise<string>
 }
@@ -302,6 +303,7 @@ export const validations = [
     omittedReferences: ['Blog'] as string[],
     validate: ajvFrontend.compile(getBlogsJsonSchema),
     urlPattern: undefined as RegExp | undefined,
+    responseType: 'json' as 'json' | 'text' | 'blob',
   },
   {
     url: '/api/blogs/{id}',
@@ -309,7 +311,8 @@ export const validations = [
     schema: getBlogByIdJsonSchema,
     omittedReferences: ['Blog'] as string[],
     validate: ajvFrontend.compile(getBlogByIdJsonSchema),
-    urlPattern: new RegExp(/^\/api\/blogs\/.+$/) as RegExp | undefined,
+    urlPattern: new RegExp(/^\/api\/blogs\/[^\\/]+$/) as RegExp | undefined,
+    responseType: 'json' as 'json' | 'text' | 'blob',
   },
   {
     url: '/api/blogs',
@@ -318,6 +321,7 @@ export const validations = [
     omittedReferences: ['Blog'] as string[],
     validate: ajvFrontend.compile(createBlogJsonSchema),
     urlPattern: undefined as RegExp | undefined,
+    responseType: 'json' as 'json' | 'text' | 'blob',
   },
   {
     url: '/api/blogs/{id}',
@@ -325,7 +329,8 @@ export const validations = [
     schema: patchBlogJsonSchema,
     omittedReferences: ['Blog'] as string[],
     validate: ajvFrontend.compile(patchBlogJsonSchema),
-    urlPattern: new RegExp(/^\/api\/blogs\/.+$/) as RegExp | undefined,
+    urlPattern: new RegExp(/^\/api\/blogs\/[^\\/]+$/) as RegExp | undefined,
+    responseType: 'json' as 'json' | 'text' | 'blob',
   },
   {
     url: '/api/blogs/{id}',
@@ -333,7 +338,8 @@ export const validations = [
     schema: deleteBlogJsonSchema,
     omittedReferences: [] as string[],
     validate: ajvFrontend.compile(deleteBlogJsonSchema),
-    urlPattern: new RegExp(/^\/api\/blogs\/.+$/) as RegExp | undefined,
+    urlPattern: new RegExp(/^\/api\/blogs\/[^\\/]+$/) as RegExp | undefined,
+    responseType: 'json' as 'json' | 'text' | 'blob',
   },
   {
     url: '/api/blogs/{id}/download',
@@ -341,7 +347,8 @@ export const validations = [
     schema: downloadBlogJsonSchema,
     omittedReferences: [] as string[],
     validate: ajvFrontend.compile(downloadBlogJsonSchema),
-    urlPattern: new RegExp(/^\/api\/blogs\/.+\/download$/) as RegExp | undefined,
+    urlPattern: new RegExp(/^\/api\/blogs\/[^\\/]+\/download$/) as RegExp | undefined,
+    responseType: 'blob' as 'json' | 'text' | 'blob',
   },
   {
     url: '/api/blogs/upload',
@@ -350,6 +357,7 @@ export const validations = [
     omittedReferences: [] as string[],
     validate: ajvFrontend.compile(uploadBlogJsonSchema),
     urlPattern: undefined as RegExp | undefined,
+    responseType: 'json' as 'json' | 'text' | 'blob',
   },
   {
     url: '/api/blogs/{id}/text',
@@ -357,6 +365,7 @@ export const validations = [
     schema: getBlogTextJsonSchema,
     omittedReferences: [] as string[],
     validate: ajvFrontend.compile(getBlogTextJsonSchema),
-    urlPattern: new RegExp(/^\/api\/blogs\/.+\/text$/) as RegExp | undefined,
+    urlPattern: new RegExp(/^\/api\/blogs\/[^\\/]+\/text$/) as RegExp | undefined,
+    responseType: 'text' as 'json' | 'text' | 'blob',
   },
 ]
