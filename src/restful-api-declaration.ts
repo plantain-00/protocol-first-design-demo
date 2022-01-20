@@ -2,7 +2,7 @@
 
 import type { Readable } from 'stream'
 import { ajvBackend } from 'protocol-based-web-framework'
-import { Blog, BlogIgnorableField } from './restful-api-schema'
+import { Blog, BlogIgnorableField } from "./restful-api-schema"
 
 export type GetBlogs = <TIgnored extends BlogIgnorableField = never>(req: { query: { skip: number, take: number, ignoredFields?: TIgnored[], sortType: "asc" | "desc", content?: string, sortField: "id" | "content", ids?: string[] } }) => Promise<{ result: Omit<Blog, TIgnored>[], count: number }>
 export type GetBlogById = <TIgnored extends BlogIgnorableField = never>(req: { path: { id: number }, query?: { ignoredFields?: TIgnored[] } }) => Promise<{ result?: Omit<Blog, TIgnored> }>
