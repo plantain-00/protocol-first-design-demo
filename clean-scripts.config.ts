@@ -50,7 +50,7 @@ export default {
     typeCoverageStatic: 'type-coverage -p static --strict --ignore-files static/variables.ts'
   },
   test: {
-    unit: 'TS_NODE_PROJECT="./src/tsconfig.json" ava --update-snapshots',
+    unit: 'TS_NODE_PROJECT="./src/tsconfig.json" ava',
     start: new Program('clean-release --config clean-run.config.ts', 30000)
   },
   fix: {
