@@ -4,13 +4,14 @@ import * as path from 'path'
 import stream from 'stream'
 import multer from 'multer'
 
-import { countRow, deleteRow, getRow, insertRow, selectRow, updateRow } from './db-access'
-import { authorized, HttpError } from './auth'
-import { apiSchemas, bindRestfulApiHandler, CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, GetBlogText, PatchBlog, UploadBlog } from './restful-api-declaration'
-import { Blog, BlogIgnorableField } from './restful-api-schema'
-import { RowFilterOptions, getAndValidateRequestInput, respondHandleResult } from 'protocol-based-web-framework'
-import { BlogSchema } from './db-schema'
-import { tableSchemas } from './db-declaration'
+import { countRow, deleteRow, getRow, insertRow, selectRow, updateRow } from './db-access.js'
+import { authorized, HttpError } from './auth.js'
+import { apiSchemas, bindRestfulApiHandler, CreateBlog, DeleteBlog, DownloadBlog, GetBlogById, GetBlogs, GetBlogText, PatchBlog, UploadBlog } from './restful-api-declaration.js'
+import { Blog, BlogIgnorableField } from './restful-api-schema.js'
+import { RowFilterOptions } from '@protocol-based-web-framework/db'
+import { getAndValidateRequestInput, respondHandleResult } from '@protocol-based-web-framework/restful-api-provider'
+import { BlogSchema } from './db-schema.js'
+import { tableSchemas } from './db-declaration.js'
 
 const getBlogs: GetBlogs = async ({ query: { sortField, sortType, content, skip, take, ignoredFields } }) => {
   const filter: RowFilterOptions<BlogSchema> = {

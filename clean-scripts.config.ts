@@ -1,5 +1,6 @@
 import { executeScriptAsync, Program } from 'clean-scripts'
 import { watch } from 'watch-then-execute'
+import * as fs from 'fs'
 
 const tsFiles = `"src/**/*.ts" "static/**/*.ts"`
 const lessFiles = `"static/**/*.less"`
@@ -20,7 +21,8 @@ export default {
   build: {
     back: [
       'rimraf dist/',
-      tscSrcCommand
+      tscSrcCommand,
+      () => fs.copyFileSync('./src/package.json', './dist/package.json'),
     ],
     front: [
       {
@@ -48,7 +50,7 @@ export default {
     typeCoverageStatic: 'type-coverage -p static --strict --ignore-files static/variables.ts'
   },
   test: {
-    unit: 'ava',
+    unit: 'TS_NODE_PROJECT="./src/tsconfig.json" ava --update-snapshots',
     start: new Program('clean-release --config clean-run.config.ts', 30000)
   },
   fix: {

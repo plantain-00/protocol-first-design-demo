@@ -1,6 +1,7 @@
 export default {
   include: [
     'dist/*.js',
+    'dist/package.json',
     'static/*.bundle-*.js',
     'static/index.html',
     'LICENSE',

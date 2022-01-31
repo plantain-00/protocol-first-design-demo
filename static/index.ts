@@ -1,6 +1,6 @@
 import { createApp, defineComponent } from 'vue'
 import * as protobuf from 'protobufjs'
-import { ApiAccessorFetch, composeUrl } from 'protocol-based-web-framework'
+import { ApiAccessorFetch, composeUrl } from '@protocol-based-web-framework/restful-api-consumer'
 import { indexTemplateHtml, gqlBlogsGql, gqlBlogGql, gqlCreateBlogGql } from './variables'
 import { ResolveResult } from '../src/generated/root'
 import { RequestRestfulAPI, GetRequestApiUrl, validations } from './restful-api-declaration'

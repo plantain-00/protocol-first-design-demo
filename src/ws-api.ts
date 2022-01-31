@@ -1,18 +1,18 @@
 import * as express from 'express'
 import * as http from 'http'
-import * as WebSocket from 'ws'
+import { WebSocketServer } from 'ws'
 import Ajv from 'ajv'
-import * as protobuf from 'protobufjs'
-import { verify } from './auth'
-import { WsCommand, WsPush } from './ws-api-schema'
-import { srcGeneratedWsCommandJson, srcGeneratedWsProto } from './generated/variables'
+import protobuf from 'protobufjs'
+import { verify } from './auth.js'
+import { WsCommand, WsPush } from './ws-api-schema.js'
+import { srcGeneratedWsCommandJson, srcGeneratedWsProto } from './generated/variables.js'
 
 const ajv = new Ajv()
 const validateWsCommand = ajv.compile(srcGeneratedWsCommandJson)
 
 export function startWsApi(app: express.Application) {
   const server = http.createServer()
-  const wss = new WebSocket.Server({ server })
+  const wss = new WebSocketServer({ server })
 
   const root = protobuf.Root.fromJSON(srcGeneratedWsProto)
   const commandType = root.lookup('WsCommand') as protobuf.Type

@@ -1,12 +1,12 @@
 import express from 'express'
 import * as path from 'path'
-import * as bodyParser from 'body-parser'
+import bodyParser from 'body-parser'
 
-import { startRestfulApi } from './restful-api'
-import { startGraphqlApi } from './graphql-api'
-import { startWsApi } from './ws-api'
-import { verify } from './auth'
-import { intializeDatabase } from './db-access'
+import { startRestfulApi } from './restful-api.js'
+import { startGraphqlApi } from './graphql-api.js'
+import { startWsApi } from './ws-api.js'
+import { verify } from './auth.js'
+import './db-access.js'
 
 function printInConsole(message: string) {
   console.log(message)
@@ -15,7 +15,7 @@ function printInConsole(message: string) {
 const app = express()
 
 app.use(bodyParser.json())
-app.use(express.static(path.resolve(__dirname, '../static')))
+app.use(express.static(path.resolve('./static')))
 
 app.use((req: Request, res: express.Response<{}>, next) => {
   const user = verify(req.headers.cookie)
@@ -26,8 +26,6 @@ app.use((req: Request, res: express.Response<{}>, next) => {
     res.status(403).end()
   }
 })
-
-intializeDatabase()
 
 startGraphqlApi(app)
 startRestfulApi(app)

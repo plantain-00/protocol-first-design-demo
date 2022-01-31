@@ -1,5 +1,5 @@
 import * as cookie from 'cookie'
-import { Request } from '.'
+import type { Request } from '.'
 
 export function verify(cookieString: string | string[] | undefined) {
   if (cookieString) {

@@ -1,4 +1,4 @@
-import { RowFilterOptions, RowSelectOneOptions, RowSelectOptions, getKeys, SqlRawFilter } from "protocol-based-web-framework"
+import { RowFilterOptions, RowSelectOneOptions, RowSelectOptions, SqlRawFilter, getKeys } from "@protocol-based-web-framework/db"
 import { BlogSchema, PostSchema } from "./db-schema"
 
 export interface GetRow<T = SqlRawFilter> {

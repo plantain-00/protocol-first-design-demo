@@ -2,10 +2,10 @@ import * as express from 'express'
 import { graphqlHTTP } from 'express-graphql'
 import { buildSchema } from 'graphql'
 
-import { countRow, getRow, insertRow, selectRow } from './db-access'
-import { srcGeneratedDataGql } from './generated/variables'
+import { countRow, getRow, insertRow, selectRow } from './db-access.js'
+import { srcGeneratedDataGql } from './generated/variables.js'
 import { Root } from './generated/root'
-import { authorized } from './auth'
+import { authorized } from './auth.js'
 import { Request } from '.'
 
 export function startGraphqlApi(app: express.Application) {

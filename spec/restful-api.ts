@@ -1,13 +1,11 @@
 import test from 'ava'
-import { intializeDatabase } from '../src/db-access'
+import '../src/db-access.js'
 
-import { createBlog, mockGeneratedId } from '../src/restful-api'
+import { createBlog, mockGeneratedId } from '../src/restful-api.js'
 
 mockGeneratedId(() => 3)
 
 test('create blog', async (t) => {
-  await intializeDatabase()
-
   const blog = await createBlog({
     body: {
       content: 'test'

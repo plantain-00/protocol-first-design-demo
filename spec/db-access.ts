@@ -1,9 +1,7 @@
 import test from 'ava'
-import { intializeDatabase, selectRow } from '../src/db-access'
+import { selectRow } from '../src/db-access.js'
 
 test('select rows', async (t) => {
-  await intializeDatabase()
-
   const blog = await selectRow('blogs', {
   })
   t.snapshot(blog)
